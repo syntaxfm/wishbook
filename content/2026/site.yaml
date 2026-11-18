@@ -1,5 +1,13 @@
 episode:
   title: Syntax Holiday Gift Guide
+meta:
+  description: "The Internet's Largest Developer Gift Catalogue: {count} gifts picked by the Syntax crew."
+links:
+  buy: Buy
+  maker: Maker
+  missingBuy: Buy link TBA
+  missingMaker: Maker link TBA
+  disclosure: "Some Buy links are affiliate links: Syntax may earn a small commission when you buy through them, at no extra cost to you."
 cover:
   price: FREE
   tagline: The Internet's Largest Developer Gift Catalogue

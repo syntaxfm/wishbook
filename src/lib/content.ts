@@ -165,6 +165,14 @@ export interface AssetEntry {
 
 export interface Site {
   episode: { number: number | null; title: string | null; videoUrl: string | null };
+  meta: { description: string | null };
+  links: {
+    buy: string | null;
+    maker: string | null;
+    missingBuy: string | null;
+    missingMaker: string | null;
+    disclosure: string | null;
+  };
   cover: { price: string | null; tagline: string | null; note: string | null };
   welcome: {
     title: string | null;
@@ -513,6 +521,14 @@ async function loadEdition(root: string, edition: number): Promise<EditionConten
       number: s.episode.number,
       title: opt(s.episode.title),
       videoUrl: s.episode.videoUrl,
+    },
+    meta: { description: opt(s.meta.description) },
+    links: {
+      buy: opt(s.links.buy),
+      maker: opt(s.links.maker),
+      missingBuy: opt(s.links.missingBuy),
+      missingMaker: opt(s.links.missingMaker),
+      disclosure: opt(s.links.disclosure),
     },
     cover: { price: opt(s.cover.price), tagline: opt(s.cover.tagline), note: opt(s.cover.note) },
     welcome: {
