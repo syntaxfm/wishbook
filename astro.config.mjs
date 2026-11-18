@@ -6,8 +6,24 @@ import { SITE_URL } from "./src/lib/urls.ts";
 // only. The production build is always plain static files with no admin routes.
 const isDev = process.argv.includes("dev");
 
+// The design system showcase is also dev-only: the route is injected only here,
+// so the production build never sees it.
+/** @type {import("astro").AstroIntegration} */
+const showcase = {
+  name: "wishbook-design-showcase",
+  hooks: {
+    "astro:config:setup": ({ injectRoute }) => {
+      injectRoute({ pattern: "/dev/design-system", entrypoint: "./src/dev/Showcase.astro" });
+    },
+  },
+};
+
 const devIntegrations = isDev
-  ? [(await import("@astrojs/react")).default(), (await import("@keystatic/astro")).default()]
+  ? [
+      (await import("@astrojs/react")).default(),
+      (await import("@keystatic/astro")).default(),
+      showcase,
+    ]
   : [];
 
 export default defineConfig({
