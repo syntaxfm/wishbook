@@ -1,0 +1,34 @@
+name: SHARGE ICEMAG 3
+id: 2
+shortName: The ICEMAG 3
+indexName: Power bank, SHARGE
+brand: Sharge
+section: favorites
+pickedBy:
+  - wes
+isNew: true
+priceEstimate: 67.9
+priceNote: Regularly 79.90
+makerLink: https://sharge.com/pages/icemag-3
+sources:
+  - https://sharge.com/pages/icemag-3
+description: "power bank with MagSafe, a built-in fan, a kickstand, and RGB you can turn off. **See {page:icemag}.**"
+altDescriptions:
+  - "A MagSafe power bank with a built-in fan, a kickstand, and RGB you can turn off if you're a grown-up."
+  - "It snaps onto your phone, keeps it cool with a tiny fan, and props it up. A power bank with a bit of attitude."
+  - "Cheesy lights, real cooling, solid charging. Three features, one clip-on battery."
+features:
+  - lead: Built-in cooling fan
+    text: "keeps your phone from cooking while it charges."
+  - lead: Fold-out kickstand
+    text: "for video calls and YouTube on the plane."
+  - lead: RGB lighting
+    text: "for people who aren't grown-ups (it can be turned off)."
+  - lead: USB-C
+    text: 'in and out, plus a little lanyard "dangler."'
+quotes:
+  - text: "It's got this like cheesy lighting on here… there's a fan built into it, it's got a little kickstand… I absolutely love it."
+    by: wes
+image:
+  alt: SHARGE ICEMAG 3 power bank
+  background: dark

@@ -84,6 +84,8 @@ export interface Item {
   section: Section;
   pickedBy: Host[];
   isNew: boolean;
+  /** Only mentioned in passing: not a pick, not counted in {count}. */
+  mention: boolean;
   price: Price;
   buyLink: string | null;
   makerLink: string | null;
@@ -106,6 +108,8 @@ export interface PageItem {
   /** Photo suffix: null for the main photo, "2", "3", or "hero". */
   photo: string | null;
   caption: string | null;
+  /** Copy that replaces the item description on this page. */
+  text: string | null;
   badge: string | null;
   group: string | null;
 }
@@ -181,6 +185,8 @@ export interface Site {
     indicia: string[];
     mailingLabel: string[];
   };
+  /** Copy for automatically inserted filler pages, used in order and repeated. */
+  fillers: { title: string; text: string | null; art: string | null }[];
 }
 
 export interface Global {
@@ -246,6 +252,11 @@ function walkStrings(value: unknown, visit: (s: string, path: string) => void, p
 /** Seconds into the episode for a validated timestamp ("36:41", "1:02:34"). */
 export function timestampSeconds(time: string): number {
   return time.split(":").reduce((acc, part) => acc * 60 + Number(part), 0);
+}
+
+/** The number of gifts in an edition, as {count} renders it: items that aren't just mentions. */
+export function pickCount(items: readonly Pick<Item, "mention">[]): number {
+  return items.filter((i) => !i.mention).length;
 }
 
 /** The price to print: confirmed if set, else the estimate (marked), else the label. */
@@ -407,6 +418,7 @@ async function loadEdition(root: string, edition: number): Promise<EditionConten
       section: section ?? sections[0]!,
       pickedBy: raw.pickedBy.flatMap((h) => host(file, h, "pickedBy") ?? []),
       isNew: raw.isNew,
+      mention: raw.mention,
       price: {
         confirmed: raw.priceConfirmed,
         estimate: raw.priceEstimate,
@@ -530,7 +542,12 @@ async function loadEdition(root: string, edition: number): Promise<EditionConten
       indicia: [...s.backCover.indicia],
       mailingLabel: [...s.backCover.mailingLabel],
     },
+    fillers: s.fillers.map((f) => ({ title: f.title, text: opt(f.text), art: opt(f.art) })),
   };
+  for (const [i, f] of site.fillers.entries()) {
+    const problem = f.art && artKeyProblem(f.art);
+    if (problem) fail(`${siteFile} fillers[${i}]`, problem);
+  }
 
   // Book
   const bookFile = `${dir}/book.yaml`;
@@ -565,6 +582,7 @@ async function loadEdition(root: string, edition: number): Promise<EditionConten
                 item: found,
                 photo: opt(pi.photo),
                 caption: opt(pi.caption),
+                text: opt(pi.text),
                 badge: opt(pi.badge),
                 group: opt(pi.group),
               },

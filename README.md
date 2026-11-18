@@ -50,6 +50,7 @@ pnpm preview      # serve the built site
 | `pnpm test`     | Unit tests (Vitest)                                                |
 | `pnpm test:e2e` | Browser tests (Playwright)                                         |
 | `pnpm assets`   | List expected assets for the current edition, present or missing   |
+| `pnpm links`    | List items still missing a buy or maker link                       |
 | `pnpm textures` | Re-bake the paper, print, and wood texture tiles                   |
 
 ## URLs and editions
@@ -80,15 +81,15 @@ Everything editable lives in `content/` as YAML. Edit it in the browser with Key
 
 In each edition (`content/<year>/`):
 
-- **Items** (`items/*.yaml`): one file per gift, with id, name, picker, section, prices, buy and maker links, descriptions, variants, and quotes. Item ids are permanent and never reused.
+- **Items** (`items/*.yaml`): one file per gift, with id, name, picker, section, prices, buy and maker links, descriptions, variants, and quotes. Item ids are permanent and never reused. Items "mentioned in passing" (the stocking-stuffers page) are marked as mentions and aren't counted as gifts.
 - **Hosts** (`hosts/*.yaml`): the shoppers, with role, bio, and their picks page.
-- **Book order** (`book.yaml`): which pages exist, in what order, which layout each uses, which items they show, and their copy. Page numbers, filler pages, and cross-references are all computed from this.
+- **Book order** (`book.yaml`): which pages exist, in what order, which layout each uses, which items they show (optionally with page-specific copy), and their copy. Page numbers, filler pages, and cross-references are all computed from this.
 - **Sections** (`sections.yaml`): the thumb-index sections, in order.
 - **Timestamps** (`timestamps.yaml`): the one file mapping each item to its moment in the episode. Update it when the final video is published.
-- **Site settings** (`site.yaml`): episode, cover band, welcome page, symbol key, order lines, back cover.
-- **Generated art** (`assets.yaml`): each generated image's key, file, placeholder title and color, and prompt.
+- **Site settings** (`site.yaml`): episode, cover band, welcome page, symbol key, order lines, back cover, and the copy for automatic filler pages.
+- **Generated art** (`assets.yaml`): each generated image's key, file, placeholder title and color, aspect, prompt, and source item. `pnpm assets` lists which of them still need making.
 
-In copy, write `{page:icemag}` for a page reference (rendered "page 6 A"), `{syn:leatherman}` for a catalog number, `{count}` for the number of gifts, `{phone}` for the phone number, and `**bold**` / `*italic*` for emphasis.
+In copy, write `{page:icemag}` for a page reference (rendered "page 6 A"), `{syn:leatherman-arc}` for a catalog number, `{count}` for the number of gifts, `{phone}` for the phone number, and `**bold**` / `*italic*` for emphasis.
 
 Missing or invalid content fails the build with a clear error.
 

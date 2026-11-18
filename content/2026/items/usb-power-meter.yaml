@@ -1,0 +1,25 @@
+name: USB Power Meter
+id: 3
+indexName: Power meter, USB
+section: favorites
+pickedBy:
+  - wes
+priceEstimate: 26.95
+makerLink: https://www.plugable.com/products/usbc-vameter
+sources:
+  - https://www.plugable.com/products/usbc-vameter
+headline: Charging, or Dead?
+description: "shows volts, amps and watts. Lightning adapter not included (we threw it out)."
+altDescriptions:
+  - "Is that sketchy cable from China any good? Plug this in and find out. It shows volts, amps, and watts."
+  - "`console.log()` for your USB ports. Find out if a dead phone is pulling power or if your cable is lying to you."
+  - "USB-A, USB-C, and an honest answer every time. (The Lightning adapter went in the trash. It's not 2019.)"
+  - "Under $30 and it tells you if a gadget is charging or dead. Worth it."
+  - "Buy cheap chargers with confidence. This tells you if they actually work."
+  - "Debug your power supply. Volts, amps, watts, no guessing."
+quotes:
+  - text: "You buy sketchy cables from China like I do… are they any good, right?"
+    by: wes
+  - text: "There's a Lightning one, I threw it out because nobody is [using] Lightning anymore."
+    by: wes
+internalNote: "Generic category. Plugable is USB-C only ($26.95); a combined USB-A + USB-C tester is a generic Amazon item (~$10–20). Shown twice: Wes's favorites and Under $30 (the encore at about 20:29)."

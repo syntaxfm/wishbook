@@ -1,0 +1,26 @@
+name: Funistree Candle Warmer Lamp
+id: 47
+shortName: Candle warmer lamp
+indexName: Candle warmer
+brand: Funistree
+section: wild-card
+pickedBy:
+  - scott
+priceEstimate: 15.99
+buyLink: https://link.amazon/B05tDBZYD
+sources:
+  - https://www.amazon.com/dp/B0DWMSJS35
+headline: Why Are We Lighting Tiny Fires?
+description: "Candle warmer lamp with a timer and adjustable height. Your office smells great, with no flame.\n\nScott uses his every single day."
+altDescriptions:
+  - "Why light tiny fires in your house? Use electricity. About $16 with a timer and adjustable height."
+  - "Your office smells great with no flame, and candles last much longer. Scott uses his every day."
+  - "Candle vibes without the prom-dress-on-fire risk."
+quotes:
+  - text: "Why are we lighting tiny fires in our home [when] we can use electricity?"
+    by: scott
+    placement: "on"
+  - text: "I use it every single day."
+    by: scott
+    placement: "on"
+internalNote: "~$16. The photo is a lifestyle shot; the exact model is unconfirmed."

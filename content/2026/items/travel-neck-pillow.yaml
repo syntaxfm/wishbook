@@ -1,0 +1,23 @@
+name: Travel Neck Pillow
+id: 5
+indexName: Travel pillow
+section: favorites
+pickedBy:
+  - niki
+priceEstimate: 49.99
+makerLink: https://trtltravel.com/products/trtl-travel-pillow?country=US
+sources:
+  - https://trtltravel.com/products/trtl-travel-pillow?country=US
+  - https://www.trtltravel.com/products/trtl-pillow-plus
+headline: Lean On Me.
+description: "A travel pillow that sits beside your neck instead of around it. Strap it on, lean over, and sleep. Very, very soft."
+altDescriptions:
+  - "Not your basic neck pillow. It sits beside your neck so you can lean on it. Field-tested at 30,000 feet."
+  - "For people who feel choked by the usual horseshoe pillow. This one's very, very soft, and the whole crew wanted to try it."
+  - 'Better airplane naps. Strap in, lean over, sleep. "Wow, that''s so comfortable." – Everyone at the table'
+quotes:
+  - text: "It's not the ordinary neck pillow… you can basically just put it next to your neck and just lean on to it."
+    by: niki
+  - text: "If you can get into it in a nice position, you can actually get a good amount of sleep on it. I tested it on the way here."
+    by: niki
+internalNote: "Most likely a Trtl Pillow (~$44–60; Pillow Plus ~$45–75), but confirm the exact product with Niki."

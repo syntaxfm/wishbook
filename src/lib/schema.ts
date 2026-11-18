@@ -187,6 +187,11 @@ export function createKeystaticConfig(edition: number) {
       }),
       pickedBy: fields.multiRelationship({ label: "Picked by", collection: "hosts" }),
       isNew: fields.checkbox({ label: "NEW", description: "Shows the NEW banner." }),
+      mention: fields.checkbox({
+        label: "Mentioned in passing",
+        description:
+          "Not a real pick, just mentioned (stocking stuffers, odds and ends). Not counted in the number of gifts.",
+      }),
       priceConfirmed: price("Price (confirmed)", "Shown as is when set."),
       priceEstimate: price(
         "Price (estimate)",
@@ -442,6 +447,19 @@ export function createKeystaticConfig(edition: number) {
         },
         { label: "Back cover" },
       ),
+      fillers: fields.array(
+        fields.object({
+          title: fields.text({ label: "Title", validation: { isRequired: true } }),
+          text: copyArea("Text"),
+          art: assetKey("Art", "Asset key from the assets manifest, e.g. a grouse cameo."),
+        }),
+        {
+          label: "Filler pages",
+          description:
+            "Pages inserted automatically to keep spreads on the right sides. Used in order, then repeated.",
+          itemLabel: (props) => props.fields.title.value || "Filler",
+        },
+      ),
     },
   });
 
@@ -528,6 +546,10 @@ export function createKeystaticConfig(edition: number) {
                 },
               }),
               caption: copyText("Caption", '"(A) Wes\'s 65W".'),
+              text: copyArea(
+                "Copy on this page",
+                "Replaces the item description on this page only, e.g. a second appearance.",
+              ),
               badge: optionalText("Badge", '"FREE Ship-A-Link®", "No monthly fee".'),
               group: optionalText(
                 "Group",

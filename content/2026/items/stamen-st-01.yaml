@@ -1,0 +1,28 @@
+name: STAMEN ST-01 Beard Trimmer
+id: 9
+indexName: Beard trimmer, STAMEN
+brand: STAMEN
+section: favorites
+pickedBy:
+  - scott
+isNew: true
+priceEstimate: 149.99
+makerLink: https://stamen.co/products/st-01-all-purpose-trimmer-charcoal
+sources:
+  - https://stamen.co/products/st-01-all-purpose-trimmer-charcoal
+description: "One attachment for every length. Waterproof, USB-C, magnetic clip."
+altDescriptions:
+  - "One attachment for every length, USB-C charging, and it's waterproof. Scott tried 8,000 trimmers so you don't have to."
+  - "Tiny, retro, and very well made. It's the only product the company makes, and they made it well."
+  - "No bag of attachments to lose. Just a great trimmer with a magnetic clip and a USB-C port."
+quotes:
+  - text: "I've bought a beard trimmer like a whole bunch of times and I've never had a good one."
+    by: scott
+    placement: "on"
+  - text: "There's just one [attachment] for all the lengths."
+    by: scott
+    placement: "on"
+  - text: "They all come with 8,000 attachments. They're all terrible."
+    by: scott
+    placement: "on"
+internalNote: "STAMEN is Danish (Copenhagen), not Dutch. The product page shows no price (~$140–160; €135 seen in a review)."

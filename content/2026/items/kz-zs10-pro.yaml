@@ -1,0 +1,31 @@
+name: KZ ZS10 Pro In-Ear Monitors
+id: 17
+shortName: KZ ZS10 Pro IEMs
+indexName: IEMs, KZ ZS10 Pro
+brand: KZ
+section: favorites
+pickedBy:
+  - cj
+priceEstimate: 49.99
+unit: Pair
+sources:
+  - https://linsoul.com/products/kz-zs10-pro
+  - https://www.linsoul.com/products/kz-an01
+description: "with five drivers and swappable cables. Wired for making music."
+altDescriptions:
+  - "Five drivers, swappable cables, and an add-on Bluetooth ANC kit. Wired for making music, wireless for the plane."
+  - "Convertible headphones. Use them wired, plug in the Bluetooth kit, and they're wireless."
+  - "Four years of daily use and still CJ's go-to. They're the only earbuds that block out a flight for him."
+variants:
+  - key: an01
+    name: AN01 Bluetooth ANC kit, sold separately
+    price: 35.99
+    unit: Kit
+quotes:
+  - text: "These are some of the only in-ear headphones that work really well on a flight for me."
+    by: cj
+    placement: "on"
+  - text: "I raw dog it with music, I guess."
+    by: cj
+    placement: "on"
+internalNote: The Bluetooth ANC add-on is the KZ AN01 (~$36).

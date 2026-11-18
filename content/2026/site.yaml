@@ -1,2 +1,83 @@
+episode:
+  title: Syntax Holiday Gift Guide
 cover:
   price: FREE
+  tagline: The Internet's Largest Developer Gift Catalogue
+  note: "{count} gifts · index on {page:order-form}"
+welcome:
+  title: How to Shop Your WishBook
+  steps:
+    - lead: Flip through.
+      text: "Six Syntax shoppers picked {count} gifts for the developers in your life (and the people who love them)."
+    - lead: Circle what you want.
+      text: "Tap any item to circle it in red marker, just like the old days."
+    - lead: Watch it get picked.
+      text: "Every catalog number is a timestamp. Tap {syn:leatherman-arc} to jump to that moment in the episode."
+    - lead: Leave it out for Santa.
+      text: "Your circled items fill in the order form on {page:order-form}. Share the link with whoever does your shopping."
+  shipLink:
+    badge: FREE
+    title: Ship-A-Link® Service
+    text: "Every item links straight to where you can buy it. No C.O.D. orders, no stamps, no waiting 6–8 weeks."
+  watch:
+    title: Watch the Whole Thing
+    text: "The Syntax crew unwrapped all {count} picks on camera, with demos, arguments about watts, and one grouse. Grab a cocoa and watch the Syntax Holiday Gift Guide on YouTube."
+key:
+  title: Know your WishBook
+  entries:
+    - symbol: letter
+      text: Matches photo to price
+    - symbol: catalog
+      text: Catalog no. = video timestamp
+      item: leatherman-arc
+    - symbol: new
+      text: New this year
+    - symbol: picked
+      text: Who picked it
+      item: silicone-usb-c-cables
+    - symbol: estimate
+      text: Estimated price
+      item: ipad-case
+guarantee:
+  lead: "Syntax Guarantee:"
+  text: satisfaction or your commits reverted
+orderLines:
+  - id: call
+    kicker: Call any time
+    text: "{phone}"
+  - id: syn
+    text: Dial any SYN number to watch it get picked
+  - id: terminal
+    kicker: Order by terminal
+    text: "$ curl {catalog}"
+  - id: listen
+    kicker: Listen any time
+    text: syntax.fm
+  - id: search
+    text: Press ⌘K to search
+  - id: print
+    text: Print & Mail to Santa ⌘P
+orderForm:
+  shareLabel: Share my Wish List
+  printLabel: Print & Mail to Santa ⌘P
+backCover:
+  headline: Mailed to 1,000,000+ developers
+  returnAddress:
+    - Syntax WishBook Dept.
+    - P.O. Box 404, The Internet
+  indicia:
+    - Bulk Rate
+    - U.S. Postage
+    - PAID
+    - Syntax FM
+  mailingLabel:
+    - "***************ECRWSS**"
+    - "TO: A DEVELOPER YOU LOVE"
+    - 404 NOT FOUND LANE
+    - LOCALHOST, CA 127.0.0.1
+fillers:
+  - title: The Grouse Says Hi
+    art: IMG-M1-waving
+  - title: Notes for Santa
+  - title: Odds ’n’ Ends
+  - title: Stocking Stuffers, Part 2

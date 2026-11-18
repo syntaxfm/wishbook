@@ -1,0 +1,23 @@
+name: OXO Good Grips Fish Turner
+id: 35
+indexName: Fish turner, OXO
+brand: OXO
+section: kitchen
+pickedBy:
+  - wes
+priceEstimate: 17.99
+buyLink: https://link.amazon/B0g9B2XFZ
+makerLink: https://www.oxo.com/fish-turner.html
+sources:
+  - https://www.oxo.com/fish-turner.html
+  - https://www.amazon.com/OXO-1130900-Turner-Stainless-Comfortable/dp/B000YDO2MK
+headline: Soap and Water Are Fine.
+description: "Long, thin, and sharp-edged. The go-to spatula for cast iron and carbon steel (and sometimes fish)."
+altDescriptions:
+  - "It slides under anything, even eggs. Wes uses it more than any other spatula."
+  - "Pair it with carbon steel and stop worrying about seasoning lore. Soap and water are fine."
+quotes:
+  - text: "It's like my default reach when I need a spatula."
+    by: wes
+  - text: "Soap, water. I don't give a crap… you can't hurt it. Just use it."
+    by: wes

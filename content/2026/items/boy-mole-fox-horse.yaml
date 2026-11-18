@@ -1,0 +1,23 @@
+name: The Boy, the Mole, the Fox and the Horse
+id: 15
+indexName: Boy, the Mole, the Fox and the Horse, The
+brand: Charlie Mackesy
+section: favorites
+pickedBy:
+  - kaitlin
+priceEstimate: 22.99
+priceNote: List price; often about 14
+sources:
+  - https://www.porchlightbooks.com/products/boy-the-mole-the-fox-and-the-horse-charlie-mackesy-9780062976581
+description: "A warm hug in book form. It's about friendship, vulnerability, self-acceptance, and a lot of cake."
+altDescriptions:
+  - "A gift for parents, partners, kids, and everyone else. Also a lovely short film. No spoilers about the river."
+  - "A simple, beautiful book you'll want to give to everyone you know."
+quotes:
+  - text: "I like to call it like a warm hug."
+    by: kaitlin
+  - text: "They talk about cake a lot… I've gifted it to numerous people."
+    by: kaitlin
+image:
+  alt: "Cover of The Boy, the Mole, the Fox and the Horse by Charlie Mackesy"
+internalNote: "By Charlie Mackesy. The cover image is low-res (481×648)."

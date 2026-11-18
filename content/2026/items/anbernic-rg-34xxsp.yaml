@@ -1,0 +1,31 @@
+name: Anbernic RG 34XXSP Retro Handheld
+id: 48
+indexName: Anbernic handheld
+brand: Anbernic
+section: wild-card
+pickedBy:
+  - cj
+priceEstimate: 84.99
+buyLink: https://link.amazon/B0ap2LOOj
+makerLink: https://anbernic.com/en-br/products/rg34xxsp
+sources:
+  - https://www.amazon.com/dp/B0FR9BMX2Q
+  - https://anbernic.com/en-br/products/rg34xxsp
+headline: Pac-Man to GTA, in Your Pocket.
+description: "Clamshell retro handheld. Linux, emulators from Game Boy to Dreamcast, and the screen folds shut to stay safe."
+altDescriptions:
+  - "A clamshell retro handheld for about $85. Game Boy to PSP, N64, and Dreamcast, all from an SD card."
+  - "Linux-based, with emulators and analog sticks, and it folds shut to protect the screen. Pac-Man to GTA in your pocket."
+  - "Nostalgia that fits in your bag. Anbernic makes lots of shapes, but this flip design is the one."
+alsoIn:
+  - Game Boy shape
+  - horizontal
+  - slide-up
+quotes:
+  - text: "I liked being able to throw it in my bag, protect the screen."
+    by: cj
+    placement: "on"
+  - text: "I can launch [Pac-Man]… or I could go to PSP and play a Grand Theft Auto."
+    by: cj
+    placement: "on"
+internalNote: "~$77–85 on Amazon ($61.99 from Anbernic's store, plus shipping)."

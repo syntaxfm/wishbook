@@ -1,0 +1,23 @@
+name: Cordless Plastic Welder
+id: 31
+indexName: Plastic welder
+section: desk
+pickedBy:
+  - wes
+priceEstimate: 39.99
+buyLink: https://link.amazon/B02k2vw9R
+sources:
+  - https://www.amazon.com/GRVODFRTA-Cordless-Plastic-Compatible-Repairing/dp/B0DNSPB41L
+description: "Cracked fridge bin? Broken recycling box? Wheelbarrow from the curb? Staple it back together with hot metal."
+altDescriptions:
+  - "Super glue never works. Mechanical fastening does. Get the version that runs on your drill batteries."
+  - "The niche tool you'll use all the time. Wes would sell it on QVC if they'd let him."
+quotes:
+  - text: "The super glue… never works. This is what you need. Mechanical [fixation]."
+    by: wes
+  - text: "I love a weird niche tool that is just so handy."
+    by: wes
+  - text: "Wes, you need to work for QVC or something."
+    byLabel: the crew
+    verify: true
+internalNote: "~$35–45. The link points to a GRVODFRTA welder that takes DeWalt 20V batteries (battery not included). The photo is a similar Powuse model, not the exact GRVODFRTA."

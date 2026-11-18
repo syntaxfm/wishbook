@@ -1,0 +1,24 @@
+name: Anker 735 Nano II 65W
+id: 4
+shortName: Anker 735
+indexName: Anker 735 charger
+brand: Anker
+section: favorites
+pickedBy:
+  - wes
+priceEstimate: 29.99
+makerLink: https://www.anker.com/products/a2667
+sources:
+  - https://www.anker.com/products/a2667
+description: 'charges a 16" MacBook Pro. Its bigger brother is on {page:anker-off}.'
+altDescriptions:
+  - 'Ditch the huge MacBook brick. This tiny Anker charges a 16" MacBook Pro without any trouble.'
+  - "Two USB-C ports, one USB-A, and room to spare in your backpack."
+  - "Wes didn't know how many watts it had (it's 65) and it still beat the stock charger. It's that good."
+specs: 2× USB-C, 1× USB-A
+quotes:
+  - text: "I stopped carrying around the stupid huge MacBook Pro 90 watt charger."
+    by: wes
+image:
+  background: dark
+internalNote: Often $24–26 on Amazon.

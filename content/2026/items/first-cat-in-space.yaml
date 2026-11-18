@@ -1,0 +1,23 @@
+name: The First Cat in Space Book Series
+id: 40
+indexName: First Cat in Space
+brand: Mac Barnett & Shawn Harris
+section: kids-pets
+pickedBy:
+  - scott
+priceEstimate: 16.99
+priceNote: Hardcover; 3-book box set about 35
+buyLink: https://link.amazon/B00Mzhk18
+sources:
+  - https://www.amazon.com/dp/0063415569
+  - https://www.barnesandnoble.com/w/the-first-cat-in-space-3-book-box-set-mac-barnett/1147226890
+description: "Illustrated hardcover comic-style adventures with Captain Underpants energy. Scott's kids can't wait for each new one."
+altDescriptions:
+  - "Illustrated by the former frontman of the punk band The Matches. Punk rock to kids' books."
+  - "Funny, beautifully drawn, and very bingeable. A cat. In space. What else do you need?"
+quotes:
+  - text: "Comic book style, illustrated hardcover, like a Captain Underpants… my kids can't wait for the next one."
+    by: scott
+image:
+  alt: The First Cat in Space 3-book box set
+internalNote: "By Mac Barnett, illustrated by Shawn Harris (former singer of The Matches). The photo is the 3-book box set."

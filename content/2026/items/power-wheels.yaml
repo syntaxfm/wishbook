@@ -1,0 +1,34 @@
+name: Clapped-Out Power Wheels
+id: 42
+shortName: Clapped-out Power Wheels
+indexName: Power Wheels
+brand: Power Wheels
+section: kids-pets
+pickedBy:
+  - wes
+priceEstimate: 40
+priceNote: Used
+sources:
+  - https://x.com/wesbos/status/2116960043774161103
+  - https://www.walmart.com/ip/597002719
+description: "Buy a used Power Wheels, swap in drill batteries, and watch it fly. Wes has done it eight times."
+altDescriptions:
+  - "New ones are expensive and slow. Used ones plus a battery mod are cheap and fast."
+  - "Wes's fleet has seven of these. Should he do a Syntax video on hacking them? (Tell him yes.)"
+features:
+  - lead: Drill-battery swap.
+    text: "Put the drill batteries in there and they fly."
+  - lead: Cheap and fast.
+    text: "New ones are expensive and slow. Used ones plus a battery mod are cheap and fast."
+  - lead: Field-tested.
+    text: "Wes has done it eight times and keeps a whole fleet."
+  - lead: Video wanted.
+    text: "Tell Wes he should make a Syntax video on hacking them."
+quotes:
+  - text: "Sometimes you put the drill batteries in there and they fly."
+    by: wes
+  - text: "I have an entire fleet of these… Let me know if I should do a Syntax video on hacking Power Wheels, because it's a passion of mine."
+    by: wes
+image:
+  alt: A Power Wheels Jeep Wrangler
+internalNote: "~$40–150 used (new ~$200–350). Wes's link is a post about his fleet, not a store, so there's no buy link. The Walmart source is a new Power Wheels Jeep, for images and price comparison."

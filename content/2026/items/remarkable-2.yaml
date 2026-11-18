@@ -1,0 +1,23 @@
+name: reMarkable 2 E-Ink Tablet
+id: 28
+indexName: reMarkable
+brand: reMarkable
+section: desk
+pickedBy:
+  - scott
+priceEstimate: 399
+buyLink: https://link.amazon/B0iynHapa
+makerLink: https://remarkable.com/products/remarkable-2
+sources:
+  - https://remarkable.com/products/remarkable-2
+  - https://remarkable.com/products/remarkable-paper/pro
+description: "Infinite pages, a battery that lasts forever, and no browser to distract you. The ultimate scribbler's tablet."
+altDescriptions:
+  - "Seven years in and it's still a beast. Great for sketching notes, and kids love it for drawing pumpkins."
+  - "Writing on it feels great because it only does one thing. Paper, but better."
+quotes:
+  - text: "I like that there's not a browser on it. I can't go off and get distracted."
+    by: scott
+  - text: "It's a [hoss]."
+    by: scott
+internalNote: "The reMarkable 2 was discontinued in May 2026 and replaced by the reMarkable Paper Pure ($399; color Paper Pro $629). Consider featuring that instead. Photo -2 is the Paper Pure."

@@ -1,0 +1,21 @@
+name: Cascadia Board Game
+id: 43
+shortName: Cascadia
+indexName: Cascadia
+section: kids-pets
+pickedBy:
+  - scott
+priceEstimate: 34.99
+buyLink: https://link.amazon/B0ijTCpLM
+sources:
+  - https://www.amazon.com/Cascadia-Award-Winning-Nature-Pacific-Northwest/dp/B093H8RGXX
+description: "A calm, beautiful game where you build animal ecosystems. Patterns, math, and no meltdowns."
+altDescriptions:
+  - "Rated 10+, but Scott's kids started playing at 5. It gets more play in his house than any other game."
+  - "Family game night, sorted. Relaxing, strategic, and fun for all ages."
+quotes:
+  - text: "We probably get more mileage out of this game than any other one."
+    by: scott
+image:
+  background: dark
+internalNote: "~$30–40."

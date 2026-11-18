@@ -1,0 +1,6 @@
+name: ratgdo
+id: 51
+indexName: ratgdo
+section: back
+mention: true
+description: '"Rage Against the Garage Door Opener." An open-source fix for Chamberlain/MyQ openers.'

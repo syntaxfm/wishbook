@@ -1,0 +1,28 @@
+name: Anker 140W 4-Port Charger
+id: 11
+shortName: Anker 140W
+indexName: Anker 140W charger
+brand: Anker
+section: favorites
+pickedBy:
+  - scott
+priceEstimate: 89.99
+makerLink: https://www.anker.com/products/a2697-anker-charger-140w-4-port
+sources:
+  - https://www.anker.com/products/a2697-anker-charger-140w-4-port
+description: "3× USB-C, 1× USB-A, smart display. Powers two laptops."
+altDescriptions:
+  - "Three USB-C ports, one USB-A, and enough power for two laptops. It's more than double the size of Wes's little 65W, and Scott wants you to know that."
+  - "Scott travels with 800 devices and only packs this one charger."
+  - "Scott bought one for Courtney as a gift. She asked if it was really a gift. It is, and she'll love it."
+specs: 3× USB-C, 1× USB-A, display
+quotes:
+  - text: "I'm traveling with 800 devices."
+    by: scott
+    placement: "on"
+  - text: "I actually just bought one for Courtney and she was like, is this supposed to be a gift? I'm like, you're gonna love it."
+    by: scott
+    placement: "on"
+image:
+  background: dark
+internalNote: "Model A2697: 3× USB-C, 1× USB-A, smart display. Often $60–80 on sale."

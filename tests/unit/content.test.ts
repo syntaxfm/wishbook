@@ -1,4 +1,4 @@
-import { cpSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
@@ -6,6 +6,7 @@ import {
   ContentError,
   createContentReader,
   itemPrice,
+  pickCount,
   timestampSeconds,
 } from "../../src/lib/content";
 
@@ -131,6 +132,45 @@ describe("reading an edition", () => {
       podcastUrl: null,
       youtubeUrl: null,
     });
+  });
+
+  it("reads mentions, per-page item copy, and filler pages", async () => {
+    const reader = fixtureWith({
+      "content/2026/items/patches.yaml":
+        "name: Repair Patches\nid: 9\nsection: favorites\nmention: true\n",
+      "content/2026/book.yaml": [
+        readFileSync(join(FIXTURE, "content/2026/book.yaml"), "utf8").trimEnd(),
+        "  - slug: stuffers",
+        "    section: favorites",
+        "    template: odds-ends",
+        "    title: Stocking Stuffers",
+        "    items:",
+        "      - item: patches",
+        "      - item: cables",
+        "        text: The cables again. See {page:cover}.",
+        "",
+      ].join("\n"),
+      "content/2026/site.yaml": [
+        readFileSync(join(FIXTURE, "content/2026/site.yaml"), "utf8").trimEnd(),
+        "fillers:",
+        "  - title: Notes for Santa",
+        "  - title: The Grouse Says Hi",
+        "    art: IMG-S1",
+        "",
+      ].join("\n"),
+    });
+    const items = await reader.getItems(2026);
+    expect(items.map((i) => [i.slug, i.mention])).toContainEqual(["patches", true]);
+    expect(pickCount(items)).toBe(3);
+    const stuffers = (await reader.getPages(2026)).find((p) => p.slug === "stuffers");
+    expect(stuffers!.items.map((pi) => pi.text)).toEqual([
+      null,
+      "The cables again. See {page:cover}.",
+    ]);
+    expect((await reader.getSite(2026)).fillers).toEqual([
+      { title: "Notes for Santa", text: null, art: null },
+      { title: "The Grouse Says Hi", text: null, art: "IMG-S1" },
+    ]);
   });
 });
 

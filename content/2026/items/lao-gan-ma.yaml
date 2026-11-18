@@ -1,0 +1,23 @@
+name: Lao Gan Ma Chili Crisp with Peanuts
+id: 37
+indexName: Chili crisp, Lao Gan Ma
+brand: Lao Gan Ma
+section: kitchen
+pickedBy:
+  - wes
+priceEstimate: 7.99
+priceNote: Per jar
+unit: Jar
+buyLink: https://link.amazon/B0iB4uu3W
+sources:
+  - https://www.amazon.com/Fried-Chili-Value-Pack-730g/dp/B06WGQYMM6
+  - https://www.sayweee.com/en/product/Yusheng-Laoganma-Chili-Oil-with-Peanuts-275g/2913116
+headline: Put It on Anything.
+description: "The original chili crisp, but get the one with peanuts. Put it on eggs, meat, and everything else."
+altDescriptions:
+  - "Trader Joe's has its own version, but Lao Gan Ma is the original. Check your local Asian grocery store."
+  - "Wes picked it on the podcast years ago, and listeners had their grocery stores order it in. It's that good."
+quotes:
+  - text: "Put it on eggs, put it on meat, pretty much put it on anything… [Lao Gan Ma] is like the OG chili crisp."
+    by: wes
+internalNote: '~$5–10 per jar (730g value pack ~$20). Wes says the linked jar isn''t the peanut version, but the link points to Lao Gan Ma "Fried Chili in Oil," which several sources say contains peanuts. Confirm with Wes. The "Chili Oil with Peanuts" jar is also sold at Asian grocery stores.'

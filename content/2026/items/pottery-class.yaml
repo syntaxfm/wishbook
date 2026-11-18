@@ -1,0 +1,23 @@
+name: Pottery Class
+id: 14
+indexName: Pottery class
+section: favorites
+pickedBy:
+  - kaitlin
+priceEstimate: 89.99
+priceNote: Single class; multi-week courses cost more
+sources:
+  - https://coursehorse.com/nyc/classes/art/pottery/pottery-wheel/beginner-wheel-throwing
+description: "A hobby where you actually get to keep what you make. Bowls you'll use every day, made by you."
+altDescriptions:
+  - "Get off your screen and get your hands dirty. Pottery is hard, rewarding, and very satisfying to show off."
+  - "Give someone a new skill and a new favorite mug."
+quotes:
+  - text: "This has become my very, very favorite hobby because you bring home stuff that you really just can use."
+    by: kaitlin
+  - text: "It's just a great way to get off your devices… You got something to show for it."
+    by: kaitlin
+image:
+  alt: Hands shaping a bowl on a pottery wheel
+  credit: "Photo: Taylor Heery / Unsplash"
+internalNote: "~$60–130 single class / ~$195–400 multi-week course. Photo -2: SwapnIl Dwivedi / Unsplash. Photo -3: Tahirceylan / Wikimedia Commons, CC BY-SA 4.0 (credit required if used)."

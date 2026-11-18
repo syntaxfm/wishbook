@@ -1,0 +1,22 @@
+name: Arf Pets Solid Gel Dog Cooling Mat
+id: 46
+indexName: Cooling mat, dog
+brand: Arf Pets
+section: kids-pets
+pickedBy:
+  - cj
+priceEstimate: 44.99
+priceNote: Depends on the size
+buyLink: https://www.amazon.com/dp/B0192CJO30?tag=codinggardenw-20
+sources:
+  - https://www.amazon.com/dp/B0192CJO30
+description: "Solid gel means no water explosion when claws puncture it. Approved by a 140lb St. Bernard who's always hot."
+altDescriptions:
+  - "Fold it up, put it in the freezer, and give your dog a chill spot. A few holes and some duct tape won't stop it."
+  - "After many popped water mats, this is the one that lasts. Keep your pup cool."
+quotes:
+  - text: "Like 140 pounds and he's always hot."
+    by: cj
+  - text: "He has pierced it, but it didn't make any mess."
+    by: cj
+internalNote: '~$30–60 (size-dependent, best guess). The Amazon listing appears to be the Arf Pets 27"×43" mat (not confirmed); the photo is Target''s 23×35 size.'

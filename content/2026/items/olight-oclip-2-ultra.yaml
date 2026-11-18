@@ -1,0 +1,39 @@
+name: OLIGHT Oclip 2 Ultra Flashlight
+id: 21
+shortName: The Oclip 2 Ultra
+indexName: Flashlight, OLIGHT
+brand: Olight
+section: tech
+pickedBy:
+  - scott
+priceEstimate: 69.99
+buyLink: https://link.amazon/B04fHCwMm
+sources:
+  - https://www.amazon.com/OLIGHT-Oclip-Ultra-Rechargeable-Flashlight/dp/B0H9G3Q6C3
+description: "Flood, spotlight, red light, and UV, with a magnetic base and a flip-out head. It's very, very bright."
+altDescriptions:
+  - "Read the manual. There's a whole table of secret modes (SOS, strobe, and more). Wes owned one for months without finding the UV light."
+  - "Warning: don't point the UV light at your walls. You'll see every spill your kids ever made."
+features:
+  - lead: Flip-out head
+    text: "aims the light where you need it under a cabinet."
+  - lead: Magnetic base
+    text: "and a **twist clip** hold it hands-free."
+  - lead: "Four lights in one:"
+    text: "wide flood, long-throw spotlight, red light, and UV. Triple-tap for SOS and strobe modes."
+variants:
+  - key: with-dock
+    name: With charging dock
+    price: 94.99
+quotes:
+  - text: "This thing rips… It is insanely bright."
+    by: scott
+  - text: "I have this and I didn't even know that."
+    by: wes
+    context: on the UV light
+    verify: true
+  - text: "Don't point it at your walls 'cause you will see every single thing your kids have ever spilled on the walls."
+    by: scott
+image:
+  alt: OLIGHT Oclip 2 Ultra flashlight
+internalNote: "Scott's link points to the Oclip 2 Ultra, not the Arkfeld Ultra."

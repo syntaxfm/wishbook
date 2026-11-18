@@ -1,0 +1,23 @@
+name: APC Back-UPS Pro BX1500M (900W)
+id: 30
+shortName: APC Back-UPS Pro
+indexName: APC battery backup
+brand: APC
+section: desk
+pickedBy:
+  - cj
+priceEstimate: 189.99
+buyLink: https://link.amazon/B06woBDrz
+sources:
+  - https://www.amazon.com/dp/B06VY6FXMM
+description: "Power goes out, your homelab stays up long enough to shut down safely. No corrupted data."
+altDescriptions:
+  - "900W, around $190, and connects over USB so your NAS shuts down on its own. A gift for the homelabber in your life."
+  - "15–30 minutes of backup power for your server. Cheap insurance against bad shutdowns."
+quotes:
+  - text: "If the power goes out, that gives you 15 to 30 minutes to go properly shut the machine down."
+    by: cj
+  - text: "I should probably get one of these."
+    byLabel: the crew
+    verify: true
+internalNote: "Often ~$137–150 on sale. The unit is small in the photo frame."
