@@ -1,0 +1,27 @@
+name: Xteink X4 E-Reader
+id: 22
+shortName: X4 Pocket E-Reader
+indexName: E-reader, Xteink
+brand: Xteink
+section: tech
+pickedBy:
+  - cj
+isNew: true
+priceEstimate: 69
+makerLink: https://www.xteink.com/products/Xteink-x4
+sources:
+  - https://www.xteink.com/products/Xteink-x4
+  - https://www.xteink.com/products/xteink-x4-pro-pocket-ereader
+description: "MagSafe e-ink reader. Flip your phone over and read instead of doomscrolling."
+altDescriptions:
+  - "A tiny MagSafe e-reader that sticks to your phone. Flip your phone over and read instead of doom scrolling."
+  - "Install custom firmware, pipe in your RSS feeds as e-books, and read the internet offline over morning coffee."
+  - "About $80, very responsive, and very hackable. Add a clip-on light like a Game Boy reading lamp for extra nostalgia."
+quotes:
+  - text: "Instead of like reaching for my phone first thing in the morning, I reach for this."
+    by: cj
+  - text: "It's like a Game Boy light from our youth."
+    by: cj
+  - text: "If you like eBooks, if you like not doom scrolling, get yourself a little e-ink reader."
+    by: cj
+internalNote: "The X4 Pro ($99–109) adds a frontlight and touchscreen."

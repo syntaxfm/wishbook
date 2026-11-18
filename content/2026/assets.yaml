@@ -1,0 +1,699 @@
+assets:
+  - key: cover-art
+    file: cover/cover-art
+    label: "Cover: Santa checks his watch, grouse elf with a gift"
+    color: "#14204a"
+    aspect: "3:4"
+    prompt: >-
+      An airbrushed 1990s painted illustration: Santa Claus in glasses checking a
+      classic Casio-style digital wristwatch, standing beside a cartoon ruffed
+      grouse mascot in a green elf hat holding a wrapped gift. Reindeer and snowy
+      pines behind, a sleigh stuffed with gadgets (headphones, retro handheld,
+      power bank). Glossy, cheerful, saturated, a toy-catalog cover from 1996. No
+      text.
+  - key: IMG-S1
+    file: generated/section-favorites-stockings-on-mantel
+    label: six knitted stockings on a 90s mantel, gadgets peeking out
+    color: "#C5301F"
+    aspect: "4:5"
+    prompt: >-
+      A cozy 1990s living room fireplace mantel at night: six knitted Christmas
+      stockings in different colors hung in a row, each one stuffed with gadgets
+      peeking out (a coiled silicone USB-C cable, a small power bank, headphones,
+      a beard trimmer, a toothbrush, a Casio-style digital watch). Garland, tiny
+      white lights, a brass clock, warm firelight.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+  - key: IMG-S2
+    file: generated/section-under-30-stocking-stuffer-pile
+    label: a pile of small wrapped stocking stuffers and cheap gadgets
+    color: "#d49a00"
+    aspect: "4:5"
+    prompt: >-
+      Reference images: items/020-bovicas-100w-6-in-1-usb-charger.jpg,
+      items/034-mainstays-mini-silicone-tongs.jpg,
+      items/044-stack-nabbit-card-game.webp.
+
+      An overflowing pile of small wrapped stocking-stuffer gifts and loose cheap
+      gadgets on a red felt tree skirt: mini silicone tongs, a deck of card-game
+      cards, a multi-port USB charger, a tiny dev board with a glowing screen, a
+      jar of chili crisp. Price-sticker vibe, cheerful.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: bovicas-charger
+  - key: IMG-S3
+    file: generated/section-tech-house-at-dusk
+    label: a 90s house at dusk, every window glowing with a screen
+    color: "#1d4fb6"
+    aspect: "4:5"
+    prompt: >-
+      A two-story 1990s suburban house at blue dusk in fresh snow. Every window
+      glows a different color from screens and gadgets: an e-ink reader, a
+      picture frame showing a calendar, a tiny air quality sensor's LED, a garage
+      door half open with warm light spilling out. Christmas lights outline the
+      roof. Slightly whimsical, catalog-cover quality.
+
+      Hand-made 1990s children's picture-book illustration, rich saturated color,
+      tactile texture, warm window light against a deep blue winter dusk, dense
+      with small hidden details and tiny people doing funny things. Leave the top
+      third relatively simple for a masthead. No text or lettering anywhere.
+  - key: IMG-S4
+    file: generated/section-desk-christmas-desk
+    label: a developer's desk decorated for Christmas, 1996 meets 2026
+    color: "#6b4a2b"
+    aspect: "4:5"
+    prompt: >-
+      Reference images: items/027-ugreen-2-slot-vertical-laptop-stand.jpg,
+      items/029-leatherman-arc-multi-tool.jpg.
+
+      A developer's desk decorated for Christmas, mixing 1996 and 2026: two
+      laptops standing upright in a metal vertical stand, a mechanical macro pad
+      glowing RGB, a multi-tool lying open, an e-ink tablet with a doodle, a
+      small UPS battery under the desk, a mug of cocoa, tinsel along the monitor
+      edge.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: ugreen-laptop-stand
+  - key: IMG-S5
+    file: generated/section-kitchen-christmas-eve-counter
+    label: a 90s kitchen counter on Christmas Eve, eggs with chili crisp
+    color: "#2A6E3B"
+    aspect: "4:5"
+    prompt: >-
+      Reference images: items/035-oxo-good-grips-fish-turner.jpg,
+      items/037-lao-gan-ma-chili-crisp-with-peanuts.jpg.
+
+      A 1990s kitchen countertop on Christmas Eve: oak cabinets, a cast-iron
+      skillet with fried eggs topped with red chili crisp, a long slotted fish
+      spatula resting on the pan, a jar of chili crisp, a dish brush hooked over
+      the sink edge, poinsettia, warm tungsten light.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: oxo-fish-turner
+  - key: IMG-S6
+    file: generated/section-kids-pets-by-the-tree
+    label: kids and a St. Bernard by the Christmas tree
+    color: "#9b2fae"
+    aspect: "4:5"
+    prompt: >-
+      Reference images: items/038-yoto-player.png.
+
+      Two kids in 90s holiday sweaters lying on the living room carpet by a
+      Christmas tree, one listening to a small square audio card player, one
+      reading a color e-reader comic. A huge, fluffy St. Bernard dog sleeps
+      beside them wearing a Santa hat. A board game is set up nearby. Warm,
+      candid catalog photo.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: yoto-player
+  - key: IMG-S7
+    file: generated/section-wild-card-grouse-spotlight
+    label: the grouse on a velvet pedestal under a spotlight
+    color: "#3a2a24"
+    aspect: "4:5"
+    prompt: >-
+      A single taxidermied ruffed grouse on a velvet-draped pedestal, lit by a
+      dramatic theatrical spotlight against a deep red curtain, a sprig of holly
+      at its feet. Treated with absurd luxury, like a Neiman Marcus fantasy gift.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: grouse
+  - key: IMG-F1
+    file: items/002-sharge-icemag-3-power-bank-hero
+    label: snapped on a phone, kickstand out, fan glowing
+    color: "#8a5a3a"
+    aspect: "4:5"
+    prompt: >-
+      The attached clear MagSafe power bank snapped onto the back of a
+      smartphone, which stands on its kickstand on a dark wood table. The RGB
+      lights glow softly and the little fan is visible. A wrapped gift, pine
+      sprig, and red ribbon sit behind it. Dramatic hero angle, like a 90s
+      electronics catalog ad.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: sharge-icemag-3
+  - key: IMG-F2
+    file: items/005-travel-neck-pillow-hero
+    label: asleep in a window seat on the travel pillow
+    color: "#8a5a3a"
+    aspect: "4:3"
+    prompt: >-
+      A person asleep in an airplane window seat leaning on the attached travel
+      pillow worn on the side of the neck, with snowy clouds outside the window
+      and a tiny wrapped gift on the tray table. Soft cabin light.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: travel-neck-pillow
+  - key: IMG-F3
+    file: items/010-wolfbox-megaflow-electric-air-duster-hero
+    label: blowing crumbs out of a keyboard
+    color: "#8a5a3a"
+    aspect: "4:5"
+    prompt: >-
+      The attached electric air duster blowing a puff of crumbs and glitter-like
+      dust out of a mechanical keyboard. A half-eaten sandwich is on a plate
+      nearby, with tinsel and a pine sprig, frozen in motion.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: wolfbox-megaflow
+  - key: IMG-F4
+    file: items/014-pottery-class-hero
+    label: hands shaping a bowl on a pottery wheel
+    color: "#8a5a3a"
+    aspect: "4:5"
+    prompt: >-
+      Style reference: the attached pottery photo.
+
+      Clay-covered hands shaping a bowl on a pottery wheel, with a finished
+      glazed mug and bowl tied with red ribbon on the shelf behind. Warm studio
+      window light and string lights.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: pottery-class
+  - key: IMG-F5
+    file: items/016-ollee-watch-one-hero
+    label: watch on pine bough, LCD glowing, ornaments
+    color: "#8a5a3a"
+    aspect: "4:5"
+    prompt: >-
+      Reference images: items/016-ollee-watch-one.webp,
+      items/016-ollee-watch-one-2.webp.
+
+      The attached classic Casio F-91W-style digital watch (Ollee smart module
+      inside) hanging from a pine bough among gold and blue glass ornaments, LCD
+      backlight glowing, on a peach-colored backdrop with soft swirly gold stars.
+      Composition copied in spirit from a 1998 catalog watch page.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: ollee-watch-one
+  - key: IMG-F6-1
+    file: items/018-waveshare-esp32-boards-2
+    label: round 1.28" ESP32 board showing a weather widget
+    color: "#8a5a3a"
+    aspect: "1:1"
+    prompt: >-
+      The attached tiny ESP32 board with its round/rectangular AMOLED touchscreen
+      lit up showing a weather widget, propped on a wrapped gift. Generate 6
+      variants: different screen sizes and shapes (round 1.28", 1.8" square, 2.8"
+      rectangle, e-paper, one with a thermal camera module attached, one inside a
+      clear case), each with a different holiday prop. This one: the round 1.28"
+      board.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: waveshare-esp32
+  - key: IMG-F6-2
+    file: items/018-waveshare-esp32-boards-3
+    label: 1.8" square ESP32 board showing a weather widget
+    color: "#8a5a3a"
+    aspect: "1:1"
+    prompt: >-
+      The attached tiny ESP32 board with its round/rectangular AMOLED touchscreen
+      lit up showing a weather widget, propped on a wrapped gift. Generate 6
+      variants: different screen sizes and shapes (round 1.28", 1.8" square, 2.8"
+      rectangle, e-paper, one with a thermal camera module attached, one inside a
+      clear case), each with a different holiday prop. This one: the 1.8" square
+      board.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: waveshare-esp32
+  - key: IMG-F6-3
+    file: items/018-waveshare-esp32-boards-4
+    label: 2.8" rectangle ESP32 board showing a weather widget
+    color: "#8a5a3a"
+    aspect: "1:1"
+    prompt: >-
+      The attached tiny ESP32 board with its round/rectangular AMOLED touchscreen
+      lit up showing a weather widget, propped on a wrapped gift. Generate 6
+      variants: different screen sizes and shapes (round 1.28", 1.8" square, 2.8"
+      rectangle, e-paper, one with a thermal camera module attached, one inside a
+      clear case), each with a different holiday prop. This one: the 2.8"
+      rectangle board.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: waveshare-esp32
+  - key: IMG-F6-4
+    file: items/018-waveshare-esp32-boards-5
+    label: e-paper ESP32 board
+    color: "#8a5a3a"
+    aspect: "1:1"
+    prompt: >-
+      The attached tiny ESP32 board with its round/rectangular AMOLED touchscreen
+      lit up showing a weather widget, propped on a wrapped gift. Generate 6
+      variants: different screen sizes and shapes (round 1.28", 1.8" square, 2.8"
+      rectangle, e-paper, one with a thermal camera module attached, one inside a
+      clear case), each with a different holiday prop. This one: the e-paper
+      board.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: waveshare-esp32
+  - key: IMG-F6-5
+    file: items/018-waveshare-esp32-boards-6
+    label: ESP32 board with a thermal camera module
+    color: "#8a5a3a"
+    aspect: "1:1"
+    prompt: >-
+      The attached tiny ESP32 board with its round/rectangular AMOLED touchscreen
+      lit up showing a weather widget, propped on a wrapped gift. Generate 6
+      variants: different screen sizes and shapes (round 1.28", 1.8" square, 2.8"
+      rectangle, e-paper, one with a thermal camera module attached, one inside a
+      clear case), each with a different holiday prop. This one: the board with a
+      thermal camera module attached.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: waveshare-esp32
+  - key: IMG-F6-6
+    file: items/018-waveshare-esp32-boards-7
+    label: ESP32 board in a clear case
+    color: "#8a5a3a"
+    aspect: "1:1"
+    prompt: >-
+      The attached tiny ESP32 board with its round/rectangular AMOLED touchscreen
+      lit up showing a weather widget, propped on a wrapped gift. Generate 6
+      variants: different screen sizes and shapes (round 1.28", 1.8" square, 2.8"
+      rectangle, e-paper, one with a thermal camera module attached, one inside a
+      clear case), each with a different holiday prop. This one: the board inside
+      a clear case.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: waveshare-esp32
+  - key: IMG-F7
+    file: items/021-olight-oclip-2-ultra-flashlight-hero
+    label: UV beam reveals spills on a kitchen wall
+    color: "#4b2a7a"
+    aspect: "1:1"
+    prompt: >-
+      The attached flashlight with its head flipped up, casting a purple UV beam
+      across a white kitchen wall that reveals glowing splotches of old juice
+      spills and fingerprints. Dark room, slightly comedic crime-scene vibe.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: olight-oclip-2-ultra
+  - key: IMG-F8
+    file: items/022-xteink-x4-e-reader-hero
+    label: e-reader stuck to a phone, with a clip-on lamp and cocoa
+    color: "#8a5a3a"
+    aspect: "1:1"
+    prompt: >-
+      The attached tiny e-ink reader stuck magnetically to the back of a
+      smartphone with a small clip-on reading lamp shaped like a 1990s handheld
+      game light. Morning coffee, a Christmas mug, soft window light.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: xteink-x4
+  - key: IMG-F9
+    file: items/023-hackable-wi-fi-picture-frame-hero
+    label: the frame on a 90s kitchen counter showing a lunch menu
+    color: "#8a5a3a"
+    aspect: "4:5"
+    prompt: >-
+      The attached 10" touchscreen picture frame on a 1990s kitchen counter,
+      showing a colorful family calendar and a kids' lunch menu dashboard (with
+      blurred, illegible text). A lunchbox, a gingerbread cookie, and a pine
+      garland.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: wifi-picture-frame
+  - key: IMG-F10
+    file: items/029-leatherman-arc-multi-tool-hero
+    label: the Arc at actual size on a workbench
+    color: "#8a5a3a"
+    aspect: "4:5"
+    prompt: >-
+      The attached multi-tool shown at actual size, half-open with pliers
+      extended, on a scarred wooden workbench next to a fallen picture frame
+      being re-hung and a plate of chicken nuggets cut in half. Torn kraft paper
+      background, warm light, like a 1994 catalog watch page.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: leatherman-arc
+  - key: IMG-F11
+    file: items/032-syntax-macro-keyboard-hero
+    label: the Syntax macro pad glowing among tinsel (needs a real photo first)
+    color: "#8a5a3a"
+    aspect: "4:5"
+    prompt: >-
+      Needs a real photo of the Syntax macro pad as the reference image first.
+
+      The attached small mechanical macro keypad with RGB underglow, on a desk
+      among holiday tinsel, with a Minecraft-style pixel cookie and a candy cane
+      beside it. Hero product angle.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: syntax-macro-keyboard
+  - key: IMG-F12
+    file: items/042-clapped-out-power-wheels-hero
+    label: Power Wheels in snow, drill battery zip-tied on
+    color: "#8a5a3a"
+    aspect: "4:5"
+    prompt: >-
+      A beat-up, muddy kids' ride-on Jeep (like the attached) tearing through
+      fresh snow in a backyard, a yellow-and-black 20V drill battery strapped to
+      it with zip ties, snow spraying from the wheels, a delighted kid in a puffy
+      90s snowsuit driving. Motion blur, Christmas lights on the fence.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: power-wheels
+  - key: IMG-F13
+    file: items/041-maxpower-planet-dog-grooming-rake-hero
+    label: grooming rake beside a tumbleweed of dog fur
+    color: "#8a5a3a"
+    aspect: "1:1"
+    prompt: >-
+      No reference image yet (add the product photo by hand if possible).
+
+      A dual-sided stainless steel undercoat grooming rake with a wooden handle,
+      beside a giant tumbleweed of brushed-out dog fur on a holiday rug.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: grooming-rake
+  - key: IMG-F14
+    file: items/046-solid-gel-dog-cooling-mat-hero
+    label: a St. Bernard sprawled on the cooling mat by the tree
+    color: "#8a5a3a"
+    aspect: "3:2"
+    prompt: >-
+      A huge 140 lb St. Bernard sprawled happily on a blue gel cooling mat beside
+      a Christmas tree, a Santa hat slipping off its head, a small strip of duct
+      tape visible on one corner of the mat.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: cooling-mat
+  - key: IMG-F15
+    file: items/048-anbernic-rg-34xxsp-retro-handheld-hero
+    label: the handheld glowing in a blanket fort
+    color: "#8a5a3a"
+    aspect: "4:5"
+    prompt: >-
+      The attached clamshell retro handheld open and glowing with a pixel-art
+      game, held by a kid under a blanket fort with a flashlight, Christmas
+      lights, and a stack of SD cards.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: anbernic-rg-34xxsp
+  - key: IMG-F16
+    file: items/049-taxidermied-grouse-hero
+    label: the grouse spotlit on black velvet, like a fragrance ad
+    color: "#8a5a3a"
+    aspect: "4:5"
+    prompt: >-
+      The attached ruffed grouse mount presented like a luxury fragrance ad:
+      spotlit on black velvet, a tiny gold price tag hanging from a red silk
+      ribbon, generous negative space, editorial elegance.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: grouse
+  - key: IMG-A1
+    file: generated/anker-off-actual-size
+    label: the two Anker chargers at true relative scale
+    color: "#8a5a3a"
+    aspect: "4:5"
+    prompt: >-
+      Reference images: items/004-anker-735-charger.png,
+      items/011-anker-140w-4-port-charger.png.
+
+      The two attached USB-C chargers side by side, both shown at true relative
+      scale on torn kraft paper, the smaller one dwarfed by the larger. A ruler
+      lies along the bottom edge. Holiday ribbon. Deadpan comparison.
+
+      Photographed like a product shot in a 1996 department store Christmas
+      catalog: medium-format color film, warm tungsten key light with soft fill,
+      slightly oversaturated reds and greens, shallow depth of field, festive
+      props (fresh pine boughs, red satin ribbon, glass ornaments, wrapped gifts
+      in 90s foil paper) on a dark wood tabletop. Subtle film grain and a faint
+      printed-halftone texture, as if scanned from a glossy catalog page. Leave
+      clean negative space for copy. No text, no captions, no watermarks; keep
+      only the product's own branding exactly as in the reference image.
+    sourceItem: anker-735
+  - key: IMG-M1-pointing
+    file: generated/grouse-pointing
+    label: grouse mascot pointing
+    color: "#7a5634"
+    aspect: "1:1"
+    prompt: >-
+      Species reference: items/049-taxidermied-grouse.jpg.
+
+      A friendly cartoon ruffed grouse mascot in the style of a 1990s toy-store
+      catalog character: airbrushed, glossy, expressive eyes, wearing a green elf
+      hat with a bell. Pose: pointing at something to its right. Isolated on a
+      transparent background, no text.
+    sourceItem: grouse
+  - key: IMG-M1-peeking
+    file: generated/grouse-peeking
+    label: grouse peeking
+    color: "#7a5634"
+    aspect: "1:1"
+    prompt: >-
+      Species reference: items/049-taxidermied-grouse.jpg.
+
+      A friendly cartoon ruffed grouse mascot in the style of a 1990s toy-store
+      catalog character: airbrushed, glossy, expressive eyes, wearing a green elf
+      hat with a bell. Pose: peeking from behind a corner. Isolated on a
+      transparent background, no text.
+    sourceItem: grouse
+  - key: IMG-M1-headphones
+    file: generated/grouse-headphones
+    label: grouse mascot wearing headphones
+    color: "#7a5634"
+    aspect: "1:1"
+    prompt: >-
+      Species reference: items/049-taxidermied-grouse.jpg.
+
+      A friendly cartoon ruffed grouse mascot in the style of a 1990s toy-store
+      catalog character: airbrushed, glossy, expressive eyes, wearing a green elf
+      hat with a bell. Pose: wearing over-ear headphones. Isolated on a
+      transparent background, no text.
+    sourceItem: grouse
+  - key: IMG-M1-gift
+    file: generated/grouse-gift
+    label: grouse mascot holding a tiny gift
+    color: "#7a5634"
+    aspect: "1:1"
+    prompt: >-
+      Species reference: items/049-taxidermied-grouse.jpg.
+
+      A friendly cartoon ruffed grouse mascot in the style of a 1990s toy-store
+      catalog character: airbrushed, glossy, expressive eyes, wearing a green elf
+      hat with a bell. Pose: holding a tiny wrapped gift. Isolated on a
+      transparent background, no text.
+    sourceItem: grouse
+  - key: IMG-M1-waving
+    file: generated/grouse-waving
+    label: grouse waving
+    color: "#7a5634"
+    aspect: "1:1"
+    prompt: >-
+      Species reference: items/049-taxidermied-grouse.jpg.
+
+      A friendly cartoon ruffed grouse mascot in the style of a 1990s toy-store
+      catalog character: airbrushed, glossy, expressive eyes, wearing a green elf
+      hat with a bell. Pose: waving goodbye. Isolated on a transparent
+      background, no text.
+    sourceItem: grouse
+  - key: IMG-C1
+    file: generated/centerfold-christmas-morning
+    label: "Christmas Morning, 1997 · 3:2 hidden-object scene"
+    color: "#6d3b2a"
+    aspect: "3:2"
+    prompt: >-
+      A wide two-page panoramic illustration of a 1997 living room on Christmas
+      morning, viewed slightly from above, packed with hidden details for a
+      seek-and-find game. Wood paneling, a CRT TV, a big decorated tree, torn
+      wrapping paper everywhere. Hidden around the room: a St. Bernard asleep on
+      a blue cooling mat, a kid driving a modded ride-on Jeep through the
+      hallway, a small square audio card player, a color e-reader on the couch, a
+      board game with hexagonal nature tiles, a taxidermied grouse on the mantel
+      wearing a Santa hat, a multi-tool on the coffee table, two laptops in a
+      vertical stand, an e-ink tablet with a pumpkin drawing, a candle warmer
+      lamp, a clamshell retro handheld, a jar of chili crisp, an air duster, a
+      beard trimmer, a neck pillow, headphones, a garage door visible through a
+      doorway with a smart opener. Airbrushed 1990s painted illustration style to
+      match the cover. 3:2, no text.

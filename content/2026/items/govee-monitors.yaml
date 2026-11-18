@@ -1,0 +1,25 @@
+name: Govee Bluetooth Temperature & Humidity Monitors
+id: 25
+shortName: Temp & Humidity 3-Pack
+indexName: Temperature monitors, Govee
+brand: Govee
+section: tech
+pickedBy:
+  - cj
+priceEstimate: 35.99
+unit: 3-Pack
+buyLink: https://link.amazon/B08Coezio
+makerLink: https://us.govee.com/products/govee-h5100-mini-hygrometer-thermometer-sensors
+sources:
+  - https://www.amazon.com/Govee-Hygrometer-Thermometer-Temperature-Notification/dp/B0C1N8MRQC
+  - https://us.govee.com/products/govee-h5100-mini-hygrometer-thermometer-sensors
+description: "About $10 a room for temperature and humidity tracking. Skip their app and use a Home Assistant Bluetooth proxy."
+altDescriptions:
+  - "They broadcast over Bluetooth, an ESP32 picks it up, and Home Assistant finds them automatically. No sketchy app needed."
+  - "Track temperature and humidity in every room for less than the cost of lunch."
+quotes:
+  - text: "Temperature and humidity tracking throughout your house for like 10 bucks a room."
+    by: cj
+  - text: "You don't need their weird app."
+    by: cj
+internalNote: "~$32–40 for a 3-pack (~$11–13 each). Could be the H5100 or H5075; check which model CJ's link points to. The photo shows the H5075 2-pack."

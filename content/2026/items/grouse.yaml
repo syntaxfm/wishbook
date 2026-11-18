@@ -1,0 +1,21 @@
+name: A Taxidermied Grouse
+id: 49
+indexName: Grouse (one)
+section: wild-card
+pickedBy:
+  - wes
+priceLabel: Price upon request
+unit: One
+sources:
+  - https://ebth.com/items/13727648-taxidermy-franklin-grouse-spruce-grouse-and-ruffed-grouse-on-salt-glazed-crock
+description: "Who wouldn't want a grouse? Found at a yard sale. You can't legally sell them in Canada, so Wes had to save it."
+altDescriptions:
+  - "The wildest wild card. Buy a grouse for someone you love."
+  - "That's all he's got. It's a grouse. Happy holidays."
+quotes:
+  - text: "I saw it and I was like, oh, you're not allowed to sell those. I better buy that."
+    by: wes
+image:
+  alt: A taxidermied ruffed grouse
+  credit: "Photo: Auckland Museum, CC BY 4.0"
+internalNote: "Price guess ~$75–250 for a vintage mount. The photo is from Wikimedia Commons (Auckland Museum, CC BY 4.0): the credit is required."

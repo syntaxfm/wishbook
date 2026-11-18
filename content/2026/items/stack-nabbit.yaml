@@ -1,0 +1,23 @@
+name: Stack Nabbit Card Game
+id: 44
+shortName: Stack Nabbit
+indexName: Stack Nabbit
+brand: Taco Cat Games
+section: kids-pets
+pickedBy:
+  - scott
+priceEstimate: 9.99
+buyLink: https://link.amazon/B0ayGO0Wp
+sources:
+  - https://www.amazon.com/Taco-Cat-Games-stocking-neighbors/dp/B0H12TQQCQ
+  - https://www.miniaturemarket.com/Stack-Nabbit/DHG21737A
+description: "Quick, cheap, math-filled card games for elementary schoolers. Short rounds mean fewer meltdowns."
+altDescriptions:
+  - "Like Uno, everyone gets a chance to win, and they're doing math without noticing."
+  - "A cheap stocking stuffer that hits the table again and again."
+quotes:
+  - text: "If you play a long game and somebody loses, there's often meltdowns."
+    by: scott
+image:
+  background: dark
+internalNote: "Made by Taco Cat Games (Taco Cat Goat Cheese Pizza)."

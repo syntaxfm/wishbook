@@ -1,0 +1,24 @@
+name: Waveshare ESP32 Boards
+id: 18
+shortName: Waveshare ESP32
+indexName: ESP32 boards
+brand: Waveshare
+section: under-30
+pickedBy:
+  - wes
+priceEstimate: 28.99
+buyLink: https://link.amazon/B03jMrzQx
+sources:
+  - https://www.amazon.com/Waveshare-ESP32-S3-Capacitive-Dual-core-Processor/dp/B0DSVK5576
+headline: Everybody Needs a Screen.
+description: "Waveshare ESP32-S3 boards with Wi-Fi, Bluetooth, and AMOLED touch."
+altDescriptions:
+  - "Tiny computers with Wi-Fi, Bluetooth, sensors, and a touchscreen. Everyone needs a screen in their life."
+  - "The perfect tinkerer's gift. Add a thermal camera, build a talk box, or let AI help you build almost anything."
+  - "Cheap, tiny, and endlessly hackable. Watch out, you'll end up with one in every size."
+quotes:
+  - text: "It's the perfect little like tinkerer's thing… now with AI, anybody can do this stuff."
+    by: wes
+image:
+  alt: Waveshare ESP32-S3 board with a 1.8 inch AMOLED touchscreen
+internalNote: "The link points to the Waveshare ESP32-S3 1.8inch AMOLED Touch Display (~$28–30). Boards range ~$15–30."

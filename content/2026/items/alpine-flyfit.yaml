@@ -1,0 +1,27 @@
+name: Alpine FlyFit Earplugs
+id: 7
+indexName: Earplugs, Alpine
+brand: Alpine
+section: favorites
+pickedBy:
+  - randy
+priceEstimate: 16.95
+unit: Pair
+sources:
+  - https://www.rei.com/product/C06568/alpine-flyfit-earplugs
+description: ", molded, with a pressure valve. Sleep in them, fly in them, take them to a concert."
+altDescriptions:
+  - "For people who fly with no movie, no music, and no book. Molded, comfy, and fitted with a pressure valve."
+  - "Wear them all flight, sleep in them, or take them to a concert. They lower the volume without cutting out all the highs like foam plugs do."
+  - "Chosen by an audio nerd. They cut the volume evenly across the frequency range, so music still sounds like music."
+quotes:
+  - text: "Some people like to raw dog it… I chose to raw dog it with some earplugs."
+    by: randy
+    placement: "on"
+  - text: "They don't hurt or irritate after a long time. And they also have like a pressure valve inside."
+    by: randy
+    placement: "on"
+  - text: "Keeping the frequency response relative across the spectrum, as opposed to like the foam ones, which just take out all the top end."
+    by: randy
+    placement: "on"
+internalNote: "The main photo is low-res (600px); a 2160px render on yellow exists on the maker's CDN."

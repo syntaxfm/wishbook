@@ -1,0 +1,26 @@
+name: SURI 2.0 Electric Toothbrush
+id: 13
+indexName: Toothbrush, SURI
+brand: SURI
+section: favorites
+pickedBy:
+  - kaitlin
+priceEstimate: 135
+priceNote: With the UV travel case
+makerLink: https://www.trysuri.com/products/suri-pro-2-sonic-toothbrush-uv-c-led-case
+sources:
+  - https://store.goop.com/products/suri-20-electric-toothbrush-and-uv-travel-case
+  - https://www.trysuri.com/products/suri-pro-2-sonic-toothbrush-uv-c-led-case
+description: "One button, slim design, and a battery that lasts for months. Get rid of the charging puck on your counter."
+altDescriptions:
+  - "It charges and cleans itself in the travel case. USB-C, of course."
+  - "A toothbrush without the extra stuff. It mounts on your mirror magnetically and tells you when you brush too hard."
+quotes:
+  - text: "You got one button. It's really just like simple."
+    by: kaitlin
+  - text: "The battery lasts like forever."
+    by: kaitlin
+  - text: "If you have one of those stupid little chargers in your bathroom that you put it on every night, get rid of it."
+    byLabel: the crew
+    verify: true
+internalNote: "~$135 with UV case (~$105 brush only)."

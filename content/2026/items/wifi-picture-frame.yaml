@@ -1,0 +1,31 @@
+name: Hackable Wi-Fi Picture Frame
+id: 23
+shortName: Wi-Fi Picture Frame
+indexName: Picture frame, Wi-Fi
+brand: Hack it yourself
+section: tech
+pickedBy:
+  - wes
+priceEstimate: 69.99
+buyLink: https://amzn.to/4zneGNM
+sources:
+  - https://www.amazon.com/Digital-Picture-Touchscreen-Instantly-Anywhere/dp/B0GHR65YYX
+description: "A $50 touchscreen Android frame. Point your AI agent at the GitHub repo, root it, and make it your own. (We raised the price on Amazon. Sorry.)"
+altDescriptions:
+  - "Home calendars, kids' lunch menus, even a homemade Peloton. Hours of hacking with real everyday use."
+  - "Root it, strip out the bloat, and add your own display anywhere. You can also put photos on it."
+features:
+  - lead: Touchscreen and Wi-Fi
+    text: 'on a 10.1" frame running a very old Android.'
+  - lead: Rootable.
+    text: "Point your AI agent at the GitHub repo, strip out the bloat, and make it your own."
+  - lead: "Real everyday use:"
+    text: "home calendars, kids' lunch menus, even a homemade Peloton."
+  - lead: Also photos.
+    text: "You can put photos on it, too."
+quotes:
+  - text: "I'm very proud that it is now $70 on Amazon because we jacked the price."
+    by: wes
+  - text: "$50 is not a ton for a gift, and provides hours of fun, and both hacking it, making you feel like you're cool, as well as providing some utility to your family."
+    by: wes
+internalNote: '10.1" Wi-Fi touchscreen frame (AiMOR app), ~$55–70. The main photo is a similar generic 10.1" frame, not the exact unit.'

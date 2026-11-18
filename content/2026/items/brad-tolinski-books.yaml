@@ -1,0 +1,26 @@
+name: Brad Tolinski Books
+id: 19
+indexName: Books, Brad Tolinski
+brand: Brad Tolinski
+section: under-30
+pickedBy:
+  - scott
+priceEstimate: 16.99
+buyLink: https://link.amazon/B04QMNyH9
+sources:
+  - https://www.amazon.com/Eruption-Conversations-Eddie-Van-Halen/dp/0306826658
+  - https://en.wikipedia.org/wiki/Brad_Tolinski
+headline: Nepo Baby Approved.
+description: "Rock history from Scott's uncle, longtime editor of *Guitar World*."
+altDescriptions:
+  - "Rock history from the longtime editor-in-chief of *Guitar World*: Eddie Van Halen, Jimmy Page, Jeff Beck, Hendrix, and more."
+  - "Written by Scott's uncle, who has a Wikipedia page. (Scott doesn't. Yet.) Most titles cost under $20."
+  - "For the music nerd in your life. Real conversations with guitar legends, on paper or on Audible. Nepo baby approved."
+quotes:
+  - text: "He's the only one in my family with a Wikipedia page… Most of them can be had for less than 20 bucks."
+    by: scott
+  - text: "One time somebody called me a nepo baby on the YouTube comments."
+    by: scott
+image:
+  alt: "Cover of Eruption by Brad Tolinski"
+internalNote: "Titles: Eruption, Blow by Blow, MC5, Play It Loud, Light & Shade. The Genesis Publications books (Classic Hendrix, Faces 1969–75) are pricey limited editions, not under $20. ~$15–20 paperback/Kindle, ~$25–32 hardcover. Photo -2 is the Light & Shade cover. Both covers are low-res."

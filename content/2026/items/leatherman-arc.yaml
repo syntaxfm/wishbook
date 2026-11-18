@@ -1,0 +1,32 @@
+name: Leatherman Arc Multi-Tool
+id: 29
+shortName: Leatherman Arc
+indexName: Leatherman Arc
+brand: Leatherman
+section: desk
+pickedBy:
+  - wes
+priceEstimate: 249.95
+buyLink: https://ca.leatherman.com/products/arc
+makerLink: https://www.leatherman.com/products/arc
+sources:
+  - https://www.leatherman.com/products/arc
+description: '"Is there a Leatherman in the house?" Be the person who fixes the fallen picture frame in two seconds.'
+altDescriptions:
+  - "Pliers, screwdriver, bottle opener, blade, and a magnetic fidget. Wes uses his 3–4 times a day. Get one for life."
+  - "Lifetime warranty, made in the USA, and great for cutting kids' chicken nuggets. (Brits, please don't get mad.)"
+features:
+  - lead: "Five tools in one:"
+    text: "pliers, screwdriver, bottle opener, blade, and a magnetic fidget."
+  - lead: Everyday carry.
+    text: "Wes pulls his out three or four times a day, even to cut up kids' chicken nuggets."
+  - lead: Lifetime warranty
+    text: "and made in the USA. Get one for life."
+quotes:
+  - text: "Is there a Leatherman in the house?… I'm always the guy."
+    by: wes
+  - text: "I have a knife on me at all times… I pull it out at least three or four times a day."
+    by: wes
+  - text: "Even just like cutting up kids' chicken nuggets."
+    by: wes
+internalNote: "Lifetime warranty, made in the USA. Wes's link is the Canadian Leatherman store."

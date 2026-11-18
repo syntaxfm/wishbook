@@ -1,0 +1,22 @@
+name: Apollo Automation AIR-1 Air Quality Sensor
+id: 24
+shortName: AIR-1 Air Quality Sensor
+indexName: Air quality sensor, Apollo
+brand: Apollo Automation
+section: tech
+pickedBy:
+  - scott
+priceEstimate: 109.99
+priceNote: Base model; up to 199.99 with add-ons
+buyLink: https://apolloautomation.com/
+makerLink: https://apolloautomation.com/products/air-1
+sources:
+  - https://apolloautomation.com/products/air-1
+description: "Tracks particulates and mold, not just CO2. No app lock-in."
+altDescriptions:
+  - "ESPHome-powered sensors in 3D-printed cases. Air quality, mmWave, LED matrices, and more, with no app lock-in."
+  - "The air quality sensor tracks mold and particulates, not just CO2. It works with Home Assistant out of the box."
+  - "A small shop with great prices that doesn't lock you into its software. That's how smart home should work."
+quotes:
+  - text: "It even tracks things like mold in the air… what they don't do is they don't lock you into software."
+    by: scott

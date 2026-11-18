@@ -1,0 +1,22 @@
+name: Silicone USB-C Cables
+id: 1
+indexName: Cables, silicone USB-C
+section: favorites
+pickedBy:
+  - wes
+priceEstimate: 13.99
+makerLink: https://www.anker.com/products/a8552
+sources:
+  - https://www.anker.com/products/a8552
+  - https://hypershop.com/products/hyperjuice-usb-c-silicone-charging-cable-1-5m-5ft
+description: "never tangle and survive kids. Every color, length, and speed."
+altDescriptions:
+  - "Cables that never tangle and survive kids. The rest of your cables could never."
+  - "Soft, squishy, and tangle-proof. Comes in every color, length, and speed, so you can color-code your whole bag like a well-organized CSS file."
+  - "Toss them in your backpack and pull them out untangled. They're kid-proof too, which says a lot."
+quotes:
+  - text: "They never tangle, they are absolutely the best."
+    by: wes
+image:
+  background: dark
+internalNote: "Generic category. The Anker 643 Flow is an example; HyperJuice 240W silicone is ~$20. Price is the Anker 643 Flow."

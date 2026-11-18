@@ -1,0 +1,24 @@
+name: Joseph Joseph Edge Dish Brush
+id: 33
+indexName: Dish brush
+brand: Joseph Joseph
+section: kitchen
+pickedBy:
+  - scott
+priceEstimate: 10.99
+buyLink: https://link.amazon/B0coeSOSZ
+makerLink: https://us.josephjoseph.com/products/edge-dish-brush-gray
+sources:
+  - https://www.amazon.com/dp/B00DS3JWAU
+  - https://us.josephjoseph.com/products/edge-dish-brush-gray
+headline: Hook It on Anything.
+description: "A $10 dish brush with a thumb hook that hangs over the sink and drips dry. You can hook it on anything."
+altDescriptions:
+  - "Not sure who you'd gift a dish brush to, but if you know someone, this is the one."
+  - "It has a scraper and a sink hook, and it's very cheap. A great stocking stuffer."
+quotes:
+  - text: "I could literally hook it on anything."
+    by: scott
+  - text: "I don't know the type of person in your life that you could feel comfortable giving a kitchen brush to for Christmas."
+    by: scott
+internalNote: "~$10–11."

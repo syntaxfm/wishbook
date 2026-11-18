@@ -3,6 +3,42 @@ sections:
     name: Front
     code: FR
     color: "#5a4a3a"
+  - id: favorites
+    name: Our Favorite Things
+    code: FAV
+    color: "#C5301F"
+    kicker: We have all the best for
+  - id: under-30
+    name: Gifts Under $30
+    code: U30
+    color: "#d49a00"
+  - id: tech
+    name: Tech & Smart Home
+    code: TEC
+    color: "#1d4fb6"
+    kicker: The latest in
+  - id: desk
+    name: Your Desk
+    code: DSK
+    color: "#6b4a2b"
+    kicker: We have all the best for
+  - id: kitchen
+    name: Kitchen & Snacks
+    code: KIT
+    color: "#2A6E3B"
+  - id: centerfold
+    name: Centerfold
+    code: CF
+    color: "#8a3b5a"
+  - id: kids-pets
+    name: Kids & Pets
+    code: KID
+    color: "#9b2fae"
+    kicker: We have all the best for
+  - id: wild-card
+    name: Wild Card
+    code: WLD
+    color: "#3a2a24"
   - id: back
     name: Back
     code: BK

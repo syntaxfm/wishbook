@@ -1,0 +1,12 @@
+name: Xteink X4 Pro
+id: 52
+indexName: E-reader, Xteink X4 Pro
+brand: Xteink
+section: back
+mention: true
+priceEstimate: 99
+priceNote: Up to 109
+makerLink: https://www.xteink.com/products/xteink-x4-pro-pocket-ereader
+sources:
+  - https://www.xteink.com/products/xteink-x4-pro-pocket-ereader
+description: "The frontlit, touchscreen version of the e-reader on {page:tech-picks}."

@@ -1,0 +1,25 @@
+name: meross Smart Wi-Fi Garage Door Opener (MSG100)
+id: 26
+shortName: Garage Door Opener
+indexName: Garage door opener
+brand: meross
+section: tech
+pickedBy:
+  - wes
+priceEstimate: 29.99
+priceNote: About 50 for the HomeKit version
+buyLink: https://www.amazon.com/dp/B07L5DPK8P
+makerLink: https://shop.meross.com/products/smart-wifi-garage-door-opener
+sources:
+  - https://www.amazon.com/meross-Smart-Control-Compatible-Assistant/dp/B07L5DPK8P
+  - https://shop.meross.com/products/smart-wifi-garage-door-opener
+description: "No monthly fee to open your own garage door. Rock solid, about $30 (around $50 for the HomeKit version)."
+altDescriptions:
+  - "Works with your existing opener and Home Assistant, and auto-closes if you forget. Wes even hooked his up to an MCP server."
+  - "Wes replaced his Wyze with this, and it's been solid for 18 months. Get alerts, auto-close, and never pay a subscription."
+quotes:
+  - text: "You're not going to be spending a monthly [fee] opening your garage door."
+    by: wes
+  - text: "They've been rock solid for probably a year and a half now."
+    by: wes
+internalNote: "~$27–32 (HomeKit version ~$40–50). The photo has a HomeKit badge and phone mockup. Buy link is the clean form of Wes's Amazon link (same product, tracking parameters removed)."

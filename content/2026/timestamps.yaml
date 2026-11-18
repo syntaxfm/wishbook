@@ -1,0 +1,125 @@
+# Approximate until the final cut: re-check every time against the published video.
+timestamps:
+  - item: silicone-usb-c-cables
+    time: "00:36"
+  - item: sharge-icemag-3
+    time: "01:04"
+  - item: usb-power-meter
+    time: "01:34"
+  - item: anker-735
+    time: "02:38"
+  - item: travel-neck-pillow
+    time: "03:13"
+  - item: ipad-case
+    time: "04:26"
+  - item: alpine-flyfit
+    time: "05:13"
+  - item: beyerdynamic-dt-270-pro
+    time: "06:03"
+  - item: stamen-st-01
+    time: "06:48"
+  - item: wolfbox-megaflow
+    time: "08:15"
+  - item: anker-140w
+    time: "09:04"
+  - item: slate-mini-flosser
+    time: "10:13"
+  - item: suri-toothbrush
+    time: "11:35"
+  - item: pottery-class
+    time: "12:31"
+  - item: boy-mole-fox-horse
+    time: "13:02"
+  - item: ollee-watch-one
+    time: "13:54"
+  - item: ollee-watch-one
+    variant: diy-kit
+    time: "14:48"
+  - item: ollee-watch-one
+    variant: firmware
+    time: "14:39"
+  - item: kz-zs10-pro
+    time: "15:10"
+  - item: kz-zs10-pro
+    variant: an01
+    time: "15:52"
+  - item: waveshare-esp32
+    time: "16:57"
+  - item: brad-tolinski-books
+    time: "18:04"
+  - item: bovicas-charger
+    time: "19:31"
+  - item: olight-oclip-2-ultra
+    time: "20:59"
+  - item: xteink-x4
+    time: "24:02"
+  - item: wifi-picture-frame
+    time: "25:37"
+  - item: apollo-air-1
+    time: "27:16"
+  - item: govee-monitors
+    time: "29:17"
+  - item: meross-garage-opener
+    time: "30:01"
+  - item: ugreen-laptop-stand
+    time: "33:31"
+  - item: remarkable-2
+    time: "36:09"
+  - item: leatherman-arc
+    time: "36:41"
+  - item: apc-back-ups-pro
+    time: "40:01"
+  - item: plastic-welder
+    time: "43:16"
+  - item: syntax-macro-keyboard
+    time: "44:52"
+  - item: dish-brush
+    time: "45:57"
+  - item: mini-tongs
+    time: "47:52"
+  - item: oxo-fish-turner
+    time: "49:19"
+  - item: agro-jerky
+    time: "50:42"
+  - item: lao-gan-ma
+    time: "51:33"
+  - item: yoto-player
+    time: "53:05"
+  - item: kindle-colorsoft-kids
+    time: "54:12"
+  - item: first-cat-in-space
+    time: "55:11"
+  - item: grooming-rake
+    time: "55:45"
+  - item: power-wheels
+    time: "56:51"
+  - item: cascadia
+    time: "57:53"
+  - item: stack-nabbit
+    time: "58:10"
+  - item: loners
+    time: "59:06"
+  - item: cooling-mat
+    time: "1:00:17"
+  - item: candle-warmer
+    time: "1:02:34"
+  - item: anbernic-rg-34xxsp
+    time: "1:04:26"
+  - item: grouse
+    time: "1:06:41"
+  - item: anker-solix
+    time: ""
+  - item: ratgdo
+    time: ""
+  - item: xteink-x4-pro
+    time: ""
+  - item: clip-on-reading-light
+    time: ""
+  - item: kz-an01
+    time: ""
+  - item: tonies-box
+    time: ""
+  - item: nylon-repair-patches
+    time: ""
+  - item: snakes-of-wrath-fruit-boss
+    time: ""
