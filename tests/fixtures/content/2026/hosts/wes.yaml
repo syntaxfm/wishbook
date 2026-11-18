@@ -1,0 +1,6 @@
+name: Fixture Host One
+shortName: One
+role: Co-host
+bio: Brought too many picks. See {page:one-picks}.
+picksPage: one-picks
+order: 1

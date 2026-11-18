@@ -1,0 +1,29 @@
+name: Fixture Power Bank
+id: 2
+shortName: The Bank
+brand: Fixture Co
+section: favorites
+pickedBy:
+  - wes
+  - scott
+isNew: true
+priceEstimate: 67.9
+makerLink: https://example.com/power-bank
+features:
+  - lead: Built-in fan
+    text: keeps it cool.
+variants:
+  - key: dock
+    name: With dock
+    price: 94.99
+  - key: kit
+    name: DIY kit
+    priceLabel: TBA
+    unit: Kit
+    imageSuffix: "2"
+quotes:
+  - text: I absolutely love it…
+    by: scott
+    context: on the fan
+    verify: true
+    placement: "on"

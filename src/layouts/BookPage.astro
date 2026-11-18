@@ -1,4 +1,5 @@
 ---
+import { getEdition, getGlobal } from "../lib/content";
 import { absoluteUrl, editionUrl, type Edition } from "../lib/urls";
 
 interface Props {
@@ -6,9 +7,11 @@ interface Props {
 }
 
 const { edition } = Astro.props;
+// Reading the edition validates all of its content; bad content fails the build.
+const [global] = await Promise.all([getGlobal(), getEdition(edition)]);
 // Root copies point their canonical at the edition URL, so every share is year-scoped.
 const canonical = absoluteUrl(editionUrl(edition));
-const title = "Syntax WishBook";
+const title = global.name;
 ---
 
 <!doctype html>
@@ -23,7 +26,7 @@ const title = "Syntax WishBook";
   </head>
   <body>
     <main>
-      <h1>Syntax WishBook</h1>
+      <h1>{title}</h1>
     </main>
   </body>
 </html>

@@ -1,0 +1,19 @@
+episode:
+  number: 999
+  videoUrl: https://example.com/video
+cover:
+  price: FREE
+  note: "{count} gifts · index on {page:one-picks}"
+welcome:
+  steps:
+    - lead: Flip through.
+      text: Tap {syn:cables} to watch.
+key:
+  entries:
+    - symbol: catalog
+      text: Catalog no. = video timestamp
+      item: cables
+orderLines:
+  - id: phone
+    kicker: Call any time
+    text: "{phone}"

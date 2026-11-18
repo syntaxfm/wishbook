@@ -1,0 +1,9 @@
+pages:
+  - slug: cover
+    section: front
+    template: cover
+    title: Syntax WishBook
+  - slug: back-cover
+    section: back
+    template: back-cover
+    title: Back Cover

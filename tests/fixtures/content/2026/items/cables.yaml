@@ -1,0 +1,13 @@
+name: Fixture Cables
+id: 1
+indexName: Cables, fixture
+section: favorites
+pickedBy:
+  - wes
+priceConfirmed: 13.99
+buyLink: https://example.com/buy/cables
+description: Never tangle. See {page:power-bank}.
+quotes:
+  - text: They never tangle.
+    by: wes
+    placement: below

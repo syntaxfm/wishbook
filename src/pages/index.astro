@@ -2,9 +2,7 @@
 // Root copy: the current edition's cover, rendered again at "/".
 // Its canonical points at the edition URL (/2026/).
 import BookPage from "../layouts/BookPage.astro";
-import { readEditions } from "../lib/editions";
-
-const { current } = readEditions();
+import { getCurrentEdition } from "../lib/content";
 ---
 
-<BookPage edition={current} />
+<BookPage edition={getCurrentEdition()} />

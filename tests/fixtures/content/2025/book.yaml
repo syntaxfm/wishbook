@@ -1,0 +1,11 @@
+pages:
+  - slug: cover
+    section: front
+    template: cover
+    title: Last Year's WishBook
+  - slug: oldies
+    section: oldies
+    template: grid
+    title: Oldies
+    items:
+      - item: old-cable
