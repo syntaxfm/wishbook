@@ -6,7 +6,7 @@
  *   *italic*        italic (titles of books, magazines…)
  *   {page:<slug>}   cross-reference, rendered as a linked "page 6 A"
  *   {syn:<item>}    that item's catalog number ("SYN 036:41"), linked to the video
- *   {count}         number of items in the edition
+ *   {count}         number of gifts in the edition (items not marked as mentions; pickCount)
  *   {phone}         the phone number from content/global.yaml
  *   {catalog}       the plain-text catalog address, for the "curl" order line
  *
