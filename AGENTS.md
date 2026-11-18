@@ -43,7 +43,8 @@ assets/
   brand/          shared brand assets (logo)
   <year>/         one edition: items/, hosts/, cover/, generated/
 src/
-  lib/            urls.ts (URL helper), content reader, asset resolver, pagination
+  lib/            urls.ts (URL helper), schema.ts (content schema), content.ts (reader),
+                  assets.ts (asset resolver), copy.ts (copy markup), editions, pagination
   layouts/        page templates (one per catalog layout)
   components/     catalog building blocks (item block, letter callout, price, quote, tabs…)
   scripts/        client modules: book engine, router, image loader, wish list, search
@@ -53,8 +54,8 @@ src/
     [edition]/    every real route, generated per edition (pages, og/, wishlist/, catalog.txt)
 public/           static files (_headers, _redirects, baked textures)
 scripts/          node scripts (assets report)
-keystatic.config.ts
-tests/            unit/ for vitest; e2e/ for playwright
+keystatic.config.ts   admin config: the schema for the current edition
+tests/            unit/ for vitest; e2e/ for playwright; fixtures/ (two fixture editions)
 ```
 
 ## Content rules
@@ -67,7 +68,9 @@ tests/            unit/ for vitest; e2e/ for playwright
 - **Quotes** are taken from the episode transcript. Use "…" to trim. Quotes marked as needing verification must keep that flag until reviewed.
 - **Prices:** show the confirmed price when set, otherwise the estimate with an "est." marker.
 - **Missing images** render the placeholder component (a solid color block with a short title) until the real asset exists. All images are local; never link remote image URLs.
-- **Per-edition content and assets:** each year's content lives in `content/<year>/` and its images in `assets/<year>/`. Item images are found by convention, not stored paths: `assets/<year>/items/<id>-<name>.<ext>`, extra photos `-2`, `-3`, item art `-hero`. Only the id prefix and suffix matter. Item ids are permanent within an edition and never reused.
+- **Per-edition content and assets:** each year's content lives in `content/<year>/` and its images in `assets/<year>/`. Item images are found by convention, not stored paths: `assets/<year>/items/<id>-<name>.<ext>`, extra photos `-2`, `-3`, item art `-hero`. Only the id prefix and suffix matter. Write ids zero-padded to three digits (`001-silicone-cables.png`); the resolver accepts any padding. Don't end a name in `-<digit>` (it reads as an extra-photo suffix). Item ids are permanent within an edition and never reused. Keystatic has no image upload fields on purpose: its uploads are named after the field, not the id, so they can't follow the convention. Drop files into the folders instead.
+- **Schema and reader:** the schema for every editable field is `src/lib/schema.ts` (Keystatic uses it through `keystatic.config.ts`). Read content only through `src/lib/content.ts` (`getItems(edition)`, `getPages(edition)`, …), which resolves references and fails the build with file-specific errors. Resolve images only through `src/lib/assets.ts` (`resolveAsset(edition, key)`), which returns the image or a placeholder.
+- **Copy markup:** copy fields are plain text plus `**bold**`, `*italic*`, and tokens: `{page:<slug>}` (rendered "page 6 A", linked), `{syn:<item-slug>}` (catalog number), `{count}` (items in the edition), `{phone}`, `{catalog}`. Parse with `parseCopy` in `src/lib/copy.ts`. Unknown tokens and slugs fail the build.
 
 ## Copy voice
 

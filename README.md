@@ -75,14 +75,19 @@ Everything editable lives in `content/` as YAML. Edit it in the browser with Key
 - `content/editions.yaml`: the list of editions and the `current` one.
 - `content/global.yaml`: settings shared across years.
 - `content/<year>/`: everything for one edition.
-- `assets/<year>/`: that edition's images. Item photos are named `assets/<year>/items/<id>-<name>.<ext>` (extras `-2`, `-3`). Shared brand assets live in `assets/brand/`.
+- `assets/<year>/`: that edition's images. Item photos are named `assets/<year>/items/<id>-<name>.<ext>` with the id zero-padded to three digits (`001-silicone-cables.png`; extras `-2`, `-3`, item art `-hero`). Host photos are `assets/<year>/hosts/<host-id>.<ext>`; generated art goes in `assets/<year>/generated/`. Shared brand assets live in `assets/brand/`. Images aren't uploaded through Keystatic: drop the file into its folder and it shows up. Until then, a placeholder shows.
 
-In each edition:
+In each edition (`content/<year>/`):
 
-- **Items** (gifts): one file per item, with name, picker, section, price, links, descriptions, and quotes. Item ids are permanent and never reused.
-- **Book order**: which pages exist, in what order, which layout each uses, and which items they show. Page numbers, filler pages, and cross-references are all computed from this.
-- **Timestamps**: a single file mapping each item to its moment in the episode. Update it when the final video is published.
-- **Site settings**: phone number, episode URL, and other one-off values.
+- **Items** (`items/*.yaml`): one file per gift, with id, name, picker, section, prices, buy and maker links, descriptions, variants, and quotes. Item ids are permanent and never reused.
+- **Hosts** (`hosts/*.yaml`): the shoppers, with role, bio, and their picks page.
+- **Book order** (`book.yaml`): which pages exist, in what order, which layout each uses, which items they show, and their copy. Page numbers, filler pages, and cross-references are all computed from this.
+- **Sections** (`sections.yaml`): the thumb-index sections, in order.
+- **Timestamps** (`timestamps.yaml`): the one file mapping each item to its moment in the episode. Update it when the final video is published.
+- **Site settings** (`site.yaml`): episode, cover band, welcome page, symbol key, order lines, back cover.
+- **Generated art** (`assets.yaml`): each generated image's key, file, placeholder title and color, and prompt.
+
+In copy, write `{page:icemag}` for a page reference (rendered "page 6 A"), `{syn:leatherman}` for a catalog number, `{count}` for the number of gifts, `{phone}` for the phone number, and `**bold**` / `*italic*` for emphasis.
 
 Missing or invalid content fails the build with a clear error.
 
