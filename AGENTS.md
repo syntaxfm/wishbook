@@ -48,7 +48,8 @@ assets/
 src/
   lib/            urls.ts (URL helper), schema.ts (content schema), content.ts (reader),
                   assets.ts (asset resolver), copy.ts (copy markup), catalog.ts (catalog
-                  numbers, prices, order lines), editions, pagination
+                  numbers, prices, order lines), og.ts + og-layout.ts (share cards),
+                  editions, pagination
   layouts/        page templates (one per catalog layout)
   components/     catalog building blocks (Img, Placeholder, ItemLetter, PhotoQuote, Price,
                   CatalogNumber, PickedBy, NewBanner, Folio, ShopLine, Kbd, Frame…);
@@ -125,6 +126,11 @@ The effects apply to any `.page` (with `.left` / `.right` for the gutter and wor
 - **Build every URL with the URL helper** (`src/lib/urls.ts`: `editionUrl`, `rootUrl`, `absoluteUrl`). Never hard-code a path. Don't use Astro's `base` option; routes live under `src/pages/[edition]/`.
 - The client never navigates across editions. Links to another year are normal full-page links.
 - **Share cards** are crafted 1200×630 images per page (not screenshots), generated at build with Satori + resvg. Satori supports flexbox only, with no CSS filters or masks, so textures are pre-baked images.
+  - `src/lib/og.ts` turns content into plain card models (variants: cover, divider, items, feature, centerfold, page, wishlist, default) and renders them with a content-hash cache in `node_modules/.cache/wishbook-og/`. `src/lib/og-layout.ts` draws them. The route is `src/pages/[edition]/og/[slug].png.ts`; every page's `og:image` is `ogImageUrl(edition, slug)`.
+  - Which pages get a card comes from `ogSources()` in `og.ts` (one function). Each source is a page or filler copy, with an optional folio and binding side.
+  - Fonts are the `.woff` files from the `@fontsource` packages (Satori can't read woff2). Photos are resized and color graded with sharp and passed as data URIs. The paper effects reuse the baked tiles in `src/styles/textures/`, composited onto the rendered card with sharp (grain at half strength so PNGs stay small).
+  - Every card carries the masthead, `wishbook.syntax.fm`, and the edition ("WishBook 2026"). Prices follow the page rules (estimates get "est."). Keep each card under about 300 KB: the encoder lowers palette quality for photo-heavy cards.
+  - In Satori, a div defaults to `display: block` and `box-sizing: content-box`; the `h()` helper sets flex and border-box. An image drawn over text hides the text, so put overlays (like the wish-list marker loop) before the content they surround.
 - **Reading mode by viewport:** book with spreads and a 3D page turn (≥ 1000px), single page with turn (≥ 640px), vertical scroll below that. On small screens the centerfold becomes a horizontal swipe strip with its legend below.
 - **Placement rules** are enforced at build: spreads are even (left) / odd (right), the centerfold opens as a spread, and the back cover sits alone on the left. Filler pages are inserted automatically to satisfy them.
 - **History:** a page turn _replaces_ the URL; a jump (tab, cross-ref, index, hotspot) _pushes_ it.
