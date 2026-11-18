@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "astro": true,
+  "ignorePatterns": [
+    "dist",
+    ".astro",
+    "node_modules",
+    "pnpm-lock.yaml",
+    "test-results",
+    "playwright-report"
+  ]
+}

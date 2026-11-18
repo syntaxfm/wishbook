@@ -1,0 +1,5 @@
+# Every WishBook edition that builds, by year. `current` is the edition served
+# at the root (/ and /catalog.txt) and edited in Keystatic.
+editions:
+  - 2026
+current: 2026

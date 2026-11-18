@@ -1,0 +1,29 @@
+---
+import { absoluteUrl, editionUrl, type Edition } from "../lib/urls";
+
+interface Props {
+  edition: Edition;
+}
+
+const { edition } = Astro.props;
+// Root copies point their canonical at the edition URL, so every share is year-scoped.
+const canonical = absoluteUrl(editionUrl(edition));
+const title = "Syntax WishBook";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <link rel="canonical" href={canonical} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+  </head>
+  <body>
+    <main>
+      <h1>Syntax WishBook</h1>
+    </main>
+  </body>
+</html>
