@@ -12,7 +12,8 @@
     "format:check": "oxfmt --check",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "assets": "node scripts/assets-report.mjs",
+    "assets": "tsx scripts/assets-report.mjs",
+    "links": "tsx scripts/assets-report.mjs --links",
     "textures": "node scripts/bake-textures.mjs"
   },
   "dependencies": {
@@ -43,6 +44,7 @@
     "oxlint": "^1.94.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "tsx": "^4.23.15",
     "typescript": "^6.0.3",
     "vitest": "^5.1.0"
   },
