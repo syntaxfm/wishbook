@@ -18,6 +18,7 @@ pnpm format         # oxfmt (write); pnpm format:check to verify
 pnpm test           # vitest
 pnpm test:e2e       # playwright
 pnpm assets         # report present / missing assets for the current edition
+pnpm textures       # re-bake the paper, print, and wood texture tiles
 ```
 
 Before considering any change done, run `pnpm check`, `pnpm lint`, `pnpm format:check`, and `pnpm test`. Run `pnpm test:e2e` when touching layout, navigation, or the book engine.
@@ -31,6 +32,7 @@ Before considering any change done, run `pnpm check`, `pnpm lint`, `pnpm format:
 - No analytics, trackers, or third-party requests at runtime. Fonts are self-hosted.
 - **Keystatic is dev-only.** Its integration (and React) is added to the Astro config only for `astro dev`. The production build is always fully static: no adapter, no `/keystatic` or `/api/keystatic` routes, no React.
 - Dev accepts URLs with or without a trailing slash (Keystatic's API needs it); production URLs always end in `/`.
+- **Design showcase is dev-only.** `/dev/design-system/` renders every component with sample data. Its route is injected only for `astro dev`, so it never reaches `dist/`.
 
 ## Structure
 
@@ -43,16 +45,22 @@ assets/
   brand/          shared brand assets (logo)
   <year>/         one edition: items/, hosts/, cover/, generated/
 src/
-  lib/            urls.ts (URL helper), content reader, asset resolver, pagination
+  lib/            urls.ts (URL helper), catalog.ts (catalog numbers, prices, order lines),
+                  content reader, asset resolver, pagination
   layouts/        page templates (one per catalog layout)
-  components/     catalog building blocks (item block, letter callout, price, quote, tabs…)
+  components/     catalog building blocks (Img, Placeholder, ItemLetter, PhotoQuote, Price,
+                  CatalogNumber, PickedBy, NewBanner, Folio, ShopLine, Kbd, Frame…);
+                  DesignSystem (styles + font preloads, in <head>), PrintFilters (in <body>)
   scripts/        client modules: book engine, router, image loader, wish list, search
-  styles/         tokens (palette, type roles), paper & print effects, print stylesheet
+  styles/         global.css imports, in order: fonts, tokens (palette, type roles), textures,
+                  base, components, effects (paper & print), motion; editions/<year>.css
+                  overrides; textures/ holds the baked tiles; print stylesheet
+  dev/            dev-only design showcase and its sample images
   pages/
     index.astro   root copy of the current edition's cover
     [edition]/    every real route, generated per edition (pages, og/, wishlist/, catalog.txt)
-public/           static files (_headers, _redirects, baked textures)
-scripts/          node scripts (assets report)
+public/           static files (_headers, _redirects)
+scripts/          node scripts (assets report, texture baking)
 keystatic.config.ts
 tests/            unit/ for vitest; e2e/ for playwright
 ```
@@ -96,6 +104,8 @@ tests/            unit/ for vitest; e2e/ for playwright
 **Palette:** wish red `#C5301F`, holly green `#2A6E3B`, price yellow `#F7D838`, gold `#F3CF6A`→`#B8862B`, cream paper `#F1E2C4`, peach `#F0CFAE`, warm ink `#2b2119`, Syntax yellow `#FABF46`.
 
 **Paper & print effects** (on every page): warm paper, warm ink, paper grain, paper fibers, warm grade, yellowed edges, gutter shadow on the binding side, photo color grade, ink misregistration on headings and prices, glossy sheen, dust and specks, a worn corner on the outer edge, foxing, and ink bleed on large type only. Not used: halftone dot screen, scan tilt, creases, coffee rings. The cover adds worn-ink masks on its type, a spine crease, and scuffs.
+
+The effects apply to any `.page` (with `.left` / `.right` for the gutter and worn corner). Noise, fiber, dust, foxing, wood, and ink-wear textures are baked image tiles (`scripts/bake-textures.mjs` → `src/styles/textures/`), exposed as CSS variables in `textures.css`; never inline SVG noise filters. Ink bleed is the `#inkbleed` SVG filter, so every document renders `<PrintFilters />`. Each `<html>` carries `data-edition="<year>"` so `src/styles/editions/<year>.css` can override tokens and textures for that year only.
 
 **Recurring components:**
 

@@ -50,6 +50,7 @@ pnpm preview      # serve the built site
 | `pnpm test`     | Unit tests (Vitest)                                                |
 | `pnpm test:e2e` | Browser tests (Playwright)                                         |
 | `pnpm assets`   | List expected assets for the current edition, present or missing   |
+| `pnpm textures` | Re-bake the paper, print, and wood texture tiles                   |
 
 ## URLs and editions
 
