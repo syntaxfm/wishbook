@@ -45,6 +45,21 @@ export function absoluteUrl(rootRelative: string): string {
   return new URL(rootRelative, SITE_URL).href;
 }
 
+/**
+ * The episode video opened at a moment (a catalog number's link).
+ * Sets the `t` (seconds) query parameter, replacing any existing one.
+ *
+ *   videoAtTime("https://www.youtube.com/watch?v=abc", 2201) → "https://www.youtube.com/watch?v=abc&t=2201"
+ */
+export function videoAtTime(videoUrl: string, seconds: number): string {
+  if (!Number.isInteger(seconds) || seconds < 0) {
+    throw new Error(`videoAtTime: "${seconds}" is not a whole number of seconds`);
+  }
+  const url = new URL(videoUrl);
+  url.searchParams.set("t", String(seconds));
+  return url.href;
+}
+
 /** The edition a root-relative pathname belongs to, or null (e.g. the bare root "/"). */
 export function editionFromPath(pathname: string): string | null {
   const first = pathname.split("/").find(Boolean);

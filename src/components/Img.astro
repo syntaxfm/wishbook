@@ -1,0 +1,66 @@
+---
+/**
+ * A catalog image: <picture> with AVIF and WebP sources at several widths, or
+ * the placeholder block when the asset doesn't exist yet. Takes the asset
+ * resolver's result as is.
+ */
+import { Picture } from "astro:assets";
+import Placeholder from "./Placeholder.astro";
+import type { ResolvedAsset } from "./types";
+
+interface Props {
+  asset: ResolvedAsset;
+  /** Pass "" for decorative images (avatars next to a name). */
+  alt: string;
+  /** Candidate widths in px; widths larger than the source are dropped. */
+  widths?: number[];
+  /** Rendered width hint for the browser, e.g. "(min-width: 1000px) 25vw, 90vw". */
+  sizes?: string;
+  /** Load when near the viewport (default). Set false for above-the-fold images. */
+  lazy?: boolean;
+  /** Fetch with high priority (the one hero image on a page). */
+  priority?: boolean;
+  /** Placeholder only: render it as a circle. */
+  round?: boolean;
+  class?: string;
+}
+
+const {
+  asset,
+  alt,
+  widths = [320, 480, 640, 960, 1280],
+  sizes = "(min-width: 1000px) 30vw, 90vw",
+  lazy = true,
+  priority = false,
+  round = false,
+  class: className,
+} = Astro.props;
+
+let usable: number[] = [];
+if (asset.kind === "image") {
+  usable = widths.filter((w) => w <= asset.meta.width);
+  if (usable.length === 0) usable = [asset.meta.width];
+}
+---
+
+{asset.kind === "image" ? (
+  <Picture
+    src={asset.meta}
+    alt={alt}
+    formats={["avif", "webp"]}
+    widths={usable}
+    sizes={sizes}
+    loading={lazy && !priority ? "lazy" : "eager"}
+    decoding="async"
+    priority={priority}
+    class={className}
+  />
+) : (
+  <Placeholder
+    label={asset.label}
+    color={asset.color}
+    alt={alt === "" ? "" : alt || asset.label}
+    round={round}
+    class={className}
+  />
+)}

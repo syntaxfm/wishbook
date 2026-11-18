@@ -1,0 +1,30 @@
+/* Design tokens: palette and type roles, shared by every edition.
+   An edition can override any of these in src/styles/editions/<year>.css. */
+:root {
+  /* palette (warm-ink versions baked in) */
+  --red: #c5301f;
+  --green: #2a6e3b;
+  --yellow: #f7d838;
+  --gold1: #f3cf6a;
+  --gold2: #b8862b;
+  --midnight: #1c2a5a;
+  --cream: #f1e2c4;
+  --peach: #f0cfae;
+  --ink: #2b2119;
+  --kraft: #c9a878;
+  --syntax: #fabf46;
+  --blackish: #1d1d1d;
+
+  /* type roles */
+  --f-masthead: "Pinyon Script", cursive;
+  --f-display: "Playfair Display", serif; /* 700 italic */
+  --f-itemname: "Old Standard TT", serif; /* 700 caps */
+  --f-tru: "Gelasio", serif; /* 700 */
+  --f-body: "Libre Caslon Text", serif; /* 400 */
+  --f-kicker: "Antonio", sans-serif; /* 700 caps */
+  --f-script: "Great Vibes", cursive;
+  --f-price: "Old Standard TT", serif; /* 700 */
+  --f-mono: "JetBrains Mono", monospace;
+  --f-quote: "Libre Caslon Text", serif; /* 400 italic */
+  --f-hand: "Permanent Marker", cursive;
+}

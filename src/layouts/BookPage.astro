@@ -1,4 +1,6 @@
 ---
+import DesignSystem from "../components/DesignSystem.astro";
+import PrintFilters from "../components/PrintFilters.astro";
 import { getEdition, getGlobal } from "../lib/content";
 import { absoluteUrl, editionUrl, type Edition } from "../lib/urls";
 
@@ -15,7 +17,7 @@ const title = global.name;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-edition={edition}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -23,8 +25,10 @@ const title = global.name;
     <link rel="canonical" href={canonical} />
     <meta property="og:url" content={canonical} />
     <meta property="og:title" content={title} />
+    <DesignSystem />
   </head>
   <body>
+    <PrintFilters />
     <main>
       <h1>{title}</h1>
     </main>

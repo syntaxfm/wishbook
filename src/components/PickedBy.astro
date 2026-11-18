@@ -1,0 +1,40 @@
+---
+/**
+ * The yellow "picked by" sticker: host avatar(s) and a label.
+ * One host reads "Wes picked these"; several read "Scott & CJ".
+ */
+import Img from "./Img.astro";
+import type { HostRef } from "./types";
+
+interface Props {
+  hosts: HostRef[];
+  /** Overrides the default label. */
+  label?: string;
+  class?: string;
+}
+
+const { hosts, label, class: className } = Astro.props;
+if (hosts.length === 0) throw new Error("PickedBy: at least one host is required");
+
+const names = hosts.map((h) => h.name);
+const text = label ?? (names.length === 1 ? `${names[0]} picked these` : names.join(" & "));
+---
+
+<span class:list={["picked", className]}>
+  {hosts.map((host, i) => (
+    <>
+      {i > 0 && "+"}
+      {host.avatar && (
+        <Img
+          asset={host.avatar}
+          alt=""
+          class={i > 0 ? "more" : undefined}
+          widths={[64, 96]}
+          sizes="32px"
+          round
+        />
+      )}
+    </>
+  ))}
+  {text}
+</span>

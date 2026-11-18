@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { absoluteUrl, editionFromPath, editionUrl, rootUrl } from "../../src/lib/urls";
+import { absoluteUrl, editionFromPath, editionUrl, rootUrl, videoAtTime } from "../../src/lib/urls";
 
 describe("editionUrl", () => {
   it("builds year-scoped directory URLs with a trailing slash", () => {
@@ -15,6 +15,24 @@ describe("editionUrl", () => {
 
   it("keeps query strings", () => {
     expect(editionUrl(2026, "wishlist?w=abc")).toBe("/2026/wishlist/?w=abc");
+  });
+});
+
+describe("videoAtTime", () => {
+  it("adds the time to a watch URL", () => {
+    expect(videoAtTime("https://www.youtube.com/watch?v=abc", 2201)).toBe(
+      "https://www.youtube.com/watch?v=abc&t=2201",
+    );
+  });
+
+  it("works on short links and replaces an existing time", () => {
+    expect(videoAtTime("https://youtu.be/abc", 36)).toBe("https://youtu.be/abc?t=36");
+    expect(videoAtTime("https://youtu.be/abc?t=10", 36)).toBe("https://youtu.be/abc?t=36");
+  });
+
+  it("rejects bad input", () => {
+    expect(() => videoAtTime("not a url", 36)).toThrow();
+    expect(() => videoAtTime("https://youtu.be/abc", 1.5)).toThrow();
   });
 });
 

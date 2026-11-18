@@ -1,0 +1,19 @@
+---
+/**
+ * The letter that ties a photo to its copy: a black square with a white letter
+ * and a red offset shadow.
+ *   inline: in the copy, before the item name (floats left inside .item)
+ *   photo:  top-left corner of a photo frame
+ *   big:    bottom-right corner of a photo frame (holly / under-$30 pages)
+ */
+interface Props {
+  letter: string;
+  variant?: "inline" | "photo" | "big";
+  class?: string;
+}
+
+const { letter, variant = "inline", class: className } = Astro.props;
+const variantClass = { inline: "L", photo: "letter", big: "bigletter" }[variant];
+---
+
+<span class:list={[variantClass, className]}>{letter}</span>
