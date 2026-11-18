@@ -1,0 +1,10 @@
+assets:
+  - key: IMG-S1
+    file: generated/stockings.png
+    label: stockings on a mantel
+    color: "#2A6E3B"
+    aspect: "4:5"
+  - key: IMG-C1
+    file: generated/not-made-yet
+    label: centerfold scene
+    sourceItem: grouse

@@ -1,10 +1,10 @@
 ---
 import type { GetStaticPaths } from "astro";
 import BookPage from "../../layouts/BookPage.astro";
-import { readEditions } from "../../lib/editions";
+import { getEditions } from "../../lib/content";
 
 export const getStaticPaths = (() =>
-  readEditions().editions.map((edition) => ({
+  getEditions().map((edition) => ({
     params: { edition: String(edition) },
   }))) satisfies GetStaticPaths;
 

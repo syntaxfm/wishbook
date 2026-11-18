@@ -1,0 +1,11 @@
+sections:
+  - id: front
+    name: Front
+    code: FR
+    color: "#5a4a3a"
+  - id: favorites
+    name: Our Favorite Things
+    code: FAV
+    color: "#C5301F"
+    kicker: We have all the best for
+    tabLabel: Favorites

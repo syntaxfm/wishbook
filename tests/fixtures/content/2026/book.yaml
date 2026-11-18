@@ -1,0 +1,49 @@
+pages:
+  - slug: cover
+    section: front
+    template: cover
+    title: Fixture WishBook
+  - slug: favorites
+    section: favorites
+    template: divider
+    title: Our Favorite Things
+    art: IMG-S1
+  - slug: one-picks
+    section: favorites
+    template: grid
+    title: One's Favorite Things
+    hosts:
+      - wes
+    items:
+      - item: cables
+      - item: power-bank
+        caption: (B) The bank
+    orderLine: phone
+  - slug: power-bank
+    section: favorites
+    template: feature
+    variant: bench
+    title: The Bank
+    items:
+      - item: power-bank
+    inset:
+      art: IMG-C1
+      caption: Phone not included.
+    copy:
+      body: snaps on. Catalog no. {syn:power-bank}.
+      xref: More on {page:one-picks}.
+  - slug: centerfold
+    section: favorites
+    template: centerfold
+    title: Christmas Morning
+    centerfold:
+      focal: 40% 55%
+      hotspots:
+        - item: grouse
+          x: 33
+          y: 28
+          label: A grouse on the mantel
+    quotes:
+      - text: Buy a grouse.
+        byLabel: the crew
+        placement: oneliner
