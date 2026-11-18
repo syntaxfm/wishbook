@@ -72,6 +72,56 @@ function pushText(out: CopySegment[], text: string) {
   }
 }
 
+/** A run of copy with its emphasis: plain text or a token, bold and/or italic. */
+export type CopyRun = ({ kind: "text"; text: string } | CopyToken) & {
+  bold: boolean;
+  italic: boolean;
+};
+
+const RUN_RE = /\*\*|\*|\{([a-z]+)(?::([a-z0-9-]+))?\}/g;
+
+/**
+ * Splits copy into runs for rendering. Unlike `parseCopy`, emphasis can wrap
+ * tokens: "**See {page:icemag}.**" is one bold run of text, a bold page
+ * reference, and bold text. A marker with no closing partner stays literal.
+ */
+export function parseCopyRuns(text: string): CopyRun[] {
+  const out: CopyRun[] = [];
+  let bold = false;
+  let italic = false;
+  let last = 0;
+  const pushText = (s: string) => {
+    if (!s) return;
+    const prev = out.at(-1);
+    if (prev?.kind === "text" && prev.bold === bold && prev.italic === italic) prev.text += s;
+    else out.push({ kind: "text", text: s, bold, italic });
+  };
+  for (const m of text.matchAll(RUN_RE)) {
+    pushText(text.slice(last, m.index));
+    last = m.index + m[0].length;
+    const rest = text.slice(last);
+    if (m[0] === "**") {
+      if (bold || rest.includes("**")) bold = !bold;
+      else pushText(m[0]);
+    } else if (m[0] === "*") {
+      if (italic || /(?<!\*)\*(?!\*)/.test(rest)) italic = !italic;
+      else pushText(m[0]);
+    } else {
+      out.push({ ...toToken(m[1]!, m[2], m[0]), bold, italic });
+    }
+  }
+  pushText(text.slice(last));
+  return out;
+}
+
+/** Splits multi-paragraph copy on blank lines. */
+export function copyParagraphs(text: string): string[] {
+  return text
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+}
+
 /** Splits copy into text, emphasis, and token segments for rendering. */
 export function parseCopy(text: string): CopySegment[] {
   const out: CopySegment[] = [];
