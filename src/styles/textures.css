@@ -1,0 +1,40 @@
+/* Baked texture tiles (see scripts/bake-textures.mjs). Exposed as variables so
+   effects and components share them and an edition can swap them. The variable
+   names say the tile's CSS size where it matters. */
+:root {
+  /* paper (multiply layer): 180px grain, 520px fibers, 700px foxing */
+  --tex-grain: image-set(url("./textures/grain.webp") 1x, url("./textures/grain@2x.webp") 2x);
+  --tex-fibers: url("./textures/fibers.webp");
+  --tex-foxing: image-set(url("./textures/foxing.webp") 1x, url("./textures/foxing@2x.webp") 2x);
+  /* dust and specks (screen layer): 420px */
+  --tex-dust: image-set(url("./textures/dust.webp") 1x, url("./textures/dust@2x.webp") 2x);
+
+  /* wood, 640×420: warm walnut (photo frames) and honey-oak planks (workbench) */
+  --wood-warm: url("./textures/wood-warm.webp");
+  --wood-floor: url("./textures/wood-floor.webp");
+
+  /* ink wear (cover): 240px speckled dropouts, 700×500 soft fades (alpha masks),
+     160px fine grain for printed solids, 600px scuffs (soft-light) */
+  --ink-speck: image-set(
+    url("./textures/ink-speck.webp") 1x,
+    url("./textures/ink-speck@2x.webp") 2x
+  );
+  --ink-fade: url("./textures/ink-fade.webp");
+  --grain-fine: url("./textures/grain-fine.webp");
+  --scuffs: image-set(url("./textures/scuffs.webp") 1x, url("./textures/scuffs@2x.webp") 2x);
+}
+
+/* Worn ink: speckled dropouts intersected with uneven fading, applied as a mask,
+   so type and logos look printed into the paper rather than laid on top. */
+.worn {
+  -webkit-mask-image: var(--ink-speck), var(--ink-fade);
+  mask-image: var(--ink-speck), var(--ink-fade);
+  -webkit-mask-size:
+    240px 240px,
+    700px 500px;
+  mask-size:
+    240px 240px,
+    700px 500px;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}

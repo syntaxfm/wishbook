@@ -1,0 +1,11 @@
+/* 2026 edition theme.
+   Each edition can override the shared tokens and textures here, scoped to its
+   year so editions never leak into each other:
+
+     :root[data-edition="2026"] {
+       --red: #c5301f;
+       --f-masthead: "Pinyon Script", cursive;
+       --wood-warm: url("../textures/wood-warm.webp");
+     }
+
+   2026 uses the base design as is. */

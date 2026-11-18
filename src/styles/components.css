@@ -1,0 +1,519 @@
+/* =========================================================
+   Reusable catalog components (markup in src/components/).
+   ========================================================= */
+
+/* <Img> renders a <picture>; keep it out of layout so rules written for the
+   <img> box (object-fit, sizing, grid placement) behave as if it were bare. */
+picture {
+  display: contents;
+}
+
+/* ---------- placeholder (an image that doesn't exist yet) ---------- */
+.gen {
+  position: relative;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  background: var(--gen, #7d93c9);
+  color: rgba(255, 255, 255, 0.92);
+  overflow: hidden;
+}
+.gen::before {
+  content: attr(data-gen);
+  font: 600 clamp(10px, 2cqi, 13px) / 1.35 var(--f-mono);
+  padding: 0.6em 1em;
+  max-width: 85%;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px dashed rgba(255, 255, 255, 0.6);
+}
+.gen.round {
+  border-radius: 50%;
+}
+.gen.round::before {
+  background: none;
+  border: 0;
+  font-size: clamp(8px, 1.5cqi, 11px);
+  padding: 0.3em;
+}
+/* placeholder avatars are just a color dot */
+.gen.av::before,
+.picked .gen::before {
+  content: none;
+}
+
+/* ---------- photo frame ---------- */
+.frame {
+  border: 3px solid var(--red);
+  background: #fff;
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.frame > img,
+.frame > picture > img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 6%;
+}
+.frame > .gen {
+  place-self: stretch;
+}
+.frame.dark {
+  background: radial-gradient(circle at 50% 40%, #5a3626 0%, #2e1a12 75%);
+}
+.frame.wood {
+  background:
+    radial-gradient(
+      ellipse 80% 75% at 50% 45%,
+      rgba(255, 220, 170, 0.1) 0%,
+      transparent 55%,
+      rgba(25, 10, 3, 0.55) 100%
+    ),
+    linear-gradient(180deg, rgba(255, 235, 200, 0.06), rgba(0, 0, 0, 0.12)), var(--wood-warm);
+  background-size:
+    100% 100%,
+    100% 100%,
+    640px 420px;
+}
+
+/* ---------- item letters: black square, white letter, red offset shadow ---------- */
+.letter {
+  position: absolute;
+  top: 0.5em;
+  left: 0.5em;
+  z-index: 2;
+  background: #000;
+  color: #fff;
+  box-shadow: 0.14em 0.14em 0 var(--red);
+  font-family: var(--f-itemname);
+  font-weight: 700;
+  width: 1.7em;
+  height: 1.7em;
+  display: grid;
+  place-items: center;
+  font-size: clamp(13px, 2.8cqi, 18px);
+}
+.bigletter {
+  position: absolute;
+  bottom: 0.5em;
+  right: 0.5em;
+  z-index: 2;
+  background: #000;
+  color: #fff !important;
+  font-family: var(--f-itemname);
+  font-weight: 700;
+  width: 1.7em;
+  height: 1.7em;
+  display: grid;
+  place-items: center;
+  font-size: clamp(13px, 2.8cqi, 18px);
+  line-height: 1;
+  box-shadow: 0.14em 0.14em 0 var(--red);
+}
+.L {
+  display: inline-grid;
+  place-items: center;
+  width: 1.6em;
+  height: 1.6em;
+  background: #000;
+  color: #fff;
+  font-family: var(--f-itemname);
+  font-weight: 700;
+  font-style: normal;
+  font-size: 1.05em;
+  line-height: 1;
+  margin: 0 0.5em 0 0;
+  box-shadow: 0.14em 0.14em 0 var(--red);
+  vertical-align: 0.08em;
+  text-shadow: none;
+}
+.item .L {
+  float: left;
+  margin: 0.1em 0.55em 0.1em 0;
+}
+.friendly .L {
+  font-size: 0.62em;
+  vertical-align: 0.25em;
+  margin-right: 0.45em;
+}
+
+/* ---------- item copy ---------- */
+.item {
+  margin: 0 0 0.9em;
+}
+.item .itemname {
+  font-size: 1.06em;
+}
+.item p {
+  margin: 0.15em 0;
+}
+.item .quote {
+  color: #4a3a2a;
+  margin: 0.3em 0;
+}
+
+/* ---------- prices ---------- */
+/* order line: SYN 000:36 – Each ........ 13.99 */
+.order {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4em;
+  font-size: 0.88em;
+  margin-top: 0.2em;
+  clear: both;
+  white-space: nowrap;
+}
+.order .mono {
+  font-size: 0.92em;
+}
+.order .dots {
+  flex: 1;
+  border-bottom: 2px dotted currentColor;
+  transform: translateY(-0.3em);
+  min-width: 1em;
+}
+.order .price {
+  font-size: 1.35em;
+}
+.est {
+  font-size: 0.62em;
+  font-family: var(--f-body);
+  font-weight: 400;
+  font-style: italic;
+  opacity: 0.75;
+  margin-left: 0.15em;
+}
+/* toy-store price box */
+.pricebox {
+  display: inline-block;
+  background: var(--yellow);
+  box-shadow: 0.14em 0.14em 0 var(--red);
+  padding: 0.02em 0.3em;
+  font-family: var(--f-tru);
+  font-weight: 700;
+  font-size: clamp(20px, 5.2cqi, 36px);
+  line-height: 1.15;
+  border: 1px solid #c9a800;
+}
+.pricebox sup {
+  font-size: 0.45em;
+  vertical-align: super;
+}
+/* big numerals on a photo */
+.bignum {
+  font-family: var(--f-price);
+  font-weight: 700;
+  color: #fff;
+  font-size: clamp(28px, 8cqi, 58px);
+  line-height: 1;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.35);
+}
+.bignum sup {
+  font-size: 0.48em;
+  vertical-align: top;
+  position: relative;
+  top: 0.15em;
+}
+/* the "est." marker stays small next to big numerals */
+.bignum .est,
+.pricebox .est {
+  font-size: 0.3em;
+}
+
+/* catalog number link: reads as print, not as a web link */
+a.mono {
+  color: inherit;
+  text-decoration: none;
+}
+a.mono:hover,
+a.mono:focus-visible {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+/* dot-leader lists (contents, index) */
+.dotlist {
+  list-style: none;
+  margin: 0.4em 0;
+  padding: 0;
+}
+.dotlist li {
+  display: flex;
+  gap: 0.4em;
+  align-items: baseline;
+  margin: 0.15em 0;
+}
+.dotlist li .dots {
+  flex: 1;
+  border-bottom: 2px dotted currentColor;
+  transform: translateY(-0.3em);
+}
+
+/* ---------- picked-by sticker ---------- */
+.picked {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  background: var(--syntax);
+  color: #000;
+  border-radius: 999px;
+  padding: 0.2em 0.7em 0.2em 0.2em;
+  font-family: var(--f-kicker);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: clamp(10px, 2cqi, 13px);
+  letter-spacing: 0.04em;
+  transform: rotate(-3deg);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
+  vertical-align: middle;
+}
+.picked img,
+.picked .gen {
+  width: 2em;
+  height: 2em;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+}
+.picked .more {
+  margin-left: -0.6em;
+}
+
+/* ---------- NEW ribbon and oval ---------- */
+.newbanner {
+  display: inline-block;
+  background: linear-gradient(180deg, #fff2b8, var(--gold1) 40%, var(--gold2));
+  color: #3b2a07;
+  padding: 0.2em 1.3em;
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-style: italic;
+  font-size: clamp(14px, 3.6cqi, 26px);
+  clip-path: polygon(0 0, 100% 0, 92% 50%, 100% 100%, 0 100%, 8% 50%);
+  transform: rotate(-6deg);
+  filter: drop-shadow(1px 2px 0 rgba(0, 0, 0, 0.25));
+}
+.newoval {
+  position: absolute;
+  top: 3cqi;
+  left: 3cqi;
+  z-index: 2;
+  background: var(--yellow);
+  border-radius: 50%;
+  padding: 0.15em 1em;
+  font-family: var(--f-display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: clamp(14px, 4cqi, 26px);
+}
+
+/* ---------- handwritten sticker note ---------- */
+.sticker {
+  position: absolute;
+  z-index: 3;
+  transform: rotate(-7deg);
+  background: var(--yellow);
+  padding: 0.6em 0.8em;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.25);
+  font-family: var(--f-hand);
+  font-size: clamp(12px, 2.6cqi, 17px);
+  line-height: 1.15;
+  max-width: 15em;
+}
+
+/* ---------- folio (page number tab) ---------- */
+.folio {
+  position: absolute;
+  bottom: 0;
+  z-index: 3;
+  padding: 0.35em 0.9em;
+  font-family: var(--f-price);
+  font-weight: 700;
+  font-size: clamp(14px, 3.4cqi, 22px);
+}
+.folio small {
+  font-size: 0.55em;
+  margin: 0 0.2em;
+}
+a.folio {
+  text-decoration: none;
+}
+.left .folio {
+  left: 0;
+  background: var(--green);
+  color: #fff;
+}
+.right .folio {
+  right: 0;
+  background: var(--yellow);
+  color: var(--ink);
+}
+
+/* ---------- footer order line and guarantee ---------- */
+.shopany {
+  position: absolute;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+}
+.left .shopany {
+  left: 14cqi;
+}
+.right .shopany {
+  right: 12cqi;
+}
+.shopany span {
+  background: var(--yellow);
+  font-family: var(--f-kicker);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: clamp(13px, 3cqi, 20px);
+  padding: 0.25em 1em 0.25em 1.6em;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 0.7em 50%);
+  letter-spacing: 0.04em;
+}
+.guarantee {
+  position: absolute;
+  bottom: 1.1em;
+  font-size: 0.82em;
+}
+.left .guarantee {
+  left: 16cqi;
+}
+.right .guarantee {
+  right: 16cqi;
+}
+.guarantee b {
+  font-family: var(--f-kicker);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ---------- photo quotes: on or below the photo ---------- */
+.pq {
+  display: flex;
+  gap: 0.55em;
+  align-items: flex-start;
+  font-size: 0.9em;
+  line-height: 1.28;
+  text-align: left;
+}
+.pq .av {
+  width: 2.4em;
+  height: 2.4em;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  flex: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  padding: 0;
+}
+.pq .attr {
+  display: block;
+  margin-top: 0.15em;
+  font-size: 0.92em;
+}
+/* ON the image: a caption card overlapping the bottom of the photo */
+.frame .pq.on,
+.band .pq.on {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  bottom: 4%;
+  z-index: 3;
+  background: rgba(241, 226, 196, 0.95);
+  color: var(--ink);
+  padding: 0.5em 0.65em;
+  border: 1.5px solid var(--ink);
+  box-shadow: 0.25em 0.25em 0 rgba(0, 0, 0, 0.28);
+  transform: rotate(-0.6deg);
+}
+.frame .pq.on {
+  font-size: 0.84em;
+}
+.frame:has(.pq.on) > img,
+.frame:has(.pq.on) > picture > img {
+  object-position: 50% 20%;
+  padding-bottom: 24%;
+}
+.band .pq.on {
+  left: auto;
+  right: 4%;
+  top: 7%;
+  bottom: auto;
+  max-width: 44%;
+  font-size: 0.82em;
+}
+/* BELOW the image: magazine photo caption with a red rule */
+.pq.below {
+  margin: 0.7em 0 0.2em;
+  padding: 0.15em 0 0.15em 0.75em;
+  border-left: 0.6cqi solid var(--red);
+}
+.pq.below.big {
+  font-size: 1.08em;
+  margin-top: 0;
+}
+.pq.below.big .av {
+  width: 3em;
+  height: 3em;
+}
+/* dev only: a quote that still needs checking against the transcript */
+.pq[data-verify] .quote {
+  text-decoration: underline wavy rgba(197, 48, 31, 0.45);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+}
+
+/* ---------- wish-list marker circle ---------- */
+.circled {
+  position: relative;
+  display: inline-block;
+  padding: 0.4em 0.9em;
+}
+.circled svg {
+  position: absolute;
+  inset: -0.3em -0.5em;
+  width: calc(100% + 1em);
+  height: calc(100% + 0.6em);
+  overflow: visible;
+}
+.circled path {
+  fill: none;
+  stroke: var(--red);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 900;
+  stroke-dashoffset: 900;
+}
+
+/* ---------- keyboard keys ---------- */
+kbd {
+  font-family: var(--f-mono);
+  font-size: 0.95em;
+  border: 1.5px solid var(--ink);
+  border-bottom-width: 3px;
+  border-radius: 0.3em;
+  padding: 0 0.35em;
+  background: #fff8ea;
+}
+.kbd-hint {
+  font-family: var(--f-body);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 0.42em;
+  color: var(--ink);
+  margin-left: 0.6em;
+  vertical-align: middle;
+}
+
+/* phone-width pages reflow */
+@container (max-width: 520px) {
+  .order {
+    white-space: normal;
+    flex-wrap: wrap;
+  }
+}

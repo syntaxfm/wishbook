@@ -1,0 +1,134 @@
+/* =========================================================
+   Paper & print effects
+   On: warm paper, warm ink (tokens), paper grain, paper fibers, warm grade,
+   yellowed edges, gutter shadow, photo color grade, ink misregistration,
+   glossy sheen, dust & specks, worn corner, foxing, ink bleed (large type only).
+   Off: halftone dot screen, scan tilt, creases, coffee rings.
+   Ink bleed needs the #inkbleed SVG filter in the document: render
+   <PrintFilters /> once per page.
+   ========================================================= */
+
+/* Dark layers (multiply): warm grade, yellowed edges, gutter shadow, foxing,
+   fibers, grain. */
+.page::after,
+.cf::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 8;
+  mix-blend-mode: multiply;
+  background-image:
+    linear-gradient(rgba(255, 196, 120, 0.1), rgba(230, 160, 80, 0.1)),
+    radial-gradient(ellipse 75% 70% at 50% 50%, transparent 55%, rgba(165, 112, 40, 0.3) 100%),
+    var(--gutter, none), var(--tex-foxing), var(--tex-fibers), var(--tex-grain);
+  background-size:
+    100% 100%,
+    100% 100%,
+    100% 100%,
+    700px 700px,
+    520px 520px,
+    180px 180px;
+  background-repeat: no-repeat, no-repeat, no-repeat, repeat, repeat, repeat;
+}
+
+/* Light layers (screen): glossy sheen, worn corner, dust & specks. */
+.page::before,
+.cf::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9;
+  mix-blend-mode: screen;
+  background-image:
+    linear-gradient(
+      118deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.07) 42%,
+      rgba(255, 255, 255, 0.12) 46%,
+      transparent 58%
+    ),
+    var(--corner, none), var(--tex-dust);
+  background-size:
+    100% 100%,
+    100% 100%,
+    420px 420px;
+  background-repeat: no-repeat, no-repeat, repeat;
+}
+
+/* Gutter shadow on the binding side, worn corner on the outer edge. */
+.page.left {
+  --gutter: linear-gradient(
+    270deg,
+    rgba(60, 35, 10, 0.3) 0,
+    rgba(60, 35, 10, 0.08) 2.5%,
+    transparent 7%
+  );
+  --corner: radial-gradient(
+    circle at 0 100%,
+    rgba(255, 250, 235, 0.55) 0,
+    rgba(255, 250, 235, 0.18) 28px,
+    transparent 70px
+  );
+}
+.page.right {
+  --gutter: linear-gradient(
+    90deg,
+    rgba(60, 35, 10, 0.3) 0,
+    rgba(60, 35, 10, 0.08) 2.5%,
+    transparent 7%
+  );
+  --corner: radial-gradient(
+    circle at 100% 100%,
+    rgba(255, 250, 235, 0.55) 0,
+    rgba(255, 250, 235, 0.18) 28px,
+    transparent 70px
+  );
+}
+
+/* Photo color grade. Layouts that add a drop shadow to a photo repeat the grade
+   in their own filter (filters don't stack across rules). */
+.page img:not(.logo),
+.cf img {
+  filter: sepia(0.14) saturate(1.14) contrast(1.06) brightness(0.97);
+}
+.herobody .shot img {
+  filter: sepia(0.14) saturate(1.14) contrast(1.06) brightness(0.97)
+    drop-shadow(0 3cqi 3cqi rgba(0, 0, 0, 0.35));
+}
+.band > img,
+.band > picture > img {
+  filter: sepia(0.14) saturate(1.14) contrast(1.06) brightness(0.97)
+    drop-shadow(0 1.5cqi 1.5cqi rgba(0, 0, 0, 0.5));
+}
+.actual img {
+  filter: sepia(0.14) saturate(1.14) contrast(1.06) brightness(0.97)
+    drop-shadow(0 1.5cqi 1.2cqi rgba(60, 40, 10, 0.4));
+}
+
+/* Ink misregistration on headings, names, and prices. */
+:is(.display, .tru, .kicker, .itemname, .price, .friendly, .wordmark, .brandword, .who) {
+  text-shadow:
+    0.6px 0.4px 0 rgba(0, 150, 210, 0.3),
+    -0.5px -0.3px 0 rgba(220, 0, 110, 0.24);
+}
+
+/* Ink bleed: big type only (an SVG displacement filter is costly on mobile). */
+:is(
+  h2.display,
+  .herohead,
+  .pagehead .display,
+  .divider .tab,
+  .truhead .tab,
+  .who,
+  .wordmark,
+  .brandword,
+  .stack .U,
+  .stack .amt,
+  .only,
+  .free,
+  .shiplink
+) {
+  filter: url(#inkbleed);
+}
