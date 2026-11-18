@@ -90,27 +90,27 @@ export function parseCopyRuns(text: string): CopyRun[] {
   let bold = false;
   let italic = false;
   let last = 0;
-  const pushText = (s: string) => {
+  const addText = (s: string) => {
     if (!s) return;
     const prev = out.at(-1);
     if (prev?.kind === "text" && prev.bold === bold && prev.italic === italic) prev.text += s;
     else out.push({ kind: "text", text: s, bold, italic });
   };
   for (const m of text.matchAll(RUN_RE)) {
-    pushText(text.slice(last, m.index));
+    addText(text.slice(last, m.index));
     last = m.index + m[0].length;
     const rest = text.slice(last);
     if (m[0] === "**") {
       if (bold || rest.includes("**")) bold = !bold;
-      else pushText(m[0]);
+      else addText(m[0]);
     } else if (m[0] === "*") {
       if (italic || /(?<!\*)\*(?!\*)/.test(rest)) italic = !italic;
-      else pushText(m[0]);
+      else addText(m[0]);
     } else {
       out.push({ ...toToken(m[1]!, m[2], m[0]), bold, italic });
     }
   }
-  pushText(text.slice(last));
+  addText(text.slice(last));
   return out;
 }
 

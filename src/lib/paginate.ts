@@ -108,11 +108,14 @@ export function pagePath(page: { slug: string; section: string; template: Templa
 const slugify = (title: string) =>
   title
     .normalize("NFKD")
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/\p{M}/gu, "")
     .toLowerCase()
     .replace(/['’]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "") || "filler";
+
+/** Even pages are on the left of a spread, odd pages on the right. */
+const side = (num: number): "left" | "right" => (num % 2 === 0 ? "left" : "right");
 
 /** Paginates a book order. Pure: the same input always gives the same numbers. */
 export function paginateBook(
@@ -123,8 +126,6 @@ export function paginateBook(
   const used = new Set(logical.map((p) => p.slug));
   let n = 1;
   let fillers = 0;
-
-  const side = (num: number): "left" | "right" => (num % 2 === 0 ? "left" : "right");
 
   const pushFiller = (section: string, before: string) => {
     if (fillerCopy.length === 0) {
