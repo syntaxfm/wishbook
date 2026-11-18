@@ -1,0 +1,20 @@
+---
+/**
+ * The red-bordered product photo frame. Holds an <Img>, its <ItemLetter>, and
+ * optionally an on-photo <PhotoQuote> or <NewBanner variant="oval">.
+ *   light (default): white
+ *   dark: warm dark backdrop for products shot on black
+ *   wood: warm walnut texture
+ * The layout sets the frame's size or aspect ratio.
+ */
+interface Props {
+  tone?: "light" | "dark" | "wood";
+  class?: string;
+}
+
+const { tone = "light", class: className } = Astro.props;
+---
+
+<div class:list={["frame", tone !== "light" && tone, className]}>
+  <slot />
+</div>

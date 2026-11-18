@@ -1,0 +1,34 @@
+---
+/**
+ * A catalog number is a timestamp into the episode: "SYN 036:41". It links to
+ * the video at that moment when the episode URL is known, otherwise it is
+ * plain text.
+ */
+import { formatCatalogNumber, parseTimestamp } from "../lib/catalog";
+import { videoAtTime } from "../lib/urls";
+
+interface Props {
+  /** Seconds, "mm:ss", or "h:mm:ss". */
+  timestamp: string | number;
+  videoUrl?: string | null;
+  class?: string;
+}
+
+const { timestamp, videoUrl, class: className } = Astro.props;
+const seconds = parseTimestamp(timestamp);
+const label = formatCatalogNumber(seconds);
+---
+
+{videoUrl ? (
+  <a
+    class:list={["mono", className]}
+    href={videoAtTime(videoUrl, seconds)}
+    target="_blank"
+    rel="noopener"
+    aria-label={`${label}: watch this moment in the episode`}
+  >
+    {label}
+  </a>
+) : (
+  <span class:list={["mono", className]}>{label}</span>
+)}

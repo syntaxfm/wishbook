@@ -1,0 +1,20 @@
+---
+/**
+ * The yellow order-line banner at the foot of a page, toward the outer edge.
+ * Pass the edition's order lines and the page's position to rotate them like
+ * a real catalog, or pass `text` for a fixed line.
+ */
+import { pickOrderLine } from "../lib/catalog";
+
+type Props = { class?: string } & (
+  | { text: string; lines?: never; position?: never }
+  | { lines: readonly string[]; position: number; text?: never }
+);
+
+const props = Astro.props;
+const line = props.text ?? pickOrderLine(props.lines, props.position);
+---
+
+<div class:list={["shopany", props.class]}>
+  <span>{line}</span>
+</div>

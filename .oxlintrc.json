@@ -5,5 +5,8 @@
     "correctness": "error",
     "suspicious": "warn"
   },
+  "rules": {
+    "import/no-unassigned-import": ["warn", { "allow": ["**/*.css"] }]
+  },
   "ignorePatterns": ["dist", ".astro", "node_modules", "test-results", "playwright-report"]
 }

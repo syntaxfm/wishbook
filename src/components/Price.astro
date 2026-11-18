@@ -1,0 +1,89 @@
+---
+/**
+ * A price, shown as the confirmed price when set, otherwise the estimate with
+ * an "est." marker.
+ *   plain: "24.99 est." inline in copy
+ *   line:  order line with catalog number, unit, and dot leader:
+ *          "SYN 000:36 – Each ........ 13.99"
+ *   big:   big numerals for a photo: 67⁹⁰
+ *   box:   toy-store price box: $69.⁰⁰
+ * When neither price is known, `text` is shown instead ("TBA"); one of the two
+ * is required.
+ */
+import CatalogNumber from "./CatalogNumber.astro";
+import { formatPrice, resolvePrice, splitPrice } from "../lib/catalog";
+
+interface Props {
+  confirmed?: number | null;
+  estimate?: number | null;
+  /** Shown when there is no price, e.g. "TBA" or "???". */
+  text?: string;
+  variant?: "plain" | "line" | "big" | "box";
+  /** line: the item's episode timestamp. */
+  timestamp?: string | number | null;
+  /** line: the episode URL, so the catalog number links to the moment. */
+  videoUrl?: string | null;
+  /** line: "Each", "Pair", "Kit"… */
+  unit?: string | null;
+  class?: string;
+}
+
+const {
+  confirmed,
+  estimate,
+  text,
+  variant = "plain",
+  timestamp,
+  videoUrl,
+  unit,
+  class: className,
+} = Astro.props;
+
+const price = resolvePrice({ confirmed, estimate });
+if (!price && !text) {
+  throw new Error("Price: no confirmed price, estimate, or text to show");
+}
+const parts = price ? splitPrice(price.amount) : null;
+const est = price?.estimated ?? false;
+---
+
+{variant === "line" ? (
+  <div class:list={["order", className]}>
+    {timestamp != null && <CatalogNumber timestamp={timestamp} videoUrl={videoUrl} />}
+    {unit && <span>– {unit}</span>}
+    <span class="dots" />
+    <span class="price">
+      {price ? formatPrice(price.amount) : text}
+      {est && <span class="est">est.</span>}
+    </span>
+  </div>
+) : variant === "big" ? (
+  <span class:list={["bignum", className]}>
+    {parts ? (
+      <>
+        {parts.whole}
+        <sup>{parts.cents}</sup>
+      </>
+    ) : (
+      text
+    )}
+    {est && <span class="est">est.</span>}
+  </span>
+) : variant === "box" ? (
+  <span class:list={["pricebox", className]}>
+    {parts ? (
+      <>
+        ${parts.whole}
+        <sup>.{parts.cents}</sup>
+      </>
+    ) : (
+      text
+    )}
+    {est && <span class="est">est.</span>}
+  </span>
+) : (
+  <span class:list={["price", className]}>
+    {price ? formatPrice(price.amount) : text}
+    {est && <span class="est">est.</span>}
+  </span>
+)}

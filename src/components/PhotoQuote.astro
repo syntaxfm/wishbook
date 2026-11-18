@@ -1,0 +1,50 @@
+---
+/**
+ * A host quote that sits with its photo.
+ *   below (default): a caption under the photo with a red rule
+ *   on: a cream card overlapping the bottom of a large photo (place it inside
+ *       the .frame or .band)
+ * Quotes flagged `verify` keep a subtle marker in dev until they are checked
+ * against the transcript; production renders them normally.
+ */
+import Img from "./Img.astro";
+import type { ResolvedAsset } from "./types";
+
+interface Props {
+  /** The quote. Wrapped in quotation marks unless it already starts with one. */
+  text: string;
+  /** Attribution after the dash: "Wes", "Wes, on the UV light". */
+  by: string;
+  avatar?: ResolvedAsset;
+  placement?: "below" | "on";
+  /** Larger caption for a feature page's side column. */
+  big?: boolean;
+  verify?: boolean;
+  class?: string;
+}
+
+const {
+  text,
+  by,
+  avatar,
+  placement = "below",
+  big = false,
+  verify = false,
+  class: className,
+} = Astro.props;
+
+const quoted = /^["“]/.test(text) ? text : `"${text}"`;
+const flagged = import.meta.env.DEV && verify;
+---
+
+<figcaption
+  class:list={["pq", placement, { big }, className]}
+  data-verify={flagged ? "" : undefined}
+  title={flagged ? "Quote needs checking against the transcript" : undefined}
+>
+  {avatar && <Img asset={avatar} alt="" class="av" widths={[96, 144]} sizes="48px" round />}
+  <span>
+    <span class="quote">{quoted}</span>
+    <span class="attr">— {by}</span>
+  </span>
+</figcaption>

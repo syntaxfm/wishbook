@@ -1,0 +1,39 @@
+---
+/**
+ * The page-number tab at the bottom outer corner: green on left pages
+ * ("2 A"), yellow on right pages ("A 5"). The page number comes from the book
+ * order, never typed. With an edition and path it links to that page.
+ */
+import { editionUrl, type Edition } from "../lib/urls";
+
+interface Props {
+  side: "left" | "right";
+  number: number;
+  /** The catalog's page suffix. */
+  suffix?: string;
+  /** Link target: the page's path inside its edition. */
+  edition?: Edition;
+  path?: string;
+  class?: string;
+}
+
+const { side, number, suffix = "A", edition, path, class: className } = Astro.props;
+const href = edition !== undefined && path !== undefined ? editionUrl(edition, path) : undefined;
+const Tag = href ? "a" : "div";
+---
+
+<Tag
+  class:list={["folio", className]}
+  href={href}
+  aria-label={href ? `Page ${number} ${suffix}` : undefined}
+>
+  {side === "left" ? (
+    <>
+      {number} <small>{suffix}</small>
+    </>
+  ) : (
+    <>
+      <small>{suffix}</small> {number}
+    </>
+  )}
+</Tag>

@@ -1,0 +1,25 @@
+---
+/**
+ * SVG filters the print effects reference (ink bleed on large type).
+ * Render once per document, at the start of <body>.
+ */
+---
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <filter id="inkbleed" x="-5%" y="-35%" width="110%" height="170%">
+    <feTurbulence
+      type="fractalNoise"
+      baseFrequency=".9"
+      numOctaves="1"
+      seed="3"
+      result="t"
+    ></feTurbulence>
+    <feDisplacementMap
+      in="SourceGraphic"
+      in2="t"
+      scale="1.8"
+      xChannelSelector="R"
+      yChannelSelector="G"
+    ></feDisplacementMap>
+  </filter>
+</svg>

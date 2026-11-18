@@ -1,0 +1,27 @@
+---
+/**
+ * Stand-in for an image that doesn't exist yet: a solid color block with a
+ * short label of what it will be ("IMG-F12: Power Wheels in snow").
+ */
+interface Props {
+  label: string;
+  /** Any CSS background: a color or a gradient. */
+  color?: string;
+  /** Accessible name; defaults to the label. Pass "" for a decorative image. */
+  alt?: string;
+  round?: boolean;
+  class?: string;
+}
+
+const { label, color, alt, round = false, class: className } = Astro.props;
+const decorative = alt === "";
+---
+
+<div
+  class:list={["gen", { round }, className]}
+  data-gen={label}
+  style={color ? { "--gen": color } : undefined}
+  role={decorative ? undefined : "img"}
+  aria-label={decorative ? undefined : (alt ?? label)}
+  aria-hidden={decorative ? "true" : undefined}
+></div>

@@ -1,0 +1,23 @@
+---
+/**
+ * Loads the design system into a page: render inside <head>. Brings in the
+ * global styles, every edition's theme overrides (each scoped to
+ * :root[data-edition="<year>"], so set that attribute on <html>), and preloads
+ * the fonts that are above the fold on any page (cover masthead, headlines,
+ * kickers, prices and item names, body copy).
+ */
+import "../styles/global.css";
+import antonio from "@fontsource/antonio/files/antonio-latin-700-normal.woff2?url";
+import caslon from "@fontsource/libre-caslon-text/files/libre-caslon-text-latin-400-normal.woff2?url";
+import oldStandard from "@fontsource/old-standard-tt/files/old-standard-tt-latin-700-normal.woff2?url";
+import pinyon from "@fontsource/pinyon-script/files/pinyon-script-latin-400-normal.woff2?url";
+import playfair from "@fontsource/playfair-display/files/playfair-display-latin-700-italic.woff2?url";
+
+import.meta.glob("../styles/editions/*.css", { eager: true });
+
+const preloads = [pinyon, playfair, oldStandard, antonio, caslon];
+---
+
+{preloads.map((href) => (
+  <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />
+))}

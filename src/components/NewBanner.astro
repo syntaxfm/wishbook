@@ -1,0 +1,18 @@
+---
+/**
+ * NEW marker.
+ *   ribbon (default): the gold tilted ribbon, placed by its container
+ *   oval: the yellow oval, pinned to the top-left of its photo frame
+ */
+interface Props {
+  variant?: "ribbon" | "oval";
+  text?: string;
+  class?: string;
+}
+
+const { variant = "ribbon", text, class: className } = Astro.props;
+---
+
+<span class:list={[variant === "oval" ? "newoval" : "newbanner", className]}>
+  {text ?? (variant === "oval" ? "new" : "NEW")}
+</span>
