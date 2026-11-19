@@ -81,6 +81,10 @@ export interface BookContext {
   quoteBy(quote: Quote): string;
   /** Copy as plain text, tokens resolved (meta tags, alt text). */
   plain(text: string | null | undefined): string;
+  /** A page's document title: the WishBook's name on the cover, else "<title> · <name>". */
+  docTitle(slug: string): string;
+  /** A section's display name ("" if unknown). */
+  sectionName(id: string): string;
 }
 
 const cache = new Map<string, Promise<BookContext>>();
@@ -137,6 +141,11 @@ export function createBookContext(
     pageContent: (slug) => pages.get(slug),
     item,
     href: (slug) => editionUrl(content.edition, book.page(slug).path),
+    docTitle: (slug) => {
+      const p = book.page(slug);
+      return p.kind === "cover" ? global.name : `${p.title} · ${global.name}`;
+    },
+    sectionName: (id) => content.sections.find((s) => s.id === id)?.name ?? "",
     orderLine: (id) => (id ? (content.site.orderLines.find((l) => l.id === id) ?? null) : null),
     phoneLine:
       content.site.orderLines.find((l) =>
