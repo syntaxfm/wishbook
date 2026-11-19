@@ -68,6 +68,24 @@ orderLines:
 orderForm:
   shareLabel: Share my Wish List
   printLabel: Print & Mail to Santa ⌘P
+wishList:
+  title: My Wish List
+  circle: Circle it
+  circled: Want!!
+  copied: Link copied. Share it with whoever does your shopping.
+  empty: Nothing circled here yet. Flip through the WishBook and circle what you want.
+  shared: Somebody circled these in their WishBook.
+  add: Add these to my list
+  added: "Added to your wish list. It fills the order form on {page:order-form}."
+  start: Start my own
+  unpriced: "*Plus anything without a price yet."
+  mailTo:
+    - "TO: SANTA CLAUS"
+    - NORTH POLE
+search:
+  label: Search the WishBook
+  placeholder: Gift, brand, or shopper
+  none: Nothing by that name. Try a brand or a shopper.
 backCover:
   headline: Mailed to 1,000,000+ developers
   returnAddress:

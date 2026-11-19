@@ -11,7 +11,9 @@
  */
 import Book from "../components/Book.astro";
 import DesignSystem from "../components/DesignSystem.astro";
+import ItemIndex from "../components/ItemIndex.astro";
 import PrintFilters from "../components/PrintFilters.astro";
+import PrintSheet from "../components/PrintSheet.astro";
 import { getBookContext } from "../lib/book";
 import { MODE_SCRIPT } from "../lib/modes";
 import { PROTO_HEAD_SCRIPT } from "../lib/proto-layout";
@@ -63,5 +65,7 @@ const protoScript = PROTO_HEAD_SCRIPT;
     <PrintFilters />
     <h1 class="sr-only">{name}</h1>
     <Book edition={ctx.edition} current={slug} />
+    <PrintSheet ctx={ctx} />
+    <ItemIndex ctx={ctx} />
   </body>
 </html>

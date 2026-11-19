@@ -1,0 +1,40 @@
+---
+/**
+ * The book's chrome tools: a search button (⌘K) and a link to the order form
+ * with the wish-list count. Shown only with JavaScript (both need it). Also
+ * carries the circle toggle labels for src/scripts/wishlist.ts.
+ */
+import type { BookContext } from "../lib/book";
+
+interface Props {
+  ctx: BookContext;
+}
+
+const { ctx } = Astro.props;
+const { wishList, search } = ctx.content.site;
+const orderPage = ctx.book.pages.find((p) => p.template === "order-form");
+---
+
+<div
+  class="wishtools"
+  data-wish-tools
+  data-circle={wishList.circle ?? ""}
+  data-circled={wishList.circled ?? ""}
+  data-title={wishList.title ?? ""}
+>
+  {search.label && (
+    <button type="button" class="tool" data-search-open aria-haspopup="dialog">
+      <span class="glass" aria-hidden="true"></span>
+      <span class="tool-label">{search.label}</span>
+      <kbd data-search-key>⌘K</kbd>
+    </button>
+  )}
+  {orderPage && wishList.title && (
+    <a class="tool" href={ctx.href(orderPage.slug)} data-wish-link>
+      <span>{wishList.title}</span>
+      <span class="count hand" data-wish-count hidden>
+        0
+      </span>
+    </a>
+  )}
+</div>

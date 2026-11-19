@@ -348,6 +348,68 @@ html.proto-zoomed {
   }
 }
 
+/* ---------- search and wish-list tools, per frame ----------
+   side and feed: compact icon buttons (top of the left gutter / the rail);
+   viewer: bottom right, fading with the other controls. Phones keep theirs. */
+@media (min-width: 640px) {
+  :is([data-chrome="side"]:is(.m-book, .m-single), [data-chrome="feed"].m-scroll) .wishtools {
+    top: 16px;
+    bottom: auto;
+    left: 12px;
+    right: auto;
+    flex-direction: column;
+  }
+  :is([data-chrome="side"]:is(.m-book, .m-single), [data-chrome="feed"].m-scroll)
+    .wishtools
+    :is(.tool-label, kbd, [data-wish-link] > span:first-child) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  :is([data-chrome="side"]:is(.m-book, .m-single), [data-chrome="feed"].m-scroll) .wishtools .tool {
+    position: relative;
+    justify-content: center;
+    width: 44px;
+    padding: 0;
+    border-radius: 50%;
+  }
+  /* the wish list: a hand-drawn circle, like the marker on circled items */
+  :is([data-chrome="side"]:is(.m-book, .m-single), [data-chrome="feed"].m-scroll)
+    .wishtools
+    [data-wish-link]::before {
+    content: "";
+    width: 18px;
+    height: 14px;
+    border: 2.5px solid var(--red);
+    border-radius: 50%;
+    transform: rotate(-12deg);
+  }
+  :is([data-chrome="side"]:is(.m-book, .m-single), [data-chrome="feed"].m-scroll)
+    .wishtools
+    [data-wish-link]
+    .count {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+  }
+  [data-chrome="feed"].m-scroll .wishtools {
+    flex-direction: row;
+  }
+}
+[data-chrome="viewer"]:is(.m-book, .m-single) .wishtools {
+  top: auto;
+  bottom: 14px;
+  left: auto;
+  right: 14px;
+  transition: opacity 0.35s;
+}
+.proto-idle[data-chrome="viewer"]:is(.m-book, .m-single) .wishtools:not(:hover, :focus-within) {
+  opacity: 0;
+}
+
 /* ---------- the switcher ---------- */
 .proto-switch {
   position: fixed;
@@ -390,6 +452,12 @@ html.proto-zoomed {
 .proto-switch .name {
   margin-left: 4px;
   color: #eee;
+}
+/* collapsed to the current layout until hovered or focused */
+.proto-switch:not(:hover, :focus-within) button[aria-pressed="false"],
+.proto-switch:not(:hover, :focus-within) .name,
+.proto-switch:not(:hover, :focus-within) b {
+  display: none;
 }
 /* on phones the bottom tab bar is there: sit above it */
 @media (max-width: 639px) {
