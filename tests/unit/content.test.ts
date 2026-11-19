@@ -283,6 +283,34 @@ describe("validation", () => {
     ]);
   });
 
+  it("rejects more items than a layout fits in its page box", async () => {
+    const reader = fixtureWith({
+      "content/2026/book.yaml": [
+        "pages:",
+        "  - slug: cover",
+        "    section: front",
+        "    template: cover",
+        "    title: X",
+        "    items:",
+        "      - item: cables",
+        "  - slug: one-picks",
+        "    section: favorites",
+        "    template: feature",
+        "    title: Y",
+        "    items:",
+        "      - item: cables",
+        "      - item: grouse",
+        "",
+      ].join("\n"),
+    });
+    expect(await problemsOf(reader.getEdition(2026))).toEqual(
+      expect.arrayContaining([
+        'content/2026/book.yaml pages[0] "cover": the cover layout shows no items (found 1)',
+        'content/2026/book.yaml pages[1] "one-picks": the feature layout fits at most 1 item in its page box (found 2); split the page',
+      ]),
+    );
+  });
+
   it("reports a missing required field with the file name", async () => {
     const reader = fixtureWith({
       "content/2026/items/grouse.yaml": "name: Fixture Grouse\nsection: favorites\n",

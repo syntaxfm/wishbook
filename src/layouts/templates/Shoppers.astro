@@ -17,7 +17,7 @@ const hosts = await Promise.all(
 );
 
 // Contents: every section that opens with a divider or a centerfold, then the
-// index & order form.
+// index and the order form.
 const toc = [
   ...ctx.content.sections.flatMap((s) => {
     const first = ctx.book.firstOf(s.id);
@@ -26,7 +26,7 @@ const toc = [
       : [];
   }),
   ...ctx.content.pages
-    .filter((p) => p.template === "order-form")
+    .filter((p) => p.template === "index" || p.template === "order-form")
     .map((p) => ({ name: p.title, slug: p.slug })),
 ];
 

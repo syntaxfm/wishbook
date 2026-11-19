@@ -109,17 +109,24 @@ pages:
         placement: oneliner
   - slug: kaitlin
     section: favorites
-    template: grid
+    template: brand-column
     title: Kaitlin's Favorite Things
     hosts:
       - kaitlin
     items:
       - item: slate-mini-flosser
       - item: suri-toothbrush
+    copy:
+      tagline: We All Have Teeth.
+  - slug: kaitlin-more
+    section: favorites
+    template: holly
+    title: More of Kaitlin's Favorite Things
+    hosts:
+      - kaitlin
+    items:
       - item: pottery-class
       - item: boy-mole-fox-horse
-    copy:
-      kicker: We All Have Teeth.
   - slug: cj
     section: favorites
     template: brand-column
@@ -184,13 +191,20 @@ pages:
     items:
       - item: waveshare-esp32
       - item: brad-tolinski-books
-      - item: bovicas-charger
-      - item: usb-power-meter
-        text: "The power meter again, because it's under $30. As seen on {page:wes}."
     copy:
       headline: Under
       script: gifts
       subhead: $30
+  - slug: under-30-more
+    section: under-30
+    template: under
+    title: More Gifts Under $30
+    items:
+      - item: bovicas-charger
+      - item: usb-power-meter
+        text: "The power meter again, because it's under $30. As seen on {page:wes}."
+      - item: alpine-flyfit
+      - item: slate-mini-flosser
     orderLine: terminal
   - slug: waveshare
     section: under-30
@@ -272,6 +286,11 @@ pages:
       - item: ugreen-laptop-stand
       - item: remarkable-2
         caption: Discontinued May 2026. Successor shown at right.
+  - slug: desk-more
+    section: desk
+    template: grid
+    title: Around the Desk
+    items:
       - item: apc-back-ups-pro
         caption: Shown keeping your NAS alive.
       - item: plastic-welder
@@ -408,7 +427,7 @@ pages:
       headline: "'Clapped-Out' Power Wheels"
       body: "are cheap used, and a drill-battery swap makes them fast."
       badge: Used!
-      smallprint: "Batteries sold separately. See {page:desk-picks} for compatible tools."
+      smallprint: "Batteries sold separately. See {page:desk-more} for compatible tools."
       footer: Should Wes make a video? Circle YES →
   - slug: pets
     section: kids-pets
@@ -471,10 +490,14 @@ pages:
     copy:
       headline: "Stocking Stuffers & Odds 'n' Ends"
       subhead: Also mentioned in passing
+  - slug: index
+    section: back
+    template: index
+    title: Index
   - slug: order-form
     section: back
     template: order-form
-    title: Index & Order Form
+    title: Order Form
     copy:
       smallprint: "Press **⌘P** to print a real paper order form."
     orderLine: print

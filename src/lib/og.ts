@@ -441,6 +441,14 @@ export async function buildOgCards(
           subtitle: null,
           panel: { kind: "hosts", hosts: await Promise.all(content.hosts.map(ogHost)) },
         };
+      case "index":
+        return {
+          ...b,
+          variant: "page",
+          kicker: null,
+          subtitle: null,
+          panel: { kind: "items", items: await sampleItems(6) },
+        };
       case "order-form":
         return {
           ...b,

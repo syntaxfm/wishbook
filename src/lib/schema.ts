@@ -41,11 +41,43 @@ export const TEMPLATES = [
   { value: "wild", label: "Two-up with quotes on photos" },
   { value: "luxury", label: "Luxury feature" },
   { value: "odds-ends", label: "Odds & ends" },
-  { value: "order-form", label: "Index & order form" },
+  { value: "index", label: "Index of every gift" },
+  { value: "order-form", label: "Order form" },
   { value: "back-cover", label: "Back cover" },
 ] as const;
 
 export type Template = (typeof TEMPLATES)[number]["value"];
+
+/**
+ * The most items each layout can show and still fit its fixed page box (the
+ * content reader fails the build past these). Layouts that show no items have
+ * a cap of 0. A holly page with up to two items is the two-up; three to six
+ * make its grid. Two items or fewer on a grid, holly, or under page make a
+ * "duo" page with bigger photos.
+ */
+export const ITEM_CAPS: Record<Template, number> = {
+  cover: 0,
+  welcome: 0,
+  shoppers: 0,
+  divider: 0,
+  grid: 4,
+  feature: 1,
+  holly: 6,
+  under: 4,
+  "brand-column": 2,
+  lineup: 3,
+  "brand-feature": 1,
+  "actual-size": 2,
+  "price-tags": 6,
+  "house-brand": 1,
+  centerfold: 0,
+  wild: 2,
+  luxury: 1,
+  "odds-ends": 8,
+  index: 0,
+  "order-form": 0,
+  "back-cover": 0,
+};
 
 export const PAGE_VARIANTS = [
   { value: "default", label: "Default" },
@@ -379,7 +411,7 @@ export function createKeystaticConfig(edition: number) {
         {
           price: optionalText("Cover price", '"FREE".'),
           tagline: copyText("Band tagline"),
-          note: copyText("Band note", 'e.g. "{count} gifts · index on {page:order-form}".'),
+          note: copyText("Band note", 'e.g. "{count} gifts · index on {page:index}".'),
         },
         { label: "Front cover" },
       ),
