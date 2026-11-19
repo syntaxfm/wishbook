@@ -1,5 +1,5 @@
-import { existsSync, readFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { join, relative, resolve } from "node:path";
 import { expect, test } from "@playwright/test";
 
 // The e2e web server runs `pnpm build` first, so dist/ is fresh.
@@ -14,6 +14,12 @@ const canonical = (html: string) => attr(html, /<link rel="canonical" href="([^"
 const title = (html: string) => attr(html, /<title>([^<]*)<\/title>/);
 const decode = (s: string) =>
   s.replaceAll("&amp;", "&").replaceAll("&#39;", "'").replaceAll("&quot;", '"');
+
+/** Every file in dist/, as paths relative to it. */
+const distFiles = () =>
+  readdirSync(DIST, { recursive: true, withFileTypes: true })
+    .filter((e) => e.isFile())
+    .map((e) => relative(DIST, join(e.parentPath, e.name)));
 
 /** Every page in the book, from the cover file's data attributes. */
 function bookPages() {
@@ -66,25 +72,61 @@ test("the root copy renders the cover with a canonical of /2026/", () => {
   expect(meta(root, "og:image")).toBe(`${SITE}/2026/og/cover.png`);
   expect(root).toMatch(/class="[^"]*is-current[^"]*"[^>]*data-slug="cover"/);
   expect(title(root)).toBe(title(edition));
+  // It is the /2026/ cover file, byte for byte.
+  expect(root).toBe(edition);
 });
 
-test("every internal link points into the edition (or at built assets)", () => {
-  for (const file of [
-    "index.html",
-    ...bookPages().map((p) => join(p.path.slice(1), "index.html")),
-  ]) {
-    const html = read(file);
-    const urls = [
-      ...[...html.matchAll(/\s(?:href|src|data-path|data-spread-href)="(\/[^"]*)"/g)].map(
-        (m) => m[1]!,
+test("every site URL (links, meta, OG, share paths, sitemaps) is year-scoped", () => {
+  // Root copies are the only year-less files; nothing links to them.
+  const files = distFiles().filter((f) => /\.(html|xml|txt)$/.test(f));
+  expect(files).toContain("2026/wishlist/index.html");
+  let checked = 0;
+  const bad: string[] = [];
+  for (const file of files) {
+    const text = read(file);
+    const paths = [
+      // Root-relative attribute values: href, src, data-path, data-share-path, …
+      ...[...text.matchAll(/\s[\w:-]+="(\/[^"]*)"/g)].map((m) => m[1]!),
+      ...[...text.matchAll(/\ssrcset="([^"]*)"/g)].flatMap((m) =>
+        m[1]!.split(",").map((s) => s.trim().split(/\s+/)[0]!),
       ),
+      // Absolute URLs on the site's own origin: canonical, og:url, og:image, catalog.txt…
+      ...[...text.matchAll(/https?:\/\/wishbook\.syntax\.fm(\/[^\s"'<>)]*)?/g)].map(
+        (m) => m[1] ?? "/",
+      ),
+    ].filter((u) => u.startsWith("/") && !u.startsWith("//"));
+    if (file.endsWith(".html")) expect(paths.length, file).toBeGreaterThan(0);
+    bad.push(...paths.filter((u) => !/^\/(2026\/|_astro\/)/.test(u)).map((u) => `${file}: ${u}`));
+    checked += paths.length;
+  }
+  expect(bad).toEqual([]);
+  expect(checked).toBeGreaterThan(1000);
+});
+
+test("pages load no resources from other origins", () => {
+  const remote = /^(https?:)?\/\//;
+  const bad: string[] = [];
+  for (const file of distFiles().filter((f) => f.endsWith(".html"))) {
+    const html = read(file);
+    // Anything the browser fetches by itself: src, srcset, poster, <link href>, CSS url().
+    const resources = [
+      ...[...html.matchAll(/\s(?:src|poster|data-src)="([^"]*)"/g)].map((m) => m[1]!),
       ...[...html.matchAll(/\ssrcset="([^"]*)"/g)].flatMap((m) =>
         m[1]!.split(",").map((s) => s.trim().split(/\s+/)[0]!),
       ),
-    ].filter((u) => u.startsWith("/"));
-    expect(urls.length, file).toBeGreaterThan(0);
-    for (const u of urls) expect(u, `${file}: ${u}`).toMatch(/^\/(2026\/|_astro\/)/);
+      ...[...html.matchAll(/<link\b[^>]*\shref="([^"]*)"/g)]
+        .filter((m) => !/rel="canonical"/.test(m[0]))
+        .map((m) => m[1]!),
+      ...[...html.matchAll(/url\(\s*["']?([^"')]+)/g)].map((m) => m[1]!),
+    ];
+    bad.push(...resources.filter((r) => remote.test(r)).map((r) => `${file}: ${r}`));
   }
+  for (const file of distFiles().filter((f) => f.endsWith(".css"))) {
+    for (const m of read(file).matchAll(/(?:url\(\s*["']?|@import\s+["'])([^"')]+)/g)) {
+      if (remote.test(m[1]!)) bad.push(`${file}: ${m[1]}`);
+    }
+  }
+  expect(bad).toEqual([]);
 });
 
 test("catalog.txt is a plain-text catalog, copied to the root", async ({ request }) => {
