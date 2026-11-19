@@ -228,10 +228,10 @@ html.proto-zoomed {
 }
 [data-chrome="viewer"]:is(.m-book, .m-single) .pager .where {
   position: static;
-  width: auto;
   height: auto;
   clip: auto;
-  min-width: 7em;
+  /* fixed, so the buttons don't shift with "Page 5 A" / "Pages 28 A–29 A" */
+  width: 11em;
   color: #eee;
 }
 [data-chrome="viewer"]:is(.m-book, .m-single) .pager > :is(.prev, .next) {
@@ -360,7 +360,10 @@ html.proto-zoomed {
     right: auto;
     flex-direction: column;
   }
-  :is([data-chrome="side"]:is(.m-book, .m-single), [data-chrome="feed"].m-scroll)
+  :is([data-chrome="side"], [data-chrome="viewer"]):is(.m-book, .m-single)
+    .wishtools
+    :is(.tool-label, kbd, [data-wish-link] > span:first-child),
+  [data-chrome="feed"].m-scroll
     .wishtools
     :is(.tool-label, kbd, [data-wish-link] > span:first-child) {
     position: absolute;
@@ -370,7 +373,8 @@ html.proto-zoomed {
     clip: rect(0 0 0 0);
     white-space: nowrap;
   }
-  :is([data-chrome="side"]:is(.m-book, .m-single), [data-chrome="feed"].m-scroll) .wishtools .tool {
+  :is([data-chrome="side"], [data-chrome="viewer"]):is(.m-book, .m-single) .wishtools .tool,
+  [data-chrome="feed"].m-scroll .wishtools .tool {
     position: relative;
     justify-content: center;
     width: 44px;
@@ -378,9 +382,10 @@ html.proto-zoomed {
     border-radius: 50%;
   }
   /* the wish list: a hand-drawn circle, like the marker on circled items */
-  :is([data-chrome="side"]:is(.m-book, .m-single), [data-chrome="feed"].m-scroll)
+  :is([data-chrome="side"], [data-chrome="viewer"]):is(.m-book, .m-single)
     .wishtools
-    [data-wish-link]::before {
+    [data-wish-link]::before,
+  [data-chrome="feed"].m-scroll .wishtools [data-wish-link]::before {
     content: "";
     width: 18px;
     height: 14px;
@@ -388,10 +393,11 @@ html.proto-zoomed {
     border-radius: 50%;
     transform: rotate(-12deg);
   }
-  :is([data-chrome="side"]:is(.m-book, .m-single), [data-chrome="feed"].m-scroll)
+  :is([data-chrome="side"], [data-chrome="viewer"]):is(.m-book, .m-single)
     .wishtools
     [data-wish-link]
-    .count {
+    .count,
+  [data-chrome="feed"].m-scroll .wishtools [data-wish-link] .count {
     position: absolute;
     top: -6px;
     right: -8px;
