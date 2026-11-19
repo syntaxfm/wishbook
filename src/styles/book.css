@@ -58,6 +58,11 @@
 .book-pages > .is-shown {
   content-visibility: visible;
 }
+/* The engine renders every feed page once to reserve its real height (the
+   pages then get `contain-intrinsic-height: auto <px>`; see reserveFeed). */
+.book-pages.feed-measure > :is(.page, .cf-page) {
+  content-visibility: visible;
+}
 /* ---------- the fixed page box (book and single modes) ----------
    Every page is the same box, --pw × --ph at the catalog's page aspect, sized
    from the viewport alone so the whole spread and the pager fit on screen.
@@ -246,9 +251,21 @@
 }
 
 /* Scroll mode: every page in one vertical feed, with a small head before each
-   section. The pager gives way to scrolling. */
+   section and a running head on top. The pager gives way to scrolling. The
+   feed scrolls freely (no snapping); a gutter and the page shadow mark where
+   one page ends and the next begins. */
 .sec-h {
   display: none;
+}
+.m-scroll .book {
+  /* clears the running head; a page brought to the top lands at the same spot */
+  padding-top: 36px;
+}
+/* The gutter is wider than the landing margin, so a page brought to the top
+   is the first thing on screen (the browser's scroll anchor), not the foot of
+   the page before it. */
+.m-scroll .book-pages {
+  gap: 40px;
 }
 .m-scroll .book-pages > .page {
   display: flex;
@@ -258,6 +275,66 @@
   display: block;
   width: min(1240px, calc(100vw - 28px));
   justify-self: center;
+}
+.m-scroll .book-pages > :is(.page, .cf-page) {
+  scroll-margin-top: 36px;
+}
+.m-scroll .book-pages > .page {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 12px 30px rgba(0, 0, 0, 0.45);
+}
+/* Until the engine takes over, the feed shows only the opened page, at the
+   spot the engine then keeps it: the deep link lands once, without a jump. */
+.m-scroll .book:not(.is-live) .book-pages > :not(.is-current) {
+  display: none;
+}
+/* The running head: section and folio of the page being read. */
+.run-head {
+  display: none;
+}
+.m-scroll .run-head {
+  position: fixed;
+  z-index: 34;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5em;
+  height: 28px;
+  padding: 0 14px;
+  background: rgba(17, 17, 17, 0.9);
+  border-bottom: 1px solid #3a322a;
+  color: #f3e3b0;
+  font-family: var(--f-kicker);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 11px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.run-head .rh-section {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.run-head .rh-folio {
+  flex: none;
+  font-family: var(--f-mono);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #bbb;
+}
+.run-head .rh-section:not(:empty) + .rh-folio:not(:empty)::before {
+  content: "·";
+  margin-right: 0.5em;
+}
+.run-head:has(> :empty + :empty) {
+  visibility: hidden;
 }
 .m-scroll .book-pages > .sec-h {
   display: block;
@@ -274,16 +351,13 @@
 .m-scroll .pager {
   display: none;
 }
-/* A jump in the feed flashes the page it lands on. */
+/* A jump in the feed flashes the page it lands on (back to its own shadow). */
 .flash {
   animation: flash 1.2s ease-out;
 }
 @keyframes flash {
   0% {
     box-shadow: 0 0 0 6px var(--syntax);
-  }
-  100% {
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
   }
 }
 

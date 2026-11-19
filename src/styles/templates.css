@@ -1837,7 +1837,6 @@ a.video {
 @media (max-width: 760px) {
   .cf-scroll {
     overflow-x: auto;
-    scroll-snap-type: x proximity;
     -webkit-overflow-scrolling: touch;
   }
   .cf-art {

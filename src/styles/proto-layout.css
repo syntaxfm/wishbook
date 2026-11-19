@@ -273,18 +273,41 @@ html.proto-zoomed {
 
 /* ---------- feed frame (e1, e2) ----------
    No flipping: every page in a vertical feed at a readable size, with the
-   section tabs as a sticky rail on the left. Pages snap gently. */
+   section tabs as a sticky rail on the left. It scrolls freely; the rail
+   marks the section and carries the folio at its foot. */
 @media (min-width: 640px) {
   [data-chrome="feed"].m-scroll {
     --rail: 136px;
-    scroll-snap-type: y proximity;
   }
   [data-chrome="feed"].m-scroll .book {
     padding: 28px 28px 80px calc(var(--rail) + 28px);
   }
+  /* a page brought to the top lands where the first page sits (the gutters
+     below stay wider than this, so it is the first thing on screen) */
   [data-chrome="feed"].m-scroll .book-pages > :is(.page, .cf-page) {
-    scroll-snap-align: start;
-    scroll-margin-top: 16px;
+    scroll-margin-top: 28px;
+  }
+  /* the running head: just the folio, at the foot of the rail (the rail's
+     lit tab names the section) */
+  [data-chrome="feed"].m-scroll .run-head {
+    z-index: 36;
+    top: auto;
+    bottom: 56px;
+    right: auto;
+    width: var(--rail);
+    height: auto;
+    padding: 0 12px;
+    background: none;
+    border: 0;
+  }
+  [data-chrome="feed"].m-scroll .run-head .rh-section {
+    display: none;
+  }
+  [data-chrome="feed"].m-scroll .run-head .rh-folio {
+    font-size: 12px;
+  }
+  [data-chrome="feed"].m-scroll .run-head > .rh-section + .rh-folio:not(:empty)::before {
+    content: none;
   }
   [data-chrome="feed"].m-scroll .tabs {
     top: 0;
@@ -317,7 +340,7 @@ html.proto-zoomed {
   /* e1: one column of pages */
   [data-layout="e1"].m-scroll .book-pages {
     max-width: min(700px, calc(100vw - var(--rail) - 56px));
-    gap: 32px;
+    gap: 40px;
   }
   [data-layout="e1"].m-scroll .book-pages > .page {
     min-height: calc(100cqi * 1.303);
@@ -329,7 +352,7 @@ html.proto-zoomed {
     max-width: min(1400px, calc(100vw - var(--rail) - 56px));
     grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: 0;
-    row-gap: 36px;
+    row-gap: 40px;
   }
   [data-layout="e2"].m-scroll .book-pages > .page {
     min-height: calc(50cqi * 1.303);
