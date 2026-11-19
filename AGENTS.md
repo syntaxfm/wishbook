@@ -50,7 +50,8 @@ src/
                   assets.ts (asset resolver), copy.ts (copy markup), catalog.ts (catalog
                   numbers, prices, order lines), og.ts + og-layout.ts (share cards),
                   editions, paginate.ts (page numbers, fillers, spreads, refs), book.ts
-                  (the per-edition context every template gets), redirects.ts (_redirects)
+                  (the per-edition context every template gets), redirects.ts (_redirects),
+                  catalog-txt.ts (the plain-text catalog)
   layouts/        BookPage.astro (one HTML file: meta + the whole book opened at a page);
                   templates/ (one component per catalog layout, plus Filler)
   components/     catalog building blocks (Img, Placeholder, ItemLetter, PhotoQuote, Price,
@@ -128,6 +129,7 @@ The effects apply to any `.page` (with `.left` / `.right` for the gutter and wor
 
 - **Every real URL includes the edition year.** Each logical page has a real path: `/2026/` (cover), `/2026/<section>/` (section divider), `/2026/<section>/<slug>/`. Also `/2026/wishlist/?w=…`, `/2026/catalog.txt`, and `/2026/og/<slug>.png`. Each page has its own `<title>`, canonical URL, and Open Graph tags, all absolute and year-scoped.
 - **Root copies:** `/` and `/catalog.txt` are build-time copies of the current edition's cover and catalog, with canonical pointing at `/2026/`. They are real files, not redirects. `dist/_redirects` is generated at build from the current edition's sections (`src/lib/redirects.ts`) and sends (302) year-less section paths to the current edition.
+- **catalog.txt** is built by `formatCatalogText(ctx)` in `src/lib/catalog-txt.ts` from the book context (`createBookContext` takes already-loaded content, so tests use fixtures). Every line stays within 80 columns (78 wide; URLs never break). Each item is listed once, at the page the order-form index uses (its feature page, else its first appearance), under its section; items mentioned in passing are grouped under the page that lists them. It prints only order lines with `{phone}` or `{catalog}`, the catalog/estimate key entries, buy links (or `links.missingBuy`), the guarantee, and the disclosure: no new copy. `public/_headers` serves it as `text/plain; charset=utf-8`.
 - **Build every URL with the URL helper** (`src/lib/urls.ts`: `editionUrl`, `rootUrl`, `absoluteUrl`). Never hard-code a path. Don't use Astro's `base` option; routes live under `src/pages/[edition]/`.
 - The client never navigates across editions. Links to another year are normal full-page links.
 - **Share cards** are crafted 1200×630 images per page (not screenshots), generated at build with Satori + resvg. Satori supports flexbox only, with no CSS filters or masks, so textures are pre-baked images.

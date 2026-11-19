@@ -91,6 +91,15 @@ async function build(edition: Edition): Promise<BookContext> {
     getGlobal(),
     paginate(edition),
   ]);
+  return createBookContext(content, global, book);
+}
+
+/** The context for already-loaded content (tests pass fixture content here). */
+export function createBookContext(
+  content: EditionContent,
+  global: Global,
+  book: Book,
+): BookContext {
   const pages = new Map(content.pages.map((p) => [p.slug, p]));
   const items = new Map(content.items.map((i) => [i.slug, i]));
   const count = pickCount(content.items);
