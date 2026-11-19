@@ -1,0 +1,153 @@
+---
+// A shared wish list: /2026/wishlist/?w=<code>. One static file per edition.
+// Every item's card is prerendered and hidden; src/scripts/wishlist-page.ts
+// decodes ?w= and reveals the listed ones. It stands on its own (not inside
+// the book), with links back into the WishBook.
+import type { GetStaticPaths } from "astro";
+import CatalogNumber from "../../../components/CatalogNumber.astro";
+import Copy from "../../../components/Copy.astro";
+import DesignSystem from "../../../components/DesignSystem.astro";
+import Img from "../../../components/Img.astro";
+import ItemIndex from "../../../components/ItemIndex.astro";
+import ItemLinks from "../../../components/ItemLinks.astro";
+import Price from "../../../components/Price.astro";
+import PrintFilters from "../../../components/PrintFilters.astro";
+import PrintSheet from "../../../components/PrintSheet.astro";
+import { getBookContext } from "../../../lib/book";
+import { getEditions } from "../../../lib/content";
+import { buildItemIndex } from "../../../lib/item-index";
+import { MARKER_LOOP } from "../../../lib/marker";
+import { absoluteUrl, editionUrl } from "../../../lib/urls";
+
+export const getStaticPaths = (() =>
+  getEditions().map((edition) => ({
+    params: { edition: String(edition) },
+  }))) satisfies GetStaticPaths;
+
+const ctx = await getBookContext(Astro.params.edition);
+const { wishList, episode } = ctx.content.site;
+const name = ctx.global.name;
+const heading = wishList.title ?? name;
+const title = `${heading} · ${name}`;
+const description = wishList.shared
+  ? ctx.plain(wishList.shared)
+  : ctx.plain(ctx.content.site.meta.description);
+const canonical = absoluteUrl(editionUrl(ctx.edition, "wishlist"));
+const image = absoluteUrl(editionUrl(ctx.edition, "og/wishlist.png"));
+const cover = editionUrl(ctx.edition);
+const byId = new Map(ctx.content.items.map((i) => [i.id, i]));
+const cards = await Promise.all(
+  buildItemIndex(ctx).map(async (entry) => {
+    const item = byId.get(entry.id)!;
+    return { item, home: ctx.indexPageOf(item), photo: await ctx.itemImage(item) };
+  }),
+);
+---
+
+<!doctype html>
+<html lang="en" data-edition={ctx.edition}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      document.documentElement.classList.add("js");
+    </script>
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={image} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <DesignSystem />
+  </head>
+  <body>
+    <PrintFilters />
+    <main class="wl" data-wishlist-page>
+      <article class="wl-sheet page">
+        <a class="wl-mast" href={cover}>
+          {name}
+        </a>
+        <h1 class="wl-title display">{heading}</h1>
+        {wishList.shared && (
+          <p class="wl-intro" data-wl-intro hidden>
+            <Copy text={wishList.shared} ctx={ctx} />
+          </p>
+        )}
+        <p class="wl-intro" data-wl-empty>
+          {wishList.empty && <Copy text={wishList.empty} ctx={ctx} />}
+        </p>
+        <ul class="wl-cards">
+          {cards.map(({ item, home, photo }) => (
+            <li class="wl-card" data-wl-item={item.id} hidden>
+              <svg
+                class="wish-circle"
+                viewBox="0 0 300 120"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                <path d={MARKER_LOOP} />
+              </svg>
+              <div class="wl-photo">
+                <Img
+                  asset={photo}
+                  alt={item.image.alt}
+                  widths={[240, 320, 480]}
+                  sizes="(min-width: 900px) 260px, 45vw"
+                />
+              </div>
+              <span class="itemname">{item.name}</span>
+              <div class="wl-meta">
+                {item.timestamp ? (
+                  <CatalogNumber timestamp={item.timestamp} videoUrl={episode.videoUrl} />
+                ) : (
+                  <span />
+                )}
+                <Price
+                  confirmed={item.price.confirmed}
+                  estimate={item.price.estimate}
+                  text={item.price.label ?? "–"}
+                />
+              </div>
+              {home && (
+                <a class="wl-page" href={ctx.href(home.slug)}>
+                  {ctx.book.ref(home.slug)}
+                </a>
+              )}
+              <ItemLinks item={item} ctx={ctx} />
+            </li>
+          ))}
+        </ul>
+        <div class="wl-actions">
+          {wishList.add && (
+            <button type="button" data-wl-add hidden>
+              {wishList.add}
+            </button>
+          )}
+          {wishList.start && (
+            <a class="alt" href={cover} data-wl-start>
+              {wishList.start}
+            </a>
+          )}
+        </div>
+        <p class="wl-status" role="status" data-wl-status>
+          <span data-wl-added hidden>
+            {wishList.added && <Copy text={wishList.added} ctx={ctx} />}
+          </span>
+        </p>
+      </article>
+    </main>
+    <PrintSheet ctx={ctx} />
+    <ItemIndex ctx={ctx} />
+    <script>
+      import { start } from "../../../scripts/wishlist-page";
+
+      start();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,52 @@
+---
+/**
+ * The ⌘K / Ctrl+K search: a modal <dialog> with a combobox input and a
+ * listbox of results from the embedded item index. src/scripts/search.ts
+ * drives it; Enter opens the active result through the book engine.
+ */
+import type { BookContext } from "../lib/book";
+
+interface Props {
+  ctx: BookContext;
+}
+
+const { ctx } = Astro.props;
+const { search } = ctx.content.site;
+const title = search.label ?? "";
+---
+
+<dialog class="search-dialog" data-search aria-labelledby="search-title">
+  <div class="search-box" role="search">
+    <label id="search-title" class="search-title kicker" for="search-input">
+      {title}
+    </label>
+    <input
+      id="search-input"
+      type="text"
+      role="combobox"
+      autocomplete="off"
+      spellcheck="false"
+      aria-autocomplete="list"
+      aria-expanded="false"
+      aria-controls="search-results"
+      placeholder={search.placeholder ?? undefined}
+      data-search-input
+    />
+    <ul id="search-results" role="listbox" aria-labelledby="search-title" data-search-results></ul>
+    <p class="search-none" data-search-none hidden>
+      {search.none ? ctx.plain(search.none) : ""}
+    </p>
+    <p class="search-keys" aria-hidden="true">
+      <span>
+        <kbd>↑</kbd>
+        <kbd>↓</kbd>
+      </span>
+      <span>
+        <kbd>↵</kbd>
+      </span>
+      <span>
+        <kbd>esc</kbd>
+      </span>
+    </p>
+  </div>
+</dialog>

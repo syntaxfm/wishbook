@@ -3,14 +3,24 @@
  * Index & order form: an alphabetical index of every gift with its page, a
  * carbon-copy order blank that the wish list fills in (data-order-* hooks),
  * share and print buttons, and the affiliate disclosure.
+ *
+ * Every item has a prerendered, hidden row (data-order-item) with its catalog
+ * number, name, purchase links, and price; the wish list (src/scripts/
+ * wishlist.ts) reveals the circled ones in the order they were circled and
+ * fills in the total. Blank rows pad the form until it has a few lines.
  */
+import CatalogNumber from "../../components/CatalogNumber.astro";
 import Copy from "../../components/Copy.astro";
+import ItemLinks from "../../components/ItemLinks.astro";
 import PageShell from "../../components/PageShell.astro";
+import Price from "../../components/Price.astro";
+import { editionUrl } from "../../lib/urls";
 import type { TemplateProps } from "./types";
 
 type Props = TemplateProps;
 const { page, content, ctx, state } = Astro.props;
-const { orderForm, links } = ctx.content.site;
+const { orderForm, links, wishList } = ctx.content.site;
+const videoUrl = ctx.content.site.episode.videoUrl;
 const index = ctx.content.items
   .filter((i) => !i.mention)
   .flatMap((i) => {
@@ -20,6 +30,7 @@ const index = ctx.content.items
   .toSorted((a, b) =>
     a.item.indexName.localeCompare(b.item.indexName, "en", { sensitivity: "base" }),
   );
+const rows = ctx.content.items.map((item) => ({ item, home: ctx.indexPageOf(item) }));
 // Blank lines on the order form until the wish list fills them.
 const BLANK_ROWS = 3;
 ---
@@ -37,21 +48,42 @@ const BLANK_ROWS = 3;
       ))}
     </ul>
   </div>
-  <div class="form" data-order-form>
+  <div class="form" data-order-form data-share-path={editionUrl(ctx.edition, "wishlist")}>
     <div class="row head">
       <span>Cat. No.</span>
       <span>Item</span>
       <span>Qty</span>
       <span>Price</span>
     </div>
-    {Array.from({ length: BLANK_ROWS }, () => (
-      <div class="row" data-order-row>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-    ))}
+    <div class="rows" data-order-rows>
+      {rows.map(({ item, home }) => (
+        <div class="row item-row" data-order-item={item.id} hidden>
+          <span>
+            {item.timestamp && <CatalogNumber timestamp={item.timestamp} videoUrl={videoUrl} />}
+          </span>
+          <span class="item-cell">
+            {home ? <a href={ctx.href(home.slug)}>{item.name}</a> : <span>{item.name}</span>}
+            <ItemLinks item={item} ctx={ctx} class="formlinks" />
+          </span>
+          <span>1</span>
+          <span>
+            <Price
+              confirmed={item.price.confirmed}
+              estimate={item.price.estimate}
+              text={item.price.label ?? "–"}
+            />
+          </span>
+        </div>
+      ))}
+      {Array.from({ length: BLANK_ROWS }, () => (
+        <div class="row" data-order-row>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      ))}
+    </div>
     <div class="row">
       <span></span>
       <span class="kicker">Total</span>
@@ -60,6 +92,11 @@ const BLANK_ROWS = 3;
     </div>
     <div class="carbon" aria-hidden="true"></div>
   </div>
+  {wishList.unpriced && (
+    <p class="smallprint" data-order-unpriced hidden>
+      <Copy text={wishList.unpriced} ctx={ctx} />
+    </p>
+  )}
   {content.copy.smallprint && (
     <p class="smallprint">
       <Copy text={content.copy.smallprint} ctx={ctx} />
@@ -77,6 +114,19 @@ const BLANK_ROWS = 3;
       </button>
     )}
   </div>
+  <p class="sharemsg" role="status" data-share-status>
+    <span data-share-copied hidden>
+      {wishList.copied && <Copy text={wishList.copied} ctx={ctx} />}
+    </span>
+    <input
+      class="shareurl"
+      type="text"
+      readonly
+      aria-label={orderForm.shareLabel ? ctx.plain(orderForm.shareLabel) : undefined}
+      data-share-url
+      hidden
+    />
+  </p>
   {links.disclosure && (
     <p class="disclosure">
       <Copy text={links.disclosure} ctx={ctx} />

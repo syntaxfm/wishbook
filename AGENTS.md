@@ -51,23 +51,29 @@ src/
                   numbers, prices, order lines), og.ts + og-layout.ts (share cards),
                   editions, paginate.ts (page numbers, fillers, spreads, refs), book.ts
                   (the per-edition context every template gets), redirects.ts (_redirects),
-                  catalog-txt.ts (the plain-text catalog); pure modules shared with the
-                  client: spreads.ts (pairing pages into spreads), modes.ts (reading-mode
-                  breakpoints and the head script), routes.ts (path ↔ slug table)
+                  catalog-txt.ts (the plain-text catalog), item-index.ts (the item index
+                  embedded for the client); pure modules shared with the client:
+                  spreads.ts (pairing pages into spreads), modes.ts (reading-mode
+                  breakpoints and the head script), routes.ts (path ↔ slug table),
+                  wishlist-codec.ts (share codes), search.ts (fuzzy match), marker.ts
   layouts/        BookPage.astro (one HTML file: meta + the whole book opened at a page);
                   templates/ (one component per catalog layout, plus Filler)
   components/     catalog building blocks (Img, Placeholder, ItemLetter, PhotoQuote, Price,
                   CatalogNumber, PickedBy, NewBanner, Folio, ShopLine, Kbd, Frame…); content
                   renderers (Copy, CopyParas, ItemCopy, ItemOrder, ItemLinks, ItemQuote,
                   LineQuote); PageShell (one page's <article>), Book (all pages, tabs,
-                  prev/next); DesignSystem (styles + font preloads, in <head>), PrintFilters
+                  prev/next); DesignSystem (styles + font preloads, in <head>), PrintFilters;
+                  WishTools, SearchDialog, PrintSheet, ItemIndex (wish list, search, print)
   scripts/        client modules: book.ts (the book engine: modes, turns, routing, tabs, a11y,
-                  image loading, reveals), centerfold.ts (legend ↔ hotspot linking); later
-                  wish list, search
+                  image loading, reveals), centerfold.ts (legend ↔ hotspot linking),
+                  wishlist-store.ts (the stored list + item index), wishlist.ts (toggles,
+                  count, order form, share, print), search.ts (⌘K), print-sheet.ts,
+                  wishlist-page.ts (the shared-list page)
   styles/         global.css imports, in order: fonts, tokens (palette, type roles), textures,
                   base, components, templates (page layouts), book (shell, reading modes,
-                  tabs, purchase links), effects (paper & print), motion; editions/<year>.css
-                  overrides; textures/ holds the baked tiles; print stylesheet
+                  tabs, purchase links), effects (paper & print), motion, wishlist (toggles,
+                  marker loop, chrome tools, search, wish-list page), print (the print
+                  stylesheet); editions/<year>.css overrides; textures/ holds the baked tiles
   dev/            dev-only design showcase and its sample images
   pages/
     index.astro   root copy of the current edition's cover
@@ -154,6 +160,16 @@ The effects apply to any `.page` (with `.left` / `.right` for the gutter and wor
   - Pages get `.in` once, the first time they come into view (pops, pulses, marker draws in `motion.css`).
   - The centerfold's legend and hotspots light each other (`.lit`). When the art is a swipe strip, the first tap on a legend entry scrolls the strip to its hotspot and the second follows the link.
 - **Purchase links** render only through `ItemLinks.astro` (placement is provisional): "Buy ↗" (`rel="noopener sponsored"`) and "Maker ↗" (`rel="noopener"`), new tab, 44px touch targets, quieter than the price. A missing buy link shows the muted `links.missingBuy` placeholder; a missing maker link shows a placeholder only in dev. Labels and the affiliate disclosure (on the order form) live in `site.yaml` under `links`.
+- **Wish list:** `wishlist.ts` adds a circle toggle (`button.wish-toggle`, `aria-pressed`) and a marker loop (`svg.wish-circle`, drawn on circling; instant with reduced motion) to every `[data-item-id]` block in the book except centerfold hotspot links. Toggles are added by script, so no-JS pages show none. Every copy of an item (it can appear on several pages) stays in sync.
+  - Storage: `localStorage["wishbook:<year>:wishlist"]`, a JSON array of item ids in the order circled; per edition, so years never mix. Ids not in the edition's item index are ignored. Changes dispatch `wishbook:wishlist` on `document` with `{ ids }` (other tabs too).
+  - Share code (`src/lib/wishlist-codec.ts`): a bitset of item ids (bit `id`, least significant bit first per byte), base64url without padding or trailing zero bytes: `[1, 2, 9]` → `BgI`. Item ids are permanent, so old codes stay valid as items are added; empty, malformed, or oversized codes decode to an empty list. The share URL is `/<year>/wishlist/?w=<code>` (no code for an empty list), copied to the clipboard, or shown selected in a field when the clipboard is unavailable.
+  - Item index: `ItemIndex.astro` inlines `buildItemIndex(ctx)` once per document as JSON (`#wishbook-items`: id, name, brand, pickers, section, page slug and ref, catalog number, price/estimate/label, buy link; short keys). About 9.5 KB raw, 2.7 KB gzipped for 2026.
+  - Order form: every item has a prerendered hidden row (`data-order-item`, with `CatalogNumber`, `ItemLinks`, `Price`); the script shows the listed ones in list order, pads with blank rows up to three, and fills the total (`est.` when any price is an estimate; `*` plus the `wishList.unpriced` footnote when an item has no price). In book and single modes a long list scrolls inside the form.
+  - `/<year>/wishlist/` (`src/pages/[edition]/wishlist/index.astro`) stands alone, outside the book shell: prerendered hidden cards (photo, name, catalog number, price, page link, `ItemLinks`), revealed from `?w=`; "Add these to my list" merges them into the visitor's list; "Start my own" opens the cover. Canonical `/<year>/wishlist/`, `og:image` `/<year>/og/wishlist.png`.
+  - Chrome: `WishTools.astro` (search button and the wish-list link with its count) sits fixed at the bottom left in book mode and above the tab bar otherwise. It shows only with JavaScript.
+- **Search (⌘K / Ctrl+K, or the search button):** a modal `<dialog>` with an ARIA combobox and listbox over the item index (`src/lib/search.ts`: every query word must match; whole word > prefix > substring > subsequence; name weighs most, then brand, picker, section, page). ↑/↓ move, Enter or a click opens the item's index page through `navigate()`, Esc closes and returns focus. Results don't carry Buy links (interactive content inside a listbox option isn't accessible).
+- **Print (⌘P or the Print button):** `src/styles/print.css` hides every child of `<body>` except `PrintSheet.astro`, which `print-sheet.ts` fills from the list: masthead, edition, the order table with each buy URL written out (or `links.missingBuy`), total, the share URL, the `wishList.mailTo` box, the guarantee, and the disclosure. An empty list prints blank lines. It works from every page file and the wish-list page.
+- **Wish-list and search copy** lives in `site.yaml` under `wishList` (title, circle/circled labels, copied, empty, shared, add, added, start, unpriced, mailTo) and `search` (label, placeholder, none).
 - **History:** a page turn _replaces_ the URL; a jump (tab, cross-ref, index, hotspot) _pushes_ it.
 - **Accessibility:** announce the new page in a polite live region and move focus to its heading after every turn or jump. Respect `prefers-reduced-motion` (instant swaps). Every static file renders its own page without JavaScript.
 - **Performance:** load images only for the current spread and its neighbors; use `content-visibility` for off-screen pages; preload the fonts used above the fold.

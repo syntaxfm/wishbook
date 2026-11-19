@@ -34,6 +34,8 @@ import Under from "../layouts/templates/Under.astro";
 import Welcome from "../layouts/templates/Welcome.astro";
 import Wild from "../layouts/templates/Wild.astro";
 import type { Template } from "../lib/schema";
+import SearchDialog from "./SearchDialog.astro";
+import WishTools from "./WishTools.astro";
 
 interface Props {
   edition: Edition;
@@ -149,11 +151,17 @@ const where = here.end > here.n ? `Pages ${here.label}` : `Page ${here.label}`;
       </a>
     ))}
   </nav>
+  <WishTools ctx={ctx} />
+  <SearchDialog ctx={ctx} />
   <div class="sr-only" role="status" aria-live="polite" data-live></div>
 </div>
 
 <script>
   import { start } from "../scripts/book";
+  import { start as startSearch } from "../scripts/search";
+  import { start as startWishlist } from "../scripts/wishlist";
 
   start();
+  startWishlist();
+  startSearch();
 </script>

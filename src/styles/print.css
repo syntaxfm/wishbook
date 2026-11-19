@@ -1,0 +1,138 @@
+/* =========================================================
+   Print: only the paper order form (src/components/PrintSheet.astro) prints,
+   from any page. Everything else is hidden. Plain ink on white paper, with
+   buy links written out so the printout still works.
+   ========================================================= */
+
+.print-sheet {
+  display: none;
+}
+
+@media print {
+  @page {
+    margin: 14mm;
+  }
+  html,
+  body {
+    background: #fff !important;
+  }
+  body > :not(.print-sheet) {
+    display: none !important;
+  }
+  .print-sheet {
+    display: block;
+    color: #000;
+    font: 11pt/1.35 var(--f-body);
+  }
+  .print-sheet .ps-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 2px solid #000;
+  }
+  .print-sheet .ps-mast {
+    font-family: var(--f-masthead);
+    font-size: 40pt;
+    line-height: 1.1;
+    color: var(--red);
+  }
+  .print-sheet .ps-edition {
+    font-family: var(--f-kicker);
+    font-weight: 700;
+    font-size: 16pt;
+    letter-spacing: 0.1em;
+  }
+  .print-sheet .ps-title {
+    margin: 10pt 0 8pt;
+    font-family: var(--f-display);
+    font-style: italic;
+    font-size: 22pt;
+    color: var(--red);
+  }
+  .print-sheet .ps-form {
+    width: 100%;
+    border-collapse: collapse;
+    border: 2px solid #000;
+  }
+  .print-sheet th,
+  .print-sheet td {
+    border: 1px solid #000;
+    padding: 4pt 6pt;
+    text-align: left;
+    vertical-align: top;
+  }
+  .print-sheet thead th {
+    font-family: var(--f-kicker);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: #000;
+    color: #fff;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .print-sheet thead th:nth-child(1) {
+    width: 24%;
+  }
+  .print-sheet thead th:nth-child(3) {
+    width: 7%;
+  }
+  .print-sheet thead th:nth-child(4) {
+    width: 16%;
+  }
+  .print-sheet tr.blank td {
+    height: 18pt;
+  }
+  .print-sheet .mono,
+  .print-sheet .ps-buy,
+  .print-sheet .ps-url {
+    font-family: var(--f-mono);
+    font-size: 8.5pt;
+    word-break: break-all;
+  }
+  .print-sheet .ps-buy {
+    margin-top: 2pt;
+  }
+  .print-sheet tfoot th {
+    text-align: right;
+    font-family: var(--f-kicker);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .print-sheet .ps-total {
+    font-family: var(--f-price);
+    font-weight: 700;
+  }
+  .print-sheet .est {
+    margin-left: 0.25em;
+    font-size: 0.8em;
+    font-style: italic;
+    font-weight: 400;
+  }
+  .print-sheet .ps-small {
+    font-size: 8.5pt;
+  }
+  .print-sheet .ps-foot {
+    display: flex;
+    gap: 16pt;
+    align-items: flex-start;
+    margin-top: 14pt;
+    break-inside: avoid;
+  }
+  .print-sheet .ps-santa {
+    flex: none;
+    min-width: 45%;
+    padding: 10pt 14pt;
+    border: 2px dashed #000;
+    font-family: var(--f-hand);
+    font-size: 14pt;
+    line-height: 1.5;
+  }
+  .print-sheet .ps-notes p {
+    margin: 0 0 6pt;
+  }
+  .print-sheet a {
+    color: inherit;
+    text-decoration: none;
+  }
+}

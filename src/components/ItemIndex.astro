@@ -1,0 +1,17 @@
+---
+/**
+ * The edition's item index as inline JSON (see src/lib/item-index.ts), read by
+ * the wish list, search, and the printed order form. Render once per document.
+ */
+import type { BookContext } from "../lib/book";
+import { ITEM_INDEX_ID, itemIndexJson } from "../lib/item-index";
+
+interface Props {
+  ctx: BookContext;
+}
+
+const { ctx } = Astro.props;
+const json = itemIndexJson(ctx);
+---
+
+<script type="application/json" id={ITEM_INDEX_ID} set:html={json} is:inline />
