@@ -1,7 +1,9 @@
 /**
  * Fit: in book and single modes every page is the same fixed box (book.css,
- * --pw × --ph), sized from the viewport. A page whose content is taller than
- * its box is scaled down uniformly to fit: the page gets `.is-fit` and
+ * --pw × --ph), sized from the viewport. Every page is designed to fit that
+ * box at full scale (tests/e2e/page-fit.spec.ts); this is the safety net. A
+ * page whose content is still taller than its box is scaled down uniformly to
+ * fit (with a console warning in dev): the page gets `.is-fit` and
  * `--fit` (the scale), and its content (`.pg`, or the centerfold's `.cf`)
  * shrinks from the top centre. Pages that fit stay at scale 1; nothing is
  * scaled up, clipped, or scrolled.
@@ -34,8 +36,9 @@ function measure(box: HTMLElement, content: HTMLElement): Fit | null {
   const cs = getComputedStyle(box);
   const room = box.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
   // offsetHeight is the layout height, untouched by the scale or a turn's
-  // rotation; it rounds, so allow a pixel.
-  const natural = content.offsetHeight + 1;
+  // rotation; it rounds (and a page that fills its box rounds up from a
+  // fractional room), so allow a pixel.
+  const natural = content.offsetHeight;
   if (room <= 0 || natural <= room + 1) return { scale: 1, over: 0 };
   return { scale: Math.floor((room / natural) * 1000) / 1000, over: natural - room };
 }
@@ -46,6 +49,17 @@ function measure(box: HTMLElement, content: HTMLElement): Fit | null {
  * has no hidden overflow to scroll to.
  */
 function apply(box: HTMLElement, fit: Fit): void {
+  // Every page is designed to fit its box at full scale (the page-fit e2e
+  // test checks it); scaling is only a safety net, so say so in dev.
+  if (
+    import.meta.env.DEV &&
+    fit.scale < 1 &&
+    box.style.getPropertyValue("--fit") !== String(fit.scale)
+  ) {
+    console.warn(
+      `[fit] page "${box.dataset.slug}" is ${Math.round(fit.over)}px taller than its box; scaled to ${fit.scale}`,
+    );
+  }
   box.classList.toggle(FIT, fit.scale < 1);
   if (fit.scale < 1) {
     box.style.setProperty("--fit", String(fit.scale));
