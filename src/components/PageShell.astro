@@ -1,7 +1,8 @@
 ---
 /**
  * One physical page of the book: the <article> the book engine drives
- * (data-slug, data-n, data-side, data-path), its folio, an optional order-line
+ * (data-slug, data-n, data-side, data-path, and data-alias on the first page
+ * of a section without a divider), its folio, an optional order-line
  * banner, and a visually hidden heading that names the page for screen readers
  * and takes focus after a turn or jump.
  *
@@ -13,6 +14,7 @@ import Folio from "./Folio.astro";
 import ShopLine from "./ShopLine.astro";
 import type { BookContext, BookPage, OrderLine } from "../lib/book";
 import { PAGE_SUFFIX } from "../lib/paginate";
+import { editionUrl } from "../lib/urls";
 import type { PageState } from "../layouts/templates/types";
 
 interface Props {
@@ -43,6 +45,7 @@ const line = orderLine
   data-n={page.n}
   data-side={page.side}
   data-path={ctx.href(page.slug)}
+  data-alias={page.alias ? editionUrl(ctx.edition, page.alias) : undefined}
   data-section={page.section}
   data-title={page.title}
   data-doc-title={ctx.docTitle(page.slug)}

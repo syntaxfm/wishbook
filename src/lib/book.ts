@@ -15,6 +15,7 @@ import {
   type Item,
   type Page,
   type Quote,
+  type Section,
 } from "./content";
 import { formatCatalogNumber } from "./catalog";
 import { paginate, type Book, type BookPage } from "./paginate";
@@ -85,6 +86,14 @@ export interface BookContext {
   docTitle(slug: string): string;
   /** A section's display name ("" if unknown). */
   sectionName(id: string): string;
+  /**
+   * The thumb-index sections, in order, each with its first page (its divider
+   * when it has one): every section with pages except the front matter (the
+   * cover's section) and the back matter (the back cover's).
+   */
+  tabs: { section: Section; first: BookPage }[];
+  /** A section's pages, dividers aside: "Pages 4 A – 14 A" ("Page 6 A"; null if none). */
+  sectionRange(id: string): string | null;
 }
 
 const cache = new Map<string, Promise<BookContext>>();
@@ -130,6 +139,13 @@ export function createBookContext(
     return found;
   };
   const avatars = new Map<string, Promise<ResolvedAsset>>();
+  const matter = new Set(
+    book.pages.filter((p) => p.kind === "cover" || p.kind === "back").map((p) => p.section),
+  );
+  const tabs = content.sections.flatMap((section) => {
+    const first = book.firstOf(section.id);
+    return first && !matter.has(section.id) ? [{ section, first }] : [];
+  });
 
   const ctx: BookContext = {
     edition: content.edition,
@@ -146,6 +162,14 @@ export function createBookContext(
       return p.kind === "cover" ? global.name : `${p.title} · ${global.name}`;
     },
     sectionName: (id) => content.sections.find((s) => s.id === id)?.name ?? "",
+    tabs,
+    sectionRange: (id) => {
+      const range = book.rangeOf(id);
+      if (!range) return null;
+      return range.first === range.last
+        ? `Page ${range.first.label}`
+        : `Pages ${range.first.label} – ${range.last.label}`;
+    },
     orderLine: (id) => (id ? (content.site.orderLines.find((l) => l.id === id) ?? null) : null),
     phoneLine:
       content.site.orderLines.find((l) =>

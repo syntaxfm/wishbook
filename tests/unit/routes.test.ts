@@ -40,6 +40,18 @@ describe("RouteTable", () => {
     expect(t.slugFor("/2026/catalog.txt")).toBeNull();
     expect(t.slugFor("/favorites/wes/")).toBeNull();
   });
+  it("opens a page at its alias, but keeps its own path as its address", () => {
+    const t = new RouteTable([
+      ...ROUTES,
+      { slug: "olight", path: "/2026/tech/olight/", alias: "/2026/tech/" },
+      // an alias never takes over a real page's path
+      { slug: "wes2", path: "/2026/favorites/wes2/", alias: "/2026/favorites/" },
+    ]);
+    expect(t.slugFor("/2026/tech/")).toBe("olight");
+    expect(t.slugFor("/2026/tech")).toBe("olight");
+    expect(t.pathOf("olight")).toBe("/2026/tech/olight/");
+    expect(t.slugFor("/2026/favorites/")).toBe("favorites");
+  });
   it("treats the bare / as the cover only for the current edition", () => {
     expect(new RouteTable(ROUTES, "cover").slugFor("/")).toBe("cover");
     expect(new RouteTable(ROUTES).slugFor("/")).toBeNull();

@@ -10,6 +10,7 @@
 import Copy from "../../components/Copy.astro";
 import Img from "../../components/Img.astro";
 import { PAGE_SUFFIX } from "../../lib/paginate";
+import { editionUrl } from "../../lib/urls";
 import type { TemplateProps } from "./types";
 
 type Props = TemplateProps;
@@ -46,6 +47,7 @@ const lightRules = spots
   data-end={page.end}
   data-side={page.side}
   data-path={ctx.href(page.slug)}
+  data-alias={page.alias ? editionUrl(ctx.edition, page.alias) : undefined}
   data-section={page.section}
   data-title={page.title}
   data-doc-title={ctx.docTitle(page.slug)}

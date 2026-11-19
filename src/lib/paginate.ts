@@ -47,6 +47,11 @@ export interface BookPage {
   slug: string;
   /** Path inside the edition: "" (cover), "<section>" (divider), "<section>/<slug>". */
   path: string;
+  /**
+   * The section's path ("<section>"), on the first page of a section that has
+   * no page there (no divider): /<year>/<section>/ opens this page too.
+   */
+  alias?: string;
   /** Folio label: "6 A", "28–29 A". */
   label: string;
   /** Side of the spread. The centerfold spans both. */
@@ -82,7 +87,7 @@ export interface Book {
   ref(slug: string): string;
   /** The spread a page sits in. */
   spreadOf(slug: string): Spread;
-  /** The first page of a section (its divider when it has one). */
+  /** The first page of a section (its divider when it has one; else the page at its alias). */
   firstOf(section: string): BookPage | undefined;
   /** First and last non-divider page of a section, for the divider's "Pages 5 A – 14 A". */
   rangeOf(section: string): { first: BookPage; last: BookPage } | null;
@@ -185,6 +190,16 @@ export function paginateBook(
       index: pages.length,
     });
     n = end + 1;
+  }
+
+  // A section without a page at its own path (no divider) is opened there by
+  // its first page.
+  const paths = new Set(pages.map((p) => p.path));
+  for (const p of pages) {
+    if (p.index === pages.findIndex((q) => q.section === p.section) && !paths.has(p.section)) {
+      p.alias = p.section;
+      paths.add(p.section);
+    }
   }
 
   // Spreads: page 1 alone on the right, then even|odd pairs.
