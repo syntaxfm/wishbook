@@ -1,8 +1,10 @@
 import { expect, test, type Page } from "@playwright/test";
 
 /**
- * The fixed page box, fit scaling, and clickable page edges (book and single
- * modes), plus a light check of each prototype layout variant.
+ * The reading modes: the fixed page box, fit scaling, the side controls, and
+ * clickable page edges (book and single modes); the readable floor under the
+ * page box (tall spreads scroll, turns snap to the top); and which mode a
+ * window gets (spreads, a single page, or the feed).
  */
 
 /** Waits until no turn is running. */
@@ -13,6 +15,8 @@ async function settled(page: Page): Promise<void> {
 /** Geometry of the frame and the shown pages, rounded to whole pixels. */
 async function frame(page: Page) {
   return page.evaluate(() => {
+    // Runs in the browser: helpers must live inside the evaluated function.
+    // oxlint-disable-next-line unicorn/consistent-function-scoping
     const box = (el: Element | null) => {
       if (!el) return null;
       const r = el.getBoundingClientRect();
@@ -142,62 +146,15 @@ test("the phone feed has no edges and pages keep their natural height", async ({
   await expect(page.locator(".book-pages > .is-fit")).toHaveCount(0);
 });
 
-/* ---------- prototype layouts ---------- */
+/* ---------- the side controls and the readable floor ---------- */
 
-for (const layout of ["a", "b", "c", "d"]) {
-  test(`layout ${layout}: the spread and its controls fit the window at 1360×900`, async ({
-    page,
-  }) => {
-    await page.setViewportSize({ width: 1360, height: 900 });
-    await page.goto(`/2026/favorites/wes/?layout=${layout}`);
-    await expect(page.locator("html")).toHaveAttribute("data-layout", layout);
-    const f = await frame(page);
-    expect(f.docScroll).toBeLessThanOrEqual(0);
-    for (const sel of [
-      ".pager .prev",
-      ".pager .next",
-      ".tabs",
-      '.book-pages > [data-slug="wes"]',
-    ]) {
-      const b = (await page.locator(sel).boundingBox())!;
-      expect(b.x, sel).toBeGreaterThanOrEqual(0);
-      expect(b.y, sel).toBeGreaterThanOrEqual(0);
-      expect(b.x + b.width, sel).toBeLessThanOrEqual(1360);
-      expect(b.y + b.height, sel).toBeLessThanOrEqual(900);
-    }
-    await page.locator(".pager .next").click();
-    await settled(page);
-    await expect(page).toHaveURL(/\/2026\/favorites\/icemag\/$/);
-  });
-}
-
-for (const layout of ["e1", "e2"]) {
-  test(`layout ${layout}: a feed with a section rail at 1360×900`, async ({ page }) => {
-    await page.setViewportSize({ width: 1360, height: 900 });
-    await page.goto(`/2026/favorites/wes/?layout=${layout}`);
-    await expect(page.locator("html")).toHaveClass(/m-scroll/);
-    await expect(page.locator(".tabs")).toBeInViewport({ ratio: 1 });
-    await page.locator('.tabs a[data-section="tech"]').click();
-    await expect(page).toHaveURL(/\/2026\/tech\/$/);
-    await expect(page.locator('.tabs a[data-section="tech"]')).toHaveClass(/on/);
-  });
-}
-
-/* ---------- hybrid: a's spread with a floor under the page box ---------- */
-
-/** Opens a page in the hybrid layout (optionally with a floor). */
-async function openHybrid(page: Page, path: string, floor?: number): Promise<void> {
-  if (floor) {
-    await page.addInitScript(
-      (f) => localStorage.setItem("wishbook:hybrid:floor", String(f)),
-      floor,
-    );
-  }
-  await page.goto(`${path}?layout=hybrid`);
+/** Opens a page with the web fonts in. */
+async function open(page: Page, path: string): Promise<void> {
+  await page.goto(path);
   await page.evaluate(() => document.fonts.ready);
 }
 
-const tier = (page: Page) => page.locator("html").getAttribute("data-hy-tier");
+const html = (page: Page) => page.locator("html");
 
 /** Height of the spread on screen and of the document, at the current page. */
 const heights = (page: Page) =>
@@ -217,38 +174,35 @@ async function everySpread(page: Page): Promise<{ stage: number; doc: number }[]
   return out;
 }
 
-test("hybrid: when the spread fits, it is a's spread to the pixel", async ({ page }) => {
+test("a window tall enough fits the spread, its arrows, and its tabs", async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
-  await page.goto("/2026/favorites/wes/?layout=a");
-  const a = await frame(page);
-  await openHybrid(page, "/2026/favorites/wes/");
-  await expect(page.locator("html")).toHaveAttribute("data-hy-tier", "spread");
-  await expect(page.locator("html")).toHaveClass(/m-book/);
-  await expect(page.locator("html")).toHaveAttribute("data-chrome", "side");
+  await open(page, "/2026/favorites/wes/");
+  await expect(html(page)).toHaveClass(/m-book/);
   const f = await frame(page);
   expect(f.docScroll).toBeLessThanOrEqual(0);
-  expect(f.stage).toEqual(a.stage);
-  expect(f.prev).toEqual(a.prev);
-  expect(f.next).toEqual(a.next);
-  expect(f.pages).toEqual(a.pages);
+  expect(f.pages).toHaveLength(2);
+  // pages at their widest
+  expect(f.pages[0]![0]).toBe(780);
   for (const sel of [".pager .prev", ".pager .next", ".tabs", ".edge-next"]) {
     await expect(page.locator(sel)).toBeInViewport({ ratio: 1 });
   }
   // the tabs hang off the book's edge
   expect((await page.locator(".tabs").boundingBox())!.width).toBeLessThan(60);
+  await page.locator(".pager .next").click();
+  await settled(page);
+  await expect(page).toHaveURL(/\/2026\/favorites\/icemag\/$/);
 });
 
-for (const layout of ["a", "hybrid"]) {
-  test(`${layout}: a 1280×800 window shows a spread with arrows and tabs clear of the pages`, async ({
+for (const [width, height] of [
+  [1280, 800],
+  [1360, 900],
+] as const) {
+  test(`a ${width}×${height} window shows a spread with arrows and tabs clear of the pages`, async ({
     page,
   }) => {
-    await page.setViewportSize({ width: 1280, height: 800 });
-    await page.goto(`/2026/favorites/wes/?layout=${layout}`);
-    await page.evaluate(() => document.fonts.ready);
-    await expect(page.locator("html")).toHaveClass(/m-book/);
-    if (layout === "hybrid") {
-      await expect(page.locator("html")).toHaveAttribute("data-hy-tier", "spread");
-    }
+    await page.setViewportSize({ width, height });
+    await open(page, "/2026/favorites/wes/");
+    await expect(html(page)).toHaveClass(/m-book/);
     const f = await frame(page);
     expect(f.docScroll).toBeLessThanOrEqual(0);
     expect(f.pages).toHaveLength(2);
@@ -264,8 +218,8 @@ for (const layout of ["a", "hybrid"]) {
     ] as const) {
       expect(b.x, name).toBeGreaterThanOrEqual(0);
       expect(b.y, name).toBeGreaterThanOrEqual(0);
-      expect(b.x + b.width, name).toBeLessThanOrEqual(1280);
-      expect(b.y + b.height, name).toBeLessThanOrEqual(800);
+      expect(b.x + b.width, name).toBeLessThanOrEqual(width);
+      expect(b.y + b.height, name).toBeLessThanOrEqual(height);
     }
     expect(prev.width).toBeGreaterThanOrEqual(44);
     expect(next.width).toBeGreaterThanOrEqual(44);
@@ -276,14 +230,14 @@ for (const layout of ["a", "hybrid"]) {
   });
 }
 
-test("hybrid: every spread has the same height, fitting or scrolling", async ({ page }) => {
+test("every spread has the same height, fitting or scrolling", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   for (const [w, h, scrolls] of [
     [1920, 1080, false],
     [1440, 700, true],
   ] as const) {
     await page.setViewportSize({ width: w, height: h });
-    await openHybrid(page, "/2026/");
+    await open(page, "/2026/");
     const all = await everySpread(page);
     expect(all.length).toBeGreaterThan(15);
     expect(new Set(all.map((s) => s.stage)).size, `${w}×${h} spread heights`).toBe(1);
@@ -292,13 +246,11 @@ test("hybrid: every spread has the same height, fitting or scrolling", async ({ 
   }
 });
 
-test("hybrid: a spread taller than the window scrolls; turning snaps to the top", async ({
-  page,
-}) => {
+test("a spread taller than the window scrolls; turning snaps to the top", async ({ page }) => {
   // 1440×700: the window fit would make pages 513px wide, under the readable width
   await page.setViewportSize({ width: 1440, height: 700 });
-  await openHybrid(page, "/2026/under-30/under-30-picks/");
-  await expect(page.locator("html")).toHaveAttribute("data-hy-tier", "spread");
+  await open(page, "/2026/under-30/under-30-picks/");
+  await expect(html(page)).toHaveClass(/m-book/);
   const f = await frame(page);
   expect(f.docScroll).toBeGreaterThan(20);
   expect(f.pages).toHaveLength(2);
@@ -334,60 +286,66 @@ test("hybrid: a spread taller than the window scrolls; turning snaps to the top"
   expect(await heights(page)).toEqual(before);
 });
 
-test("hybrid: one page when two readable pages don't fit; the feed below that", async ({
-  page,
-}) => {
+test("one page when two readable pages don't fit; the feed below that", async ({ page }) => {
   await page.setViewportSize({ width: 1240, height: 800 });
-  await openHybrid(page, "/2026/favorites/wes/");
-  await expect(page.locator("html")).toHaveAttribute("data-hy-tier", "single");
-  await expect(page.locator("html")).toHaveClass(/m-single/);
-  await expect(page.locator("html")).toHaveAttribute("data-chrome", "side");
+  await open(page, "/2026/favorites/wes/");
+  await expect(html(page)).toHaveClass(/m-single/);
   expect((await frame(page)).pages).toHaveLength(1);
 
   await page.setViewportSize({ width: 680, height: 900 });
-  await expect(page.locator("html")).toHaveAttribute("data-hy-tier", "feed");
-  await expect(page.locator("html")).toHaveClass(/m-scroll/);
-  await expect(page.locator("html")).toHaveAttribute("data-chrome", "feed");
+  await expect(html(page)).toHaveClass(/m-scroll/);
   await expect(page.locator('.book-pages > [data-slug="icemag"]')).toBeVisible();
 });
 
-test("hybrid: the tier holds across turns", async ({ page }) => {
+test("a feed wider than a phone has a section rail", async ({ page }) => {
+  await page.setViewportSize({ width: 680, height: 900 });
+  await open(page, "/2026/favorites/wes/");
+  await expect(html(page)).toHaveClass(/m-scroll/);
+  await expect(page.locator(".tabs")).toBeInViewport({ ratio: 1 });
+  expect((await page.locator(".tabs").boundingBox())!.x).toBe(0);
+  await page.locator('.tabs a[data-section="tech"]').click();
+  await expect(page).toHaveURL(/\/2026\/tech\/$/);
+  await expect(page.locator('.tabs a[data-section="tech"]')).toHaveClass(/on/);
+});
+
+test("the mode holds across turns", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 700 });
-  await openHybrid(page, "/2026/favorites/wes/");
-  await expect(page.locator("html")).toHaveAttribute("data-hy-tier", "spread");
+  await open(page, "/2026/favorites/wes/");
+  await expect(html(page)).toHaveClass(/m-book/);
   for (let i = 0; i < 4; i++) {
     await page.locator(".pager .next").click();
     await settled(page);
-    expect(await tier(page)).toBe("spread");
-    await expect(page.locator("html")).toHaveClass(/m-book/);
+    await expect(html(page)).toHaveClass(/m-book/);
   }
 });
 
-test("hybrid: resizing across tiers keeps the page", async ({ page }) => {
+test("resizing across modes keeps the page", async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
-  await openHybrid(page, "/2026/favorites/kaitlin/");
-  await expect(page.locator("html")).toHaveAttribute("data-hy-tier", "spread");
+  await open(page, "/2026/favorites/kaitlin/");
+  await expect(html(page)).toHaveClass(/m-book/);
   const current = page.locator(".book-pages > .is-current");
-  for (const [w, h, t, mode] of [
-    [1240, 800, "single", /m-single/],
-    [600, 900, "feed", /m-scroll/],
-    [1440, 700, "spread", /m-book/],
-    [1920, 1080, "spread", /m-book/],
+  for (const [w, h, mode] of [
+    [1240, 800, /m-single/],
+    [600, 900, /m-scroll/],
+    [1440, 700, /m-book/],
+    [1920, 1080, /m-book/],
   ] as const) {
     await page.setViewportSize({ width: w, height: h });
-    await expect(page.locator("html")).toHaveAttribute("data-hy-tier", t);
-    await expect(page.locator("html")).toHaveClass(mode);
+    await expect(html(page)).toHaveClass(mode);
     await expect(current).toHaveAttribute("data-slug", "kaitlin");
     expect(new URL(page.url()).pathname).toBe("/2026/favorites/kaitlin/");
   }
 });
 
-test("the layout choice is remembered", async ({ page }) => {
+test("the measured readable width is remembered for the next load", async ({ page }) => {
   await page.setViewportSize({ width: 1360, height: 900 });
-  await page.goto("/2026/?layout=d");
-  await page.goto("/2026/favorites/wes/");
-  await expect(page.locator("html")).toHaveAttribute("data-layout", "d");
-  await page.locator(".proto-switch").hover();
-  await page.locator('.proto-switch button[data-layout="a"]').click();
-  await expect(page.locator("html")).toHaveAttribute("data-layout", "a");
+  await open(page, "/2026/favorites/wes/");
+  const stored = await page.evaluate(() => localStorage.getItem("wishbook:2026:readable-width"));
+  expect(Number(stored)).toBeGreaterThan(400);
+  expect(Number(stored)).toBeLessThan(781);
+  // the head script sets it before first paint
+  await page.reload();
+  expect(
+    await page.evaluate(() => document.documentElement.style.getPropertyValue("--readable-w")),
+  ).toBe(`${stored}px`);
 });

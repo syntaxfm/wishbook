@@ -53,6 +53,8 @@ function measureAll(page: Page, pageWidth: number): Promise<Measured[]> {
   return page.evaluate(
     ({ width, aspect }) => {
       const out: Measured[] = [];
+      // Runs in the browser: helpers must live inside the evaluated function.
+      // oxlint-disable-next-line unicorn/consistent-function-scoping
       const name = (el: Element) =>
         `${el.tagName.toLowerCase()}${[...el.classList].map((c) => `.${c}`).join("")}`;
       for (const src of document.querySelectorAll<HTMLElement>(".book-pages > .page")) {
@@ -196,32 +198,32 @@ for (const [width, height, mode] of [
   });
 }
 
-for (const layout of ["a", "hybrid"]) {
-  for (const [width, height] of [
-    [1920, 1080],
-    [1440, 900],
-    [1366, 768],
-  ] as const) {
-    test(`layout ${layout}: no page is scaled to fit at ${width}×${height}`, async ({ page }) => {
-      test.setTimeout(120_000);
-      await page.emulateMedia({ reducedMotion: "reduce" });
-      await page.setViewportSize({ width, height });
-      await openLoaded(page, `/2026/?layout=${layout}`);
-      const scaled = new Set<string>();
-      for (let i = 0; i < 60; i++) {
-        for (const slug of await page.evaluate(() =>
-          [...document.querySelectorAll<HTMLElement>(".book-pages > .is-shown")]
-            .filter((p) => p.style.getPropertyValue("--fit"))
-            .map((p) => p.dataset.slug ?? ""),
-        )) {
-          scaled.add(slug);
-        }
-        if ((await page.locator(".pager .next").getAttribute("aria-disabled")) === "true") break;
-        await page.keyboard.press("ArrowRight");
-        await expect(page.locator(".leaf, .lift, .fade-in")).toHaveCount(0);
+for (const [width, height] of [
+  [1920, 1080],
+  [1440, 900],
+  [1366, 768],
+  [1440, 700],
+  [1240, 800],
+] as const) {
+  test(`no page is scaled to fit at ${width}×${height}`, async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.setViewportSize({ width, height });
+    await openLoaded(page);
+    const scaled = new Set<string>();
+    for (let i = 0; i < 60; i++) {
+      for (const slug of await page.evaluate(() =>
+        [...document.querySelectorAll<HTMLElement>(".book-pages > .is-shown")]
+          .filter((p) => p.style.getPropertyValue("--fit"))
+          .map((p) => p.dataset.slug ?? ""),
+      )) {
+        scaled.add(slug);
       }
-      expect(page.url()).toMatch(/\/back-cover\/(\?.*)?$/);
-      expect([...scaled]).toEqual([]);
-    });
-  }
+      if ((await page.locator(".pager .next").getAttribute("aria-disabled")) === "true") break;
+      await page.keyboard.press("ArrowRight");
+      await expect(page.locator(".leaf, .lift, .fade-in")).toHaveCount(0);
+    }
+    expect(page.url()).toMatch(/\/back-cover\/$/);
+    expect([...scaled]).toEqual([]);
+  });
 }

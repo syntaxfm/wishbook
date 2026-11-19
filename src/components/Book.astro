@@ -181,12 +181,8 @@ const where = here.end > here.n ? `Pages ${here.label}` : `Page ${here.label}`;
   import { start } from "../scripts/book";
   import { start as startSearch } from "../scripts/search";
   import { start as startWishlist } from "../scripts/wishlist";
-  // PROTOTYPE: layout variants (see src/lib/proto-layout.ts).
-  import { installLayouts, startLayouts } from "../scripts/proto-layout";
 
-  installLayouts();
   start();
   startWishlist();
   startSearch();
-  startLayouts();
 </script>

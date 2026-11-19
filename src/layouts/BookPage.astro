@@ -5,9 +5,10 @@
  * absolute and year-scoped, including on the root copy ("/"), whose canonical
  * is the edition's cover.
  *
- * A tiny inline script picks the reading mode before first paint (book ≥ 1000px,
- * single ≥ 640px, scroll below) so there is no flash; without JavaScript the
- * current page renders on its own.
+ * A tiny inline script picks the reading mode before first paint (spreads, a
+ * single page, or the scroll feed, by width and readable page size; see
+ * src/lib/modes.ts) so there is no flash; without JavaScript the current page
+ * renders on its own.
  */
 import Book from "../components/Book.astro";
 import DesignSystem from "../components/DesignSystem.astro";
@@ -16,7 +17,6 @@ import PrintFilters from "../components/PrintFilters.astro";
 import PrintSheet from "../components/PrintSheet.astro";
 import { getBookContext } from "../lib/book";
 import { MODE_SCRIPT } from "../lib/modes";
-import { PROTO_HEAD_SCRIPT } from "../lib/proto-layout";
 import { absoluteUrl, editionUrl, type Edition } from "../lib/urls";
 
 interface Props {
@@ -36,8 +36,6 @@ const description = isCover
 const canonical = absoluteUrl(ctx.href(slug));
 const image = absoluteUrl(editionUrl(ctx.edition, `og/${slug}.png`));
 const modeScript = MODE_SCRIPT;
-// PROTOTYPE: layout variants (see src/lib/proto-layout.ts).
-const protoScript = PROTO_HEAD_SCRIPT;
 ---
 
 <!doctype html>
@@ -46,7 +44,6 @@ const protoScript = PROTO_HEAD_SCRIPT;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script is:inline set:html={modeScript} />
-    <script is:inline set:html={protoScript} />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />

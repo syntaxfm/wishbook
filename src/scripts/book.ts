@@ -2,9 +2,13 @@
  * The book engine. Takes over the server-rendered book (Book.astro) and turns
  * it into an instant, flippable catalog with real URLs:
  *
- *   book    ≥ 1000px  the current spread, with a 3D page turn
- *   single  ≥ 640px   one page, the old page lifts away
- *   scroll  below     every page in a vertical feed; the URL follows reading
+ *   book    the current spread, with a 3D page turn
+ *   single  one page, the old page lifts away
+ *   scroll  every page in a vertical feed; the URL follows reading
+ *
+ * The mode follows the viewport width and the measured readable page width
+ * (src/lib/modes.ts, src/scripts/readable.ts): spreads when two readable
+ * pages fit side by side, one page when one does, the feed otherwise.
  *
  * Every page is already in the document, so turns and jumps never touch the
  * network: they only change which pages show and update the address.
@@ -15,9 +19,9 @@
  * height is reserved before the feed is shown (see reserveFeed), so a deep
  * link lands once and stays put; the browser's scroll anchoring absorbs any
  * later change above the reader. In book and single modes the book fits the
- * window and nothing scrolls the document (a frame whose page box is taller
- * than the window scrolls down it; every turn or jump then opens the new
- * page at the top of the book).
+ * window and nothing scrolls the document, unless the window is too short for
+ * a readable page: then the window scrolls down the spread, and every turn or
+ * jump opens the new page at the top of the book.
  *
  * History: a turn (prev/next, arrow keys, swipe, scrolling the feed) replaces
  * the URL; a jump (tab, cross-reference, hotspot, search result, navigate())
@@ -33,11 +37,12 @@
  *   wishbook:navigate  detail: { slug, path, kind, mode }   after each page change
  *   wishbook:mode      detail: { mode }                     when the reading mode changes
  */
-import { MODE_CLASS, modeFor, type ReadingMode } from "../lib/modes";
+import { MODE_CLASS, type ReadingMode } from "../lib/modes";
 import { RouteTable } from "../lib/routes";
 import { buildSpreads, spreadPages, type Spread } from "../lib/spreads";
 import { linkCenterfolds } from "./centerfold";
 import { watchFit } from "./fit";
+import { clearMeasurements, modeForViewport } from "./readable";
 
 /** How a page change happened. */
 export type NavKind = "init" | "turn" | "jump" | "pop" | "scroll" | "mode";
@@ -92,8 +97,6 @@ let scrollAt = 0;
 let lastScrollY = 0;
 /** The page edges that turn (book and single modes). */
 let edges: HTMLButtonElement[] = [];
-/** Picks the reading mode for a viewport; replaceable with setModeResolver(). */
-let resolveMode = (width: number, _height: number): ReadingMode => modeFor(width);
 
 const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 const bySlug = (slug: string) => pages.find((p) => p.slug === slug);
@@ -145,15 +148,6 @@ export function pathOf(slug: string): string | null {
   return root ? routes.pathOf(slug) : null;
 }
 
-/**
- * Replaces how the reading mode is chosen from the viewport (by default, by
- * width alone: modeFor). Re-evaluates the mode at once if the engine runs.
- */
-export function setModeResolver(fn: (width: number, height: number) => ReadingMode): void {
-  resolveMode = fn;
-  if (root) setMode(fn(innerWidth, innerHeight));
-}
-
 /* ---------- start ---------- */
 
 export function start(): void {
@@ -194,7 +188,7 @@ export function start(): void {
   history.replaceState({ slug: current.slug }, "", location.href);
 
   edges = [...stage.querySelectorAll<HTMLButtonElement>(":scope > .edge")];
-  mode = resolveMode(innerWidth, innerHeight);
+  mode = modeForViewport(innerWidth);
   applyModeClass();
   render();
   // Until now the feed showed only the opened page (book.css); from here on
@@ -211,6 +205,14 @@ export function start(): void {
   linkCenterfolds(stage);
   bindInput();
   watchFeedSizes();
+  // Sizes measured with fallback fonts are wrong: measure again once the web
+  // fonts are in.
+  if (document.fonts.status !== "loaded") {
+    void document.fonts.ready.then(() => {
+      clearMeasurements();
+      setMode(modeForViewport(innerWidth));
+    });
+  }
   emit("init");
 }
 
@@ -294,8 +296,9 @@ function go(
 }
 
 /**
- * Book and single modes normally fit the window, but a frame may make the
- * page box taller than it (the window then scrolls down the spread). A new
+ * Book and single modes normally fit the window, but the page box never drops
+ * below the readable width, so in a short window it is taller than the
+ * window (which then scrolls down the spread). A new
  * page always opens at its top: if the reader has scrolled down, go back to
  * the top of the book at once, before any turn plays.
  */
@@ -898,6 +901,6 @@ function bindInput(): void {
   let resizeTimer = 0;
   addEventListener("resize", () => {
     clearTimeout(resizeTimer);
-    resizeTimer = window.setTimeout(() => setMode(resolveMode(innerWidth, innerHeight)), 150);
+    resizeTimer = window.setTimeout(() => setMode(modeForViewport(innerWidth)), 150);
   });
 }

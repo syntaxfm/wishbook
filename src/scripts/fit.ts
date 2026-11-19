@@ -16,6 +16,7 @@
  * every size first, then writes; the writes change only a transform, which
  * never resizes anything, so they can't trigger another round.
  */
+import { DESIGN_MIN } from "../lib/modes";
 
 const FIT = "is-fit";
 
@@ -81,14 +82,12 @@ export function fitPages(boxes: Iterable<HTMLElement>): void {
   for (const [box, fit] of plan) apply(box, fit);
 }
 
-/**
- * Pages narrower than this would switch to the phone reflow (container
+/*
+ * Pages narrower than DESIGN_MIN would switch to the phone reflow (container
  * queries at 520px of content box; a framed page like the holly border has
  * about 7% less), which is far taller. A smaller box lays its page out at
- * this width instead and zooms it down (`--dw`, `--pz` on the stage).
+ * DESIGN_MIN instead and zooms it down (`--dw`, `--pz` on the stage).
  */
-const DESIGN_MIN = 560;
-
 function sizeDesign(stage: HTMLElement, on: boolean): void {
   const pw = parseFloat(getComputedStyle(stage).gridTemplateColumns);
   if (on && pw > 0 && pw < DESIGN_MIN) {

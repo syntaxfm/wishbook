@@ -2,8 +2,9 @@ import { expect, test, type Page } from "@playwright/test";
 
 /**
  * Scrolling feel: the feed scrolls freely (no snapping), deep links land once
- * and stay put, page keys step page by page, far jumps are instant, and the
- * fitted book (book and single modes) never scrolls the document.
+ * and stay put, page keys step page by page, far jumps are instant, and a
+ * book that fits the window (book and single modes) never scrolls the
+ * document.
  */
 
 /** The page with this slug's top, relative to where the feed lands a page. */
@@ -39,21 +40,19 @@ async function settled(page: Page): Promise<void> {
   await expect(page.locator(".leaf, .lift, .fade-in")).toHaveCount(0);
 }
 
+/** Spreads, a tall spread, a single page, the wide feed, and the phone feed. */
 const VIEWS = [
-  ["a", 1360, 900],
-  ["b", 1360, 900],
-  ["c", 1360, 900],
-  ["d", 1360, 900],
-  ["e1", 1360, 900],
-  ["e2", 1360, 900],
-  ["a", 820, 1000],
-  ["e1", 390, 844],
+  [1360, 900],
+  [1440, 700],
+  [820, 1000],
+  [680, 900],
+  [390, 844],
 ] as const;
 
-for (const [layout, width, height] of VIEWS) {
-  test(`layout ${layout} at ${width}×${height}: nothing snaps`, async ({ page }) => {
+for (const [width, height] of VIEWS) {
+  test(`at ${width}×${height}: nothing snaps`, async ({ page }) => {
     await page.setViewportSize({ width, height });
-    await page.goto(`/2026/favorites/wes/?layout=${layout}`);
+    await page.goto("/2026/favorites/wes/");
     await expect(page.locator(".book")).toHaveClass(/is-live/);
     const snapping = await page.evaluate(() =>
       [document.documentElement, ...document.querySelectorAll("*")]
@@ -64,20 +63,21 @@ for (const [layout, width, height] of VIEWS) {
   });
 }
 
+/** The feed wider than a phone (with the section rail) and on a phone. */
 const FEEDS = [
-  ["e1", 1360, 900],
-  ["e2", 1360, 900],
-  ["e1", 390, 844],
+  [680, 900],
+  [390, 844],
 ] as const;
 
-for (const [layout, width, height] of FEEDS) {
+for (const [width, height] of FEEDS) {
   for (const path of ["/2026/under-30/under-30-picks/", "/2026/kids-pets/pets/"]) {
-    test(`layout ${layout} at ${width}px: a deep link to ${path} lands once and stays put`, async ({
+    test(`the feed at ${width}px: a deep link to ${path} lands once and stays put`, async ({
       page,
     }) => {
       const slug = path.split("/").at(-2)!;
       await page.setViewportSize({ width, height });
-      await page.goto(`${path}?layout=${layout}`, { waitUntil: "domcontentloaded" });
+      await page.goto(path, { waitUntil: "domcontentloaded" });
+      await expect(page.locator("html")).toHaveClass(/m-scroll/);
       await expect(page.locator(".book")).toHaveClass(/is-live/);
       const samples: number[] = [];
       for (let i = 0; i < 30; i++) {
@@ -86,20 +86,17 @@ for (const [layout, width, height] of FEEDS) {
       }
       // The page sits at the top of the feed from the start, for 3s, with no input.
       for (const s of samples) expect(Math.abs(s), samples.join(",")).toBeLessThanOrEqual(2);
-      await expect(page).toHaveURL(new RegExp(`${path}\\?layout=${layout}$`));
+      await expect(page).toHaveURL(new RegExp(`${path}$`));
     });
   }
 }
 
-for (const [layout, width, height] of [
-  ["e1", 1360, 900],
-  ["e1", 390, 844],
-] as const) {
-  test(`layout ${layout} at ${width}px: Page Down steps one page; the wheel is never adjusted`, async ({
+for (const [width, height] of FEEDS) {
+  test(`the feed at ${width}px: Page Down steps one page; the wheel is never adjusted`, async ({
     page,
   }) => {
     await page.setViewportSize({ width, height });
-    await page.goto(`/2026/favorites/wes/?layout=${layout}`);
+    await page.goto("/2026/favorites/wes/");
     await expect(page.locator(".book")).toHaveClass(/is-live/);
     expect(Math.abs(await offset(page, "wes"))).toBeLessThanOrEqual(2);
     await page.keyboard.press("PageDown");
@@ -119,9 +116,9 @@ for (const [layout, width, height] of [
   });
 }
 
-test("layout e1: a far tab jump is instant and highlights the page", async ({ page }) => {
-  await page.setViewportSize({ width: 1360, height: 900 });
-  await page.goto("/2026/favorites/wes/?layout=e1");
+test("the feed: a far tab jump is instant and highlights the page", async ({ page }) => {
+  await page.setViewportSize({ width: 680, height: 900 });
+  await page.goto("/2026/favorites/wes/");
   await expect(page.locator(".book")).toHaveClass(/is-live/);
   const start = await page.evaluate(() => history.length);
   await page.locator('.tabs a[data-section="wild-card"]').click();
@@ -156,9 +153,9 @@ test("the feed's running head names the section and folio being read", async ({ 
   await expect(head).toHaveText(new RegExp(`page ${niki}$`));
 });
 
-test("layout a: turning the book never scrolls the document", async ({ page }) => {
+test("turning a book that fits the window never scrolls the document", async ({ page }) => {
   await page.setViewportSize({ width: 1360, height: 900 });
-  await page.goto("/2026/favorites/wes/?layout=a");
+  await page.goto("/2026/favorites/wes/");
   for (let i = 0; i < 4; i++) {
     await page.keyboard.press("ArrowRight");
     await settled(page);
@@ -169,9 +166,9 @@ test("layout a: turning the book never scrolls the document", async ({ page }) =
 });
 
 for (const path of ["/2026/favorites/wes/", "/2026/under-30/under-30-picks/"]) {
-  test(`layout a: ${path} stays at full scale`, async ({ page }) => {
+  test(`${path} stays at full scale`, async ({ page }) => {
     await page.setViewportSize({ width: 1360, height: 900 });
-    await page.goto(`${path}?layout=a`);
+    await page.goto(path);
     const fits = () =>
       page.evaluate(() =>
         [...document.querySelectorAll<HTMLElement>(".book-pages > .is-shown")].map(

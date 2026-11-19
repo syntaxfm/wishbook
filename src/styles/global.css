@@ -9,6 +9,4 @@
 @import "./effects.css";
 @import "./motion.css";
 @import "./wishlist.css";
-/* PROTOTYPE: layout variants (see src/lib/proto-layout.ts). */
-@import "./proto-layout.css";
 @import "./print.css";

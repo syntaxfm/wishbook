@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { BOOK_MIN_WIDTH, MODE_SCRIPT, SINGLE_MIN_WIDTH, modeFor } from "../../src/lib/modes";
 import { RouteTable, normalizePath } from "../../src/lib/routes";
 import { buildSpreads, spreadPages } from "../../src/lib/spreads";
 
@@ -10,18 +9,6 @@ const ROUTES = [
 ];
 
 const p = (slug: string, n: number, end = n) => ({ slug, n, end });
-
-/** Runs the inline head script against a fake <html> and returns the classes it adds. */
-function runModeScript(width: number): string[] {
-  const classes = new Set<string>();
-  const fn = new Function("innerWidth", "document", MODE_SCRIPT);
-  fn(width, {
-    documentElement: {
-      classList: { add: (...c: string[]) => c.forEach((x) => classes.add(x)) },
-    },
-  });
-  return [...classes];
-}
 
 describe("normalizePath", () => {
   it("adds the trailing slash to directories only", () => {
@@ -80,19 +67,5 @@ describe("buildSpreads", () => {
   });
   it("is empty for an empty book", () => {
     expect(buildSpreads([])).toEqual([]);
-  });
-});
-
-describe("reading modes", () => {
-  it("picks book, single, or scroll by width", () => {
-    expect(modeFor(BOOK_MIN_WIDTH)).toBe("book");
-    expect(modeFor(BOOK_MIN_WIDTH - 1)).toBe("single");
-    expect(modeFor(SINGLE_MIN_WIDTH)).toBe("single");
-    expect(modeFor(SINGLE_MIN_WIDTH - 1)).toBe("scroll");
-  });
-  it("the head script uses the same breakpoints", () => {
-    expect(runModeScript(1360)).toEqual(["js", "m-book"]);
-    expect(runModeScript(820)).toEqual(["js", "m-single"]);
-    expect(runModeScript(390)).toEqual(["js", "m-scroll"]);
   });
 });

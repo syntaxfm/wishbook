@@ -97,7 +97,7 @@
 .wishtools {
   display: none;
 }
-/* above the bottom tab bar; bottom left of the desk in book mode */
+/* phones: above the bottom tab bar */
 .js .wishtools {
   position: fixed;
   z-index: 36;
@@ -105,11 +105,6 @@
   bottom: 70px;
   display: flex;
   gap: 6px;
-}
-.js.m-book .wishtools {
-  right: auto;
-  left: 12px;
-  bottom: 12px;
 }
 /* phones: the search button is just the magnifier */
 .m-scroll .wishtools .tool-label {
@@ -188,6 +183,52 @@
 }
 .wishtools .count[hidden] {
   display: none;
+}
+/* Wider screens: compact icon buttons at the top left, in the book's 50px
+   left gutter (book and single modes) or on the feed's rail. */
+@media (min-width: 640px) {
+  .js .wishtools {
+    top: 16px;
+    bottom: auto;
+    left: 12px;
+    right: auto;
+    flex-direction: column;
+  }
+  .js:is(.m-book, .m-single) .wishtools {
+    left: 3px;
+  }
+  .js.m-scroll .wishtools {
+    flex-direction: row;
+  }
+  .js .wishtools :is(.tool-label, kbd, [data-wish-link] > span:first-child) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .js .wishtools .tool {
+    position: relative;
+    justify-content: center;
+    width: 44px;
+    padding: 0;
+    border-radius: 50%;
+  }
+  /* the wish list: a hand-drawn circle, like the marker on circled items */
+  .js .wishtools [data-wish-link]::before {
+    content: "";
+    width: 18px;
+    height: 14px;
+    border: 2.5px solid var(--red);
+    border-radius: 50%;
+    transform: rotate(-12deg);
+  }
+  .js .wishtools [data-wish-link] .count {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+  }
 }
 
 /* ---------- search dialog ---------- */
