@@ -37,7 +37,9 @@ const items = await Promise.all(
   orderLine={ctx.orderLine(content.orderLine)}
 >
   <div class="side">
-    <div class="who">{host?.shortName ?? content.title}</div>
+    <div class="who" style={`--who-chars:${(host?.shortName ?? content.title).length}`}>
+      {host?.shortName ?? content.title}
+    </div>
     {content.copy.tagline && (
       <div class="tag display">
         <Copy text={content.copy.tagline} ctx={ctx} />

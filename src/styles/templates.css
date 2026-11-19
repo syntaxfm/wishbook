@@ -1057,10 +1057,12 @@ a.video {
   font-family: var(--f-tru);
   font-weight: 700;
   color: var(--red);
-  font-size: 9.5cqi;
+  /* a longer name sets smaller, so it stays one line in the column */
+  font-size: min(9.5cqi, calc(47.5cqi / var(--who-chars, 5)));
   line-height: 1.05;
   letter-spacing: 0.01em;
   text-transform: uppercase;
+  white-space: nowrap;
   margin: 0;
 }
 .brandcol .tag {
@@ -1432,7 +1434,7 @@ a.video {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 4cqi;
-  margin-top: 4cqi;
+  margin-top: 3cqi;
 }
 .faceoff .bubble {
   margin: 0;
@@ -1669,7 +1671,7 @@ a.video {
 }
 .tru-grid .truitem img,
 .tru-grid .truitem > .gen {
-  height: 15cqi;
+  height: 19cqi;
 }
 .tru-grid .truitem .name {
   font-size: 3.6cqi;
