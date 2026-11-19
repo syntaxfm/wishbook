@@ -39,6 +39,8 @@ pnpm build        # static site in dist/
 pnpm preview      # serve the built site
 ```
 
+Prototype layouts (this branch only): add `?layout=a|b|c|d|e1|e2|hybrid` to any page URL, or use the switcher at the bottom left. **Hybrid** shows layout A's spread only while body text stays readable (at least 11px by default). Otherwise it shows one page that scrolls, and if a page would need more than two screens, it shows the whole feed. Hover the switcher to see the chosen tier, the reason for it, and the floor / max-screens knobs.
+
 ## Scripts
 
 | Command         | What it does                                                       |
