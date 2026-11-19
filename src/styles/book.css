@@ -102,6 +102,9 @@
   transform-origin: top center;
   /* the layout box stays full height: pull it back inside the page */
   margin-bottom: calc(-1 * var(--fit-over, 0px));
+  /* Keep the natural height. A growing flex item would fill the room the
+     negative margin frees, measure taller, and refit forever. */
+  flex: none;
 }
 
 /* Book mode: the current spread side by side, even page left. A page alone in
