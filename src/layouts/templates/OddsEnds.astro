@@ -1,0 +1,60 @@
+---
+/**
+ * Stocking stuffers & odds 'n' ends: a dense, mostly-text listing in two
+ * columns, catalog style, with small cut-out thumbnails where photos exist.
+ */
+import Copy from "../../components/Copy.astro";
+import Img from "../../components/Img.astro";
+import ItemCopy from "../../components/ItemCopy.astro";
+import ItemLetter from "../../components/ItemLetter.astro";
+import ItemOrder from "../../components/ItemOrder.astro";
+import PageShell from "../../components/PageShell.astro";
+import { letterFor } from "./letters";
+import type { TemplateProps } from "./types";
+
+type Props = TemplateProps;
+const { page, content, ctx, state } = Astro.props;
+const items = await Promise.all(
+  content.items.map(async (pi, i) => ({
+    ...pi,
+    letter: letterFor(i),
+    photo: await ctx.itemImage(pi.item, pi.photo),
+  })),
+);
+---
+
+<PageShell page={page} ctx={ctx} state={state} orderLine={ctx.orderLine(content.orderLine)}>
+  <div class="pagehead">
+    <h2 class="display">
+      <Copy text={content.copy.headline ?? content.title} ctx={ctx} />
+    </h2>
+  </div>
+  {content.copy.subhead && (
+    <div class="pagekicker kicker">
+      <Copy text={content.copy.subhead} ctx={ctx} />
+    </div>
+  )}
+  <div class="copycol">
+    {items.map((it) => (
+      <div class="item" data-item-id={it.item.id}>
+        {it.photo.kind === "image" && (
+          <Img
+            asset={it.photo}
+            alt={it.item.image.alt}
+            class="thumb"
+            widths={[120, 200]}
+            sizes="100px"
+          />
+        )}
+        <ItemLetter letter={it.letter} />
+        <ItemCopy item={it.item} ctx={ctx} text={it.text} />
+        <ItemOrder item={it.item} ctx={ctx} page={content} />
+      </div>
+    ))}
+  </div>
+  {content.copy.smallprint && (
+    <p class="smallprint">
+      <Copy text={content.copy.smallprint} ctx={ctx} />
+    </p>
+  )}
+</PageShell>

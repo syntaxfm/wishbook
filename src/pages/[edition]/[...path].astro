@@ -1,0 +1,29 @@
+---
+// Every other page of every edition: /2026/<section>/ (dividers) and
+// /2026/<section>/<slug>/, including filler pages. Each file is the whole
+// book, opened at its page.
+import type { GetStaticPaths } from "astro";
+import BookPage from "../../layouts/BookPage.astro";
+import { getEditions } from "../../lib/content";
+import { paginate } from "../../lib/paginate";
+
+export const getStaticPaths = (async () => {
+  const paths = [];
+  for (const edition of getEditions()) {
+    const book = await paginate(edition);
+    for (const page of book.pages) {
+      if (!page.path) continue;
+      paths.push({
+        params: { edition: String(edition), path: page.path },
+        props: { slug: page.slug },
+      });
+    }
+  }
+  return paths;
+}) satisfies GetStaticPaths;
+
+const { edition } = Astro.params;
+const { slug } = Astro.props;
+---
+
+<BookPage edition={edition} slug={slug} />

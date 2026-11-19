@@ -1,6 +1,12 @@
 episode:
   number: 999
   videoUrl: https://example.com/video
+meta:
+  description: "{count} gifts, fixture edition."
+links:
+  buy: Buy
+  missingBuy: Buy link TBA
+  disclosure: "Some links pay us. See {page:one-picks}."
 cover:
   price: FREE
   note: "{count} gifts · index on {page:one-picks}"

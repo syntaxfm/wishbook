@@ -1,0 +1,139 @@
+---
+/**
+ * Brand feature: the item's variants side by side on a peach page, each with
+ * its photo, name, features, and order line; then the brand wordmark with a
+ * NEW ribbon, the inset art, and a one-line page quote. An item without
+ * variants gets one wide entry.
+ */
+import Copy from "../../components/Copy.astro";
+import Img from "../../components/Img.astro";
+import ItemCopy from "../../components/ItemCopy.astro";
+import ItemLinks from "../../components/ItemLinks.astro";
+import ItemOrder from "../../components/ItemOrder.astro";
+import LineQuote from "../../components/LineQuote.astro";
+import NewBanner from "../../components/NewBanner.astro";
+import PageShell from "../../components/PageShell.astro";
+import Price from "../../components/Price.astro";
+import type { TemplateProps } from "./types";
+
+type Props = TemplateProps;
+const { page, content, ctx, state } = Astro.props;
+const pi = content.items[0];
+if (!pi) throw new Error(`Page "${content.slug}": a brand feature needs an item`);
+const { item } = pi;
+const videoUrl = ctx.content.site.episode.videoUrl;
+const variants = await Promise.all(
+  item.variants.map(async (v) => ({ ...v, photo: await ctx.itemImage(item, v.imageSuffix) })),
+);
+const mainPhoto = variants.length === 0 ? await ctx.itemImage(item, pi.photo) : null;
+// Without variants, the item's extra photos listed in the art manifest
+// (items/<id>-<name>-2, -3, …) fill a gallery under it.
+const extraRe = new RegExp(`^items/0*${item.id}-.*-[2-9]$`);
+const gallery = mainPhoto
+  ? await Promise.all(
+      ctx.content.assets
+        .filter((a) => extraRe.test(a.file))
+        .map(async (a) => ({ key: a.key, alt: a.label, photo: await ctx.art(a.key) })),
+    )
+  : [];
+const inset = content.inset.art ? await ctx.art(content.inset.art) : null;
+const columns = variants.length === 0 ? 1 : Math.min(variants.length, 4);
+---
+
+<PageShell
+  page={page}
+  ctx={ctx}
+  state={state}
+  class="casio"
+  orderLine={ctx.orderLine(content.orderLine)}
+>
+  <div slot="before" class="sidetab" aria-hidden="true"></div>
+  <div slot="before" class="stars" aria-hidden="true"></div>
+  <div data-item-id={item.id}>
+    <div class:list={["watches", `n${columns}`]}>
+      {mainPhoto ? (
+        <>
+          <div class="w">
+            <Img
+              asset={mainPhoto}
+              alt={item.image.alt}
+              widths={[240, 320, 480]}
+              sizes="(min-width: 1000px) 220px, 45vw"
+            />
+          </div>
+          <div>
+            <span class="itemname">{item.headline ? ctx.plain(item.headline) : item.name}</span>
+            <div class="desc">
+              <ItemCopy item={item} ctx={ctx} named="auto" />
+            </div>
+            <ItemOrder item={item} ctx={ctx} page={content} links={false} />
+          </div>
+        </>
+      ) : (
+        variants.map((v) => (
+          <div data-variant={v.key}>
+            <div class="w">
+              <Img
+                asset={v.photo}
+                alt={`${item.image.alt}: ${v.name}`}
+                widths={[160, 240, 320]}
+                sizes="(min-width: 1000px) 160px, 40vw"
+              />
+            </div>
+            <span class="itemname">{/[.!?]$/.test(v.name) ? v.name : `${v.name}.`}</span>
+            {v.features && (
+              <p>
+                Features: <Copy text={v.features} ctx={ctx} />
+              </p>
+            )}
+            {(v.price !== null || v.priceLabel !== null) && (
+              <Price
+                variant="line"
+                confirmed={v.price}
+                text={v.priceLabel ?? undefined}
+                timestamp={v.timestamp}
+                videoUrl={videoUrl}
+                unit={v.unit}
+              />
+            )}
+          </div>
+        ))
+      )}
+    </div>
+    <ItemLinks item={item} ctx={ctx} />
+    {gallery.length > 0 && (
+      <div class="gallery">
+        {gallery.map((g) => (
+          <div class="w">
+            <Img
+              asset={g.photo}
+              alt={g.alt}
+              widths={[160, 240, 320]}
+              sizes="(min-width: 1000px) 160px, 45vw"
+            />
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+  <div class="brandline">
+    {item.isNew && <NewBanner />}
+    <span class="brandword">{item.brand ?? item.shortName}</span>
+  </div>
+  <div class="feature">
+    {inset && (
+      <Img
+        asset={inset}
+        alt={ctx.artAlt(content.inset.art!)}
+        class="shot"
+        widths={[240, 320, 480]}
+        sizes="(min-width: 1000px) 250px, 90vw"
+      />
+    )}
+    <div>
+      {content.quotes.map((q) => (
+        <LineQuote quote={q} ctx={ctx} as="oneliner" />
+      ))}
+    </div>
+  </div>
+</PageShell>

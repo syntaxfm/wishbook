@@ -1,7 +1,9 @@
 ---
+// The edition's cover: /2026/.
 import type { GetStaticPaths } from "astro";
 import BookPage from "../../layouts/BookPage.astro";
 import { getEditions } from "../../lib/content";
+import { paginate } from "../../lib/paginate";
 
 export const getStaticPaths = (() =>
   getEditions().map((edition) => ({
@@ -9,6 +11,7 @@ export const getStaticPaths = (() =>
   }))) satisfies GetStaticPaths;
 
 const { edition } = Astro.params;
+const cover = (await paginate(edition)).pages[0]!;
 ---
 
-<BookPage edition={edition} />
+<BookPage edition={edition} slug={cover.slug} />

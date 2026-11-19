@@ -68,7 +68,9 @@ Every real URL includes the edition year:
 | `/2026/og/wishlist.png`   | Share card for a wish list |
 | `/2026/og/default.png`    | Fallback share card        |
 
-`/` and `/catalog.txt` are build-time copies of the current edition's cover and catalog. Their canonical URL points at `/2026/`. Year-less section links (`/favorites/…`) redirect (302) to the current edition via `public/_redirects`.
+`/` and `/catalog.txt` are build-time copies of the current edition's cover and catalog. Their canonical URL points at `/2026/`. Year-less section links (`/favorites/…`) redirect (302) to the current edition via `_redirects`, generated at build from the current edition's sections.
+
+Every page file contains the whole book, opened at that page. Filler pages (inserted to keep spreads on the right sides) get real URLs too, in the section before them.
 
 All URLs are built with the helper in `src/lib/urls.ts`. Never hard-code a path, and don't use Astro's `base` option.
 
@@ -88,7 +90,7 @@ In each edition (`content/<year>/`):
 - **Book order** (`book.yaml`): which pages exist, in what order, which layout each uses, which items they show (optionally with page-specific copy), and their copy. Page numbers, filler pages, and cross-references are all computed from this.
 - **Sections** (`sections.yaml`): the thumb-index sections, in order.
 - **Timestamps** (`timestamps.yaml`): the one file mapping each item to its moment in the episode. Update it when the final video is published.
-- **Site settings** (`site.yaml`): episode, cover band, welcome page, symbol key, order lines, back cover, and the copy for automatic filler pages.
+- **Site settings** (`site.yaml`): episode, share description, purchase-link labels and the affiliate disclosure, cover band, welcome page, symbol key, order lines, back cover, and the copy for automatic filler pages. A page shows an order-line banner only when its `orderLine` is set.
 - **Generated art** (`assets.yaml`): each generated image's key, file, placeholder title and color, aspect, prompt, and source item. `pnpm assets` lists which of them still need making.
 
 In copy, write `{page:icemag}` for a page reference (rendered "page 6 A"), `{syn:leatherman-arc}` for a catalog number, `{count}` for the number of gifts, `{phone}` for the phone number, and `**bold**` / `*italic*` for emphasis.
@@ -103,4 +105,4 @@ Rendered cards are cached in `node_modules/.cache/wishbook-og/` by a hash of the
 
 ## Deploying
 
-Cloudflare Pages: build command `pnpm build`, output directory `dist`. Caching rules live in `public/_headers`, year-less redirects in `public/_redirects`.
+Cloudflare Pages: build command `pnpm build`, output directory `dist`. Caching rules live in `public/_headers`; year-less redirects are written to `dist/_redirects` at build.

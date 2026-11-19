@@ -1,0 +1,60 @@
+---
+/**
+ * Section divider: the section kicker and red header tab, full-width section
+ * art, an optional round mascot peeking in, and the computed page range.
+ */
+import Copy from "../../components/Copy.astro";
+import Img from "../../components/Img.astro";
+import PageShell from "../../components/PageShell.astro";
+import type { TemplateProps } from "./types";
+
+type Props = TemplateProps;
+const { page, content, ctx, state } = Astro.props;
+const section = content.section;
+const art = content.art ? await ctx.art(content.art) : null;
+const peek = content.inset.art ? await ctx.art(content.inset.art) : null;
+const range = ctx.book.rangeOf(section.id);
+const rangeText = range
+  ? range.first === range.last
+    ? `Page ${range.first.label}`
+    : `Pages ${range.first.label} – ${range.last.label}`
+  : null;
+---
+
+<PageShell
+  page={page}
+  ctx={ctx}
+  state={state}
+  class="divider"
+  orderLine={ctx.orderLine(content.orderLine)}
+>
+  <div class="top">
+    {section.kicker && (
+      <div class="k kicker">
+        <Copy text={section.kicker} ctx={ctx} />
+      </div>
+    )}
+    <div class="tab tru">{section.name}</div>
+  </div>
+  <div class="art">
+    {art && (
+      <Img
+        asset={art}
+        alt={ctx.artAlt(content.art!)}
+        widths={[480, 720, 960]}
+        sizes="(min-width: 1000px) 560px, 90vw"
+      />
+    )}
+  </div>
+  {peek && (
+    <Img
+      asset={peek}
+      alt=""
+      class="peek"
+      round
+      widths={[160, 240]}
+      sizes="(min-width: 1000px) 110px, 18vw"
+    />
+  )}
+  {rangeText && <div class="pages kicker">{rangeText}</div>}
+</PageShell>

@@ -1,0 +1,152 @@
+---
+/**
+ * Centerfold: one illustration across a spread, cropped around a focal point
+ * so it works at any size. Numbered hotspots sit at percentage positions and
+ * link to each item's page; the legend lists them. On desktop the legend
+ * overlays the art; on small screens the art becomes a horizontal swipe strip
+ * with the legend below. Hovering or focusing a legend entry lights its
+ * hotspot (CSS only).
+ */
+import Copy from "../../components/Copy.astro";
+import Img from "../../components/Img.astro";
+import { PAGE_SUFFIX } from "../../lib/paginate";
+import type { TemplateProps } from "./types";
+
+type Props = TemplateProps;
+const { page, content, ctx, state } = Astro.props;
+const art = content.art ? await ctx.art(content.art) : null;
+const spots = content.centerfold.hotspots.map((h, i) => {
+  const target = ctx.indexPageOf(h.item);
+  return {
+    ...h,
+    i: i + 1,
+    href: target ? ctx.href(target.slug) : null,
+    pageLabel: target ? ctx.book.label(target.slug) : null,
+  };
+});
+const id = `cf-${page.slug}`;
+// Light a hotspot while its legend entry is hovered or focused.
+const lightRules = spots
+  .map(
+    (s) =>
+      `#${id}:has(.cf-legend [data-i="${s.i}"]:is(:hover,:focus-visible)) .hot[data-i="${s.i}"]{background:var(--yellow);color:var(--ink);transform:scale(1.15)}` +
+      `#${id}:has(.cf-legend [data-i="${s.i}"]:is(:hover,:focus-visible)) .hot[data-i="${s.i}"] .tip{opacity:1;visibility:visible}`,
+  )
+  .join("");
+---
+
+<section
+  class:list={[
+    "cf-page",
+    { "is-current": state.current, "is-shown": state.shown, in: state.shown },
+  ]}
+  id={`page-${page.slug}`}
+  data-slug={page.slug}
+  data-n={page.n}
+  data-end={page.end}
+  data-side={page.side}
+  data-path={ctx.href(page.slug)}
+  data-section={page.section}
+  data-title={page.title}
+  aria-labelledby={`title-${page.slug}`}
+>
+  <style is:inline set:html={lightRules}></style>
+  <div class="cf" id={id}>
+    <h2 class="sr-only page-title" id={`title-${page.slug}`} tabindex="-1">
+      {page.title}, {ctx.book.ref(page.slug)}
+    </h2>
+    <div class="cf-scroll">
+      <div
+        class="cf-art"
+        style={content.centerfold.focal ? `--focal:${content.centerfold.focal}` : undefined}
+      >
+        {art && (
+          <Img
+            asset={art}
+            alt={ctx.artAlt(content.art!)}
+            widths={[640, 960, 1280, 1920]}
+            sizes="(min-width: 1000px) 1240px, 260vw"
+          />
+        )}
+        <div class="cf-fold" aria-hidden="true"></div>
+        {spots.map((s) =>
+          s.href ? (
+            <a
+              class="hot"
+              href={s.href}
+              style={`left:${s.x}%;top:${s.y}%`}
+              data-i={s.i}
+              data-item-id={s.item.id}
+              aria-label={`${s.i}: ${ctx.plain(s.label)}, ${s.pageLabel}`}
+            >
+              {s.i}
+              <span class="tip" aria-hidden="true">
+                <b>
+                  <Copy text={s.label} ctx={ctx} />
+                </b>{" "}
+                · {s.pageLabel}
+              </span>
+            </a>
+          ) : (
+            <span class="hot" style={`left:${s.x}%;top:${s.y}%`} data-i={s.i}>
+              {s.i}
+            </span>
+          ),
+        )}
+      </div>
+    </div>
+    <div class="cf-title">
+      {content.copy.kicker && (
+        <div class="kicker">
+          <Copy text={content.copy.kicker} ctx={ctx} />
+        </div>
+      )}
+      <div class="display">{content.copy.headline ?? content.title}</div>
+    </div>
+    {content.copy.note && (
+      <span class="swipehint" aria-hidden="true">
+        <Copy text={content.copy.note} ctx={ctx} />
+      </span>
+    )}
+    <aside class="cf-legend">
+      {content.copy.subhead && (
+        <h3 class="display">
+          <Copy text={content.copy.subhead} ctx={ctx} />
+        </h3>
+      )}
+      {content.copy.body && (
+        <p>
+          <Copy text={content.copy.body} ctx={ctx} />
+        </p>
+      )}
+      <ol>
+        {spots.map((s) => (
+          <li>
+            {s.href ? (
+              <a href={s.href} data-i={s.i}>
+                <span class="n">{s.i}</span>
+                <span>
+                  <Copy text={s.label} ctx={ctx} />
+                </span>
+                <span class="pg-ref">{s.pageLabel}</span>
+              </a>
+            ) : (
+              <span data-i={s.i}>
+                <span class="n">{s.i}</span>
+                <Copy text={s.label} ctx={ctx} />
+              </span>
+            )}
+          </li>
+        ))}
+      </ol>
+    </aside>
+    <div class="cf-folios" aria-hidden="true">
+      <span>
+        {page.n} <small>{PAGE_SUFFIX}</small>
+      </span>
+      <span>
+        <small>{PAGE_SUFFIX}</small> {page.end}
+      </span>
+    </div>
+  </div>
+</section>

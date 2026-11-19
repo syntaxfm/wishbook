@@ -126,6 +126,14 @@ describe("reading an edition", () => {
     expect(site.episode.number).toBe(999);
     expect(site.key.entries[0]!.item?.slug).toBe("cables");
     expect(site.orderLines).toEqual([{ id: "phone", kicker: "Call any time", text: "{phone}" }]);
+    expect(site.meta.description).toBe("{count} gifts, fixture edition.");
+    expect(site.links).toEqual({
+      buy: "Buy",
+      maker: null,
+      missingBuy: "Buy link TBA",
+      missingMaker: null,
+      disclosure: "Some links pay us. See {page:one-picks}.",
+    });
     expect(await content.getGlobal()).toEqual({
       name: "Fixture WishBook",
       phone: { display: "1-555-FIXTURE", tel: "+15550000000" },

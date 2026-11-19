@@ -1,0 +1,85 @@
+---
+/**
+ * Index & order form: an alphabetical index of every gift with its page, a
+ * carbon-copy order blank that the wish list fills in (data-order-* hooks),
+ * share and print buttons, and the affiliate disclosure.
+ */
+import Copy from "../../components/Copy.astro";
+import PageShell from "../../components/PageShell.astro";
+import type { TemplateProps } from "./types";
+
+type Props = TemplateProps;
+const { page, content, ctx, state } = Astro.props;
+const { orderForm, links } = ctx.content.site;
+const index = ctx.content.items
+  .filter((i) => !i.mention)
+  .flatMap((i) => {
+    const target = ctx.indexPageOf(i);
+    return target ? [{ item: i, slug: target.slug }] : [];
+  })
+  .toSorted((a, b) =>
+    a.item.indexName.localeCompare(b.item.indexName, "en", { sensitivity: "base" }),
+  );
+// Blank lines on the order form until the wish list fills them.
+const BLANK_ROWS = 3;
+---
+
+<PageShell page={page} ctx={ctx} state={state} class="orderpage">
+  <h2 class="display">{content.copy.headline ?? content.title}</h2>
+  <div class="ix">
+    <ul class="dotlist">
+      {index.map(({ item, slug }) => (
+        <li>
+          <a href={ctx.href(slug)}>{item.indexName}</a>
+          <span class="dots"></span>
+          {ctx.book.label(slug)}
+        </li>
+      ))}
+    </ul>
+  </div>
+  <div class="form" data-order-form>
+    <div class="row head">
+      <span>Cat. No.</span>
+      <span>Item</span>
+      <span>Qty</span>
+      <span>Price</span>
+    </div>
+    {Array.from({ length: BLANK_ROWS }, () => (
+      <div class="row" data-order-row>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    ))}
+    <div class="row">
+      <span></span>
+      <span class="kicker">Total</span>
+      <span></span>
+      <span class="total" data-order-total></span>
+    </div>
+    <div class="carbon" aria-hidden="true"></div>
+  </div>
+  {content.copy.smallprint && (
+    <p class="smallprint">
+      <Copy text={content.copy.smallprint} ctx={ctx} />
+    </p>
+  )}
+  <div class="formbtns">
+    {orderForm.shareLabel && (
+      <button type="button" data-share>
+        <Copy text={orderForm.shareLabel} ctx={ctx} />
+      </button>
+    )}
+    {orderForm.printLabel && (
+      <button type="button" class="alt" data-print>
+        <Copy text={orderForm.printLabel} ctx={ctx} />
+      </button>
+    )}
+  </div>
+  {links.disclosure && (
+    <p class="disclosure">
+      <Copy text={links.disclosure} ctx={ctx} />
+    </p>
+  )}
+</PageShell>

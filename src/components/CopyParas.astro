@@ -1,0 +1,21 @@
+---
+/** A multi-paragraph copy field: one <p> per paragraph (paragraphs are separated by a blank line). */
+import Copy from "./Copy.astro";
+import type { BookContext } from "../lib/book";
+import { copyParagraphs } from "../lib/copy";
+
+interface Props {
+  text: string | null | undefined;
+  ctx: BookContext;
+  class?: string;
+}
+
+const { text, ctx, class: className } = Astro.props;
+const paras = text ? copyParagraphs(text) : [];
+---
+
+{paras.map((p) => (
+  <p class={className}>
+    <Copy text={p} ctx={ctx} />
+  </p>
+))}

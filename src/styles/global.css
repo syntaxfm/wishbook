@@ -4,5 +4,7 @@
 @import "./textures.css";
 @import "./base.css";
 @import "./components.css";
+@import "./templates.css";
+@import "./book.css";
 @import "./effects.css";
 @import "./motion.css";

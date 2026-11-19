@@ -1,0 +1,125 @@
+---
+/**
+ * Full-page feature: a big product shot on a holiday stage (green with
+ * ornament glow, or a workbench with a spotlight for products shot on white),
+ * a NEW ribbon, an inset photo with an italic caption, and big numerals on the
+ * photo. Below: a letterspaced brand line, an italic headline, running copy
+ * with bold lead-ins, order lines, and a side column with the host quotes.
+ */
+import Copy from "../../components/Copy.astro";
+import Img from "../../components/Img.astro";
+import ItemOrder from "../../components/ItemOrder.astro";
+import ItemQuote from "../../components/ItemQuote.astro";
+import NewBanner from "../../components/NewBanner.astro";
+import PageShell from "../../components/PageShell.astro";
+import Price from "../../components/Price.astro";
+import type { TemplateProps } from "./types";
+
+type Props = TemplateProps;
+const { page, content, ctx, state } = Astro.props;
+const pi = content.items[0];
+if (!pi) throw new Error(`Page "${content.slug}": a feature page needs an item`);
+const { item } = pi;
+const bench = content.variant === "bench";
+const shot = await ctx.itemImage(item, pi.photo);
+const inset = content.inset.art ? await ctx.art(content.inset.art) : null;
+const { confirmed, estimate, label, note, unit } = item.price;
+const numeric = confirmed !== null || estimate !== null;
+const quotes = item.quotes.slice(0, 2);
+const notes = [note, content.copy.note].filter(Boolean).map((n) => n!.replace(/\.?$/, "."));
+---
+
+<PageShell
+  page={page}
+  ctx={ctx}
+  state={state}
+  class="feat"
+  orderLine={ctx.orderLine(content.orderLine)}
+>
+  <div class:list={["stage", bench ? "bench" : "green"]}>
+    {bench && <div class="beam" aria-hidden="true"></div>}
+    {(content.copy.badge || item.isNew) && (
+      <NewBanner class="stage-new" text={content.copy.badge ?? undefined} />
+    )}
+    <Img
+      asset={shot}
+      alt={item.image.alt}
+      class:list={["hero-shot", { blend: bench }]}
+      widths={[320, 480, 640, 960]}
+      sizes="(min-width: 1000px) 400px, 66vw"
+      priority={state.current}
+      lazy={!state.current}
+    />
+    {inset && (
+      <figure class="inset-shot">
+        <Img
+          asset={inset}
+          alt={ctx.artAlt(content.inset.art!)}
+          class="shot"
+          widths={[200, 320]}
+          sizes="(min-width: 1000px) 190px, 30vw"
+        />
+        {content.inset.caption && (
+          <figcaption>
+            <Copy text={content.inset.caption} ctx={ctx} />
+          </figcaption>
+        )}
+      </figure>
+    )}
+    <div class:list={["stage-price", { dark: bench }]}>
+      {numeric ? (
+        <>
+          <span class="only-word">only</span>
+          <Price variant="big" confirmed={confirmed} estimate={estimate} />
+          <span class="each">{unit}</span>
+        </>
+      ) : (
+        label && <span class="bignum label">{label}</span>
+      )}
+    </div>
+  </div>
+  <div class="feat-copy">
+    <div data-item-id={item.id}>
+      {item.brand && <div class="feat-brand">{item.brand}</div>}
+      <h2 class="feat-head display">
+        <Copy text={content.copy.headline ?? content.title} ctx={ctx} />
+      </h2>
+      <p>
+        <span class="itemname">{item.shortName}</span>{" "}
+        <Copy text={content.copy.body ?? item.description} ctx={ctx} />
+        {item.features.map((f) => (
+          <>
+            {" "}
+            <b>{f.lead}</b> <Copy text={f.text} ctx={ctx} />
+          </>
+        ))}
+      </p>
+      <ItemOrder item={item} ctx={ctx} page={content} />
+      {notes.length > 0 && (
+        <p class="feat-note">
+          <Copy text={notes.join(" ")} ctx={ctx} />
+        </p>
+      )}
+      {content.copy.smallprint && (
+        <p class="feat-note">
+          <Copy text={content.copy.smallprint} ctx={ctx} />
+        </p>
+      )}
+    </div>
+    <aside>
+      {quotes.map((q, i) => (
+        <ItemQuote quote={q} ctx={ctx} big={i === 0} />
+      ))}
+      {content.copy.xref && (
+        <p class="feat-xref">
+          <Copy text={content.copy.xref} ctx={ctx} />
+        </p>
+      )}
+    </aside>
+  </div>
+  {content.copy.footer && (
+    <div class="feat-foot">
+      <Copy text={content.copy.footer} ctx={ctx} />
+    </div>
+  )}
+</PageShell>

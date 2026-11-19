@@ -347,6 +347,34 @@ export function createKeystaticConfig(edition: number) {
         },
         { label: "Episode" },
       ),
+      meta: fields.object(
+        {
+          description: copyText(
+            "Description",
+            "The cover's share and search description. Other pages describe themselves from their title and section.",
+          ),
+        },
+        { label: "Share & search" },
+      ),
+      links: fields.object(
+        {
+          buy: optionalText("Buy link label", '"Buy". Every item\'s primary (affiliate) link.'),
+          maker: optionalText("Maker link label", '"Maker". The manufacturer\'s page.'),
+          missingBuy: optionalText(
+            "Missing buy link",
+            'Shown in place of the buy link until there is one: "Buy link TBA".',
+          ),
+          missingMaker: optionalText(
+            "Missing maker link",
+            'Shown in dev builds in place of a missing maker link: "Maker link TBA".',
+          ),
+          disclosure: copyText(
+            "Affiliate disclosure",
+            "One line on the order form page about affiliate links.",
+          ),
+        },
+        { label: "Purchase links" },
+      ),
       cover: fields.object(
         {
           price: optionalText("Cover price", '"FREE".'),
@@ -418,7 +446,8 @@ export function createKeystaticConfig(edition: number) {
         }),
         {
           label: "Order lines",
-          description: "Rotated by position across pages, like a real catalog.",
+          description:
+            "Pages pick one by id, like a real catalog's rotating footers. The one with {phone} is also the cover band and back cover phone line.",
           itemLabel: (props) => props.fields.id.value || "Order line",
         },
       ),
@@ -598,7 +627,8 @@ export function createKeystaticConfig(edition: number) {
           }),
           orderLine: fields.text({
             label: "Order line",
-            description: "Order line id from Site. Leave empty for the default rotation.",
+            description:
+              "Order line id from Site, shown on this page (a footer banner, or the layout's own spot). Leave empty for none.",
             validation: { pattern: { regex: OPTIONAL_SLUG, message: "Use an order line id" } },
           }),
           centerfold: fields.object(

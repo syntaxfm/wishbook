@@ -1,0 +1,55 @@
+---
+/** One toy-store price tag: cut-out photo, green brand, red name, caption, yellow price box. */
+import Copy from "../../components/Copy.astro";
+import Img from "../../components/Img.astro";
+import ItemLinks from "../../components/ItemLinks.astro";
+import NewBanner from "../../components/NewBanner.astro";
+import Price from "../../components/Price.astro";
+import type { BookContext } from "../../lib/book";
+import type { PageItem } from "../../lib/content";
+
+interface Props {
+  entry: PageItem;
+  ctx: BookContext;
+  /** Show the description (the big top row has room for it). */
+  describe?: boolean;
+}
+
+const { entry, ctx, describe = false } = Astro.props;
+const { item } = entry;
+const photo = await ctx.itemImage(item, entry.photo);
+const { confirmed, estimate, label } = item.price;
+const priced = confirmed !== null || estimate !== null || label !== null;
+---
+
+<div class="truitem" data-item-id={item.id}>
+  <Img
+    asset={photo}
+    alt={item.image.alt}
+    widths={[200, 320, 480]}
+    sizes="(min-width: 1000px) 240px, 45vw"
+  />
+  {item.isNew && <NewBanner />}
+  {item.brand && <div class="brand">{item.brand}</div>}
+  <div class="name">{item.shortName}</div>
+  {describe && item.description && (
+    <p>
+      <Copy text={item.description} ctx={ctx} />
+    </p>
+  )}
+  {entry.caption && (
+    <p class="age">
+      <Copy text={entry.caption} ctx={ctx} />
+    </p>
+  )}
+  {priced &&
+    (entry.badge ? (
+      <span class="savetop">
+        <span class="s">{entry.badge}</span>
+        <Price variant="box" confirmed={confirmed} estimate={estimate} text={label ?? undefined} />
+      </span>
+    ) : (
+      <Price variant="box" confirmed={confirmed} estimate={estimate} text={label ?? undefined} />
+    ))}
+  <ItemLinks item={item} ctx={ctx} />
+</div>

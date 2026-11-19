@@ -1,0 +1,88 @@
+---
+/**
+ * House brand: the in-house product page. A red brand tab, a big wood-framed
+ * product shot with a quote on it, the product name as a brand, a ribbon in
+ * place of NEW, running copy with bold lead-ins, the order line, a sticker,
+ * and a brand footer. Built from the brand-column and feature parts.
+ */
+import Copy from "../../components/Copy.astro";
+import Frame from "../../components/Frame.astro";
+import Img from "../../components/Img.astro";
+import ItemLetter from "../../components/ItemLetter.astro";
+import ItemOrder from "../../components/ItemOrder.astro";
+import ItemQuote from "../../components/ItemQuote.astro";
+import NewBanner from "../../components/NewBanner.astro";
+import PageShell from "../../components/PageShell.astro";
+import PickedBy from "../../components/PickedBy.astro";
+import type { TemplateProps } from "./types";
+
+type Props = TemplateProps;
+const { page, content, ctx, state } = Astro.props;
+const pi = content.items[0];
+if (!pi) throw new Error(`Page "${content.slug}": a house-brand page needs an item`);
+const { item } = pi;
+const photo = content.art ? await ctx.art(content.art) : await ctx.itemImage(item, pi.photo);
+const pickers = await Promise.all(
+  content.hosts.map(async (h) => ({ name: h.shortName, avatar: await ctx.avatar(h) })),
+);
+const [quote, second] = item.quotes;
+---
+
+<PageShell
+  page={page}
+  ctx={ctx}
+  state={state}
+  class="house"
+  orderLine={ctx.orderLine(content.orderLine)}
+>
+  <div class="brandhead">
+    {content.copy.kicker && (
+      <div class="kickertab">
+        <Copy text={content.copy.kicker} ctx={ctx} />
+      </div>
+    )}
+    {pickers.length > 0 && <PickedBy hosts={pickers} />}
+  </div>
+  <div class="hero">
+    <Frame tone="wood">
+      <Img
+        asset={photo}
+        alt={item.image.alt}
+        widths={[320, 480, 640]}
+        sizes="(min-width: 1000px) 320px, 90vw"
+      />
+      <ItemLetter letter="A" variant="photo" />
+      {quote && <ItemQuote quote={quote} ctx={ctx} placement="on" />}
+    </Frame>
+    <div class="copy" data-item-id={item.id}>
+      <h2 class="who">{content.copy.headline ?? item.name}</h2>
+      {(content.copy.badge || item.isNew) && (
+        <NewBanner class="comingsoon" text={content.copy.badge ?? undefined} />
+      )}
+      <p>
+        <Copy text={item.description} ctx={ctx} />
+      </p>
+      {item.features.length > 0 && (
+        <p>
+          {item.features.map((f) => (
+            <>
+              <b>{f.lead}</b> <Copy text={f.text} ctx={ctx} />{" "}
+            </>
+          ))}
+        </p>
+      )}
+      <ItemOrder item={item} ctx={ctx} page={content} />
+      {second && <ItemQuote quote={second} ctx={ctx} />}
+      {content.copy.sticker && (
+        <div class="sticker">
+          <Copy text={content.copy.sticker} ctx={ctx} />
+        </div>
+      )}
+    </div>
+  </div>
+  {content.copy.footer && (
+    <div class="brandfoot kicker">
+      <Copy text={content.copy.footer} ctx={ctx} />
+    </div>
+  )}
+</PageShell>

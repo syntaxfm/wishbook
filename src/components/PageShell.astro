@@ -1,0 +1,61 @@
+---
+/**
+ * One physical page of the book: the <article> the book engine drives
+ * (data-slug, data-n, data-side, data-path), its folio, an optional order-line
+ * banner, and a visually hidden heading that names the page for screen readers
+ * and takes focus after a turn or jump.
+ *
+ * `state.current` marks the page this HTML file is opened at; `state.shown`
+ * marks the pages visible on first paint (the current page and its spread
+ * partner).
+ */
+import Folio from "./Folio.astro";
+import ShopLine from "./ShopLine.astro";
+import type { BookContext, BookPage, OrderLine } from "../lib/book";
+import { PAGE_SUFFIX } from "../lib/paginate";
+import type { PageState } from "../layouts/templates/types";
+
+interface Props {
+  page: BookPage;
+  ctx: BookContext;
+  state: PageState;
+  class?: string;
+  /** Order-line banner at the foot of the page. */
+  orderLine?: OrderLine | null;
+  folio?: boolean;
+}
+
+const { page, ctx, state, class: className, orderLine, folio = true } = Astro.props;
+const line = orderLine
+  ? ctx.plain([orderLine.kicker, orderLine.text].filter(Boolean).join(" "))
+  : null;
+---
+
+<article
+  class:list={[
+    "page",
+    page.side,
+    className,
+    { "is-current": state.current, "is-shown": state.shown, in: state.shown },
+  ]}
+  id={`page-${page.slug}`}
+  data-slug={page.slug}
+  data-n={page.n}
+  data-side={page.side}
+  data-path={ctx.href(page.slug)}
+  data-section={page.section}
+  data-title={page.title}
+  aria-labelledby={`title-${page.slug}`}
+>
+  <slot name="before" />
+  <div class="pg">
+    <h2 class="sr-only page-title" id={`title-${page.slug}`} tabindex="-1">
+      {page.title}, {ctx.book.ref(page.slug)}
+    </h2>
+    <slot />
+    {line && <ShopLine text={line} />}
+    {folio && page.side !== "spread" && (
+      <Folio side={page.side} number={page.n} suffix={PAGE_SUFFIX} />
+    )}
+  </div>
+</article>

@@ -1,0 +1,74 @@
+---
+/**
+ * Two-up with quotes on the photos: tall framed photos with letters and an
+ * on-photo quote card, a friendly headline, running copy, "also in" chips,
+ * and the order line.
+ */
+import Copy from "../../components/Copy.astro";
+import CopyParas from "../../components/CopyParas.astro";
+import Frame from "../../components/Frame.astro";
+import Img from "../../components/Img.astro";
+import ItemLetter from "../../components/ItemLetter.astro";
+import ItemOrder from "../../components/ItemOrder.astro";
+import ItemQuote from "../../components/ItemQuote.astro";
+import PageShell from "../../components/PageShell.astro";
+import PickedBy from "../../components/PickedBy.astro";
+import { letterFor } from "./letters";
+import type { TemplateProps } from "./types";
+
+type Props = TemplateProps;
+const { page, content, ctx, state } = Astro.props;
+const pickers = await Promise.all(
+  content.hosts.map(async (h) => ({ name: h.shortName, avatar: await ctx.avatar(h) })),
+);
+const items = await Promise.all(
+  content.items.map(async (pi, i) => ({
+    ...pi,
+    letter: letterFor(i),
+    photo: await ctx.itemImage(pi.item, pi.photo),
+    quote: !pi.text && !ctx.quotedElsewhere(pi.item, content) ? (pi.item.quotes[0] ?? null) : null,
+  })),
+);
+---
+
+<PageShell
+  page={page}
+  ctx={ctx}
+  state={state}
+  class="wild"
+  orderLine={ctx.orderLine(content.orderLine)}
+>
+  <div class="pagehead">
+    <h2 class="display">{content.copy.headline ?? content.title}</h2>
+    {pickers.length > 0 && <PickedBy hosts={pickers} />}
+  </div>
+  <div class="twoup">
+    {items.map((it) => (
+      <div data-item-id={it.item.id}>
+        <Frame tone={it.item.image.background === "dark" ? "dark" : "light"}>
+          <Img
+            asset={it.photo}
+            alt={it.item.image.alt}
+            widths={[320, 480, 640]}
+            sizes="(min-width: 1000px) 270px, (min-width: 640px) 45vw, 90vw"
+          />
+          <ItemLetter letter={it.letter} variant="photo" />
+          {it.quote && <ItemQuote quote={it.quote} ctx={ctx} placement="on" />}
+        </Frame>
+        <div class="friendly">
+          <ItemLetter letter={it.letter} />
+          {it.item.headline ? <Copy text={it.item.headline} ctx={ctx} /> : it.item.shortName}
+        </div>
+        <CopyParas text={it.text ?? it.item.description} ctx={ctx} />
+        {it.item.alsoIn.length > 0 && (
+          <div class="chips">
+            {it.item.alsoIn.map((option, i) => (
+              <span>{i === 0 ? `Also in: ${option}` : option}</span>
+            ))}
+          </div>
+        )}
+        <ItemOrder item={it.item} ctx={ctx} page={content} />
+      </div>
+    ))}
+  </div>
+</PageShell>

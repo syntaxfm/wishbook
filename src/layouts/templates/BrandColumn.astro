@@ -1,0 +1,79 @@
+---
+/**
+ * Brand column: the shopper's name as a brand, a tagline, the item copy and
+ * order lines in a side column, and big wood-framed photos with quotes on
+ * them. "mirrored" puts the photos on the left.
+ */
+import Copy from "../../components/Copy.astro";
+import Frame from "../../components/Frame.astro";
+import Img from "../../components/Img.astro";
+import ItemCopy from "../../components/ItemCopy.astro";
+import ItemLetter from "../../components/ItemLetter.astro";
+import ItemOrder from "../../components/ItemOrder.astro";
+import ItemQuote from "../../components/ItemQuote.astro";
+import NewBanner from "../../components/NewBanner.astro";
+import PageShell from "../../components/PageShell.astro";
+import { letterFor } from "./letters";
+import type { TemplateProps } from "./types";
+
+type Props = TemplateProps;
+const { page, content, ctx, state } = Astro.props;
+const host = content.hosts[0];
+const items = await Promise.all(
+  content.items.map(async (pi, i) => ({
+    ...pi,
+    letter: letterFor(i),
+    photo: await ctx.itemImage(pi.item, pi.photo),
+    quote: !pi.text && !ctx.quotedElsewhere(pi.item, content) ? (pi.item.quotes[0] ?? null) : null,
+  })),
+);
+---
+
+<PageShell
+  page={page}
+  ctx={ctx}
+  state={state}
+  class:list={["brandcol", { mirror: content.variant === "mirrored" }]}
+  orderLine={ctx.orderLine(content.orderLine)}
+>
+  <div class="side">
+    <div class="who">{host?.shortName ?? content.title}</div>
+    {content.copy.tagline && (
+      <div class="tag display">
+        <Copy text={content.copy.tagline} ctx={ctx} />
+      </div>
+    )}
+    {items.map((it) => (
+      <div class="item" data-item-id={it.item.id}>
+        <ItemLetter letter={it.letter} />
+        <ItemCopy item={it.item} ctx={ctx} text={it.text} short />
+        <ItemOrder item={it.item} ctx={ctx} page={content} />
+      </div>
+    ))}
+    {content.copy.sticker && (
+      <div class="sticker">
+        <Copy text={content.copy.sticker} ctx={ctx} />
+      </div>
+    )}
+  </div>
+  <div class="photos">
+    {items.slice(0, 2).map((it) => (
+      <Frame tone="wood">
+        {it.item.isNew && !ctx.featuredElsewhere(it.item, content) && <NewBanner variant="oval" />}
+        <Img
+          asset={it.photo}
+          alt={it.item.image.alt}
+          widths={[320, 480, 640]}
+          sizes="(min-width: 1000px) 340px, (min-width: 640px) 55vw, 90vw"
+        />
+        <ItemLetter letter={it.letter} variant="photo" />
+        {it.quote && <ItemQuote quote={it.quote} ctx={ctx} placement="on" />}
+      </Frame>
+    ))}
+  </div>
+  {content.copy.footer && (
+    <div class="brandfoot kicker">
+      <Copy text={content.copy.footer} ctx={ctx} />
+    </div>
+  )}
+</PageShell>
