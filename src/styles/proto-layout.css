@@ -7,10 +7,14 @@
 /* ---------- side frame (a, b, c) ----------
    The book fills the viewport height. Prev sits in the left gutter; the
    thumb-index tabs hang off the book's right edge with next beside them.
+   The gutters are tight (a 44px arrow, 4px from the book or the tabs, 2px
+   from the window edge) and not mirrored: the left one has no room for tabs,
+   so the book sits a little left of centre, its tabs sticking out on the
+   right like a real catalog's. 50 + 90 = 140px in all.
    Keep the numbers in step with SIDE_GUTTERS_* in proto-layout.ts. */
 [data-chrome="side"]:is(.m-book, .m-single) .book {
-  --gl: 68px;
-  --gr: 108px;
+  --gl: 50px;
+  --gr: 90px;
   --cx: calc(var(--gl) + (100vw - var(--gl) - var(--gr)) / 2);
   height: 100dvh;
   padding: 16px var(--gr) 16px var(--gl);
@@ -20,13 +24,13 @@
 [data-chrome="side"].m-book .book {
   --pw: max(
     240px,
-    min(780px, calc((100vw - 176px) / 2), calc((100dvh - 32px) / var(--page-aspect)))
+    min(780px, calc((100vw - 140px) / 2), calc((100dvh - 32px) / var(--page-aspect)))
   );
   --sw: calc(var(--pw) * 2);
 }
 [data-chrome="side"].m-single .book {
-  --pw: max(240px, min(780px, calc(100vw - 176px), calc((100dvh - 32px) / var(--page-aspect))));
-  --cfw: min(calc(var(--pw) * 2), calc(100vw - 176px));
+  --pw: max(240px, min(780px, calc(100vw - 140px), calc((100dvh - 32px) / var(--page-aspect))));
+  --cfw: min(calc(var(--pw) * 2), calc(100vw - 140px));
   --sw: var(--pw);
 }
 [data-chrome="side"].m-single .book:has(.cf-page.is-current) {
@@ -66,10 +70,11 @@
   font-size: 20px;
 }
 [data-chrome="side"]:is(.m-book, .m-single) .pager > .prev {
-  left: calc(var(--cx) - var(--sw) / 2 - 56px);
+  left: calc(var(--cx) - var(--sw) / 2 - 48px);
 }
+/* beyond the 40px tabs */
 [data-chrome="side"]:is(.m-book, .m-single) .pager > .next {
-  left: calc(var(--cx) + var(--sw) / 2 + 52px);
+  left: calc(var(--cx) + var(--sw) / 2 + 44px);
 }
 
 /* tabs: hanging off the book's right edge, the height of the page */
@@ -134,10 +139,10 @@
   height: 20px;
 }
 [data-layout="c"] .proto-mag-left {
-  left: calc(var(--cx) - var(--sw) / 2 - 56px);
+  left: calc(var(--cx) - var(--sw) / 2 - 48px);
 }
 [data-layout="c"] .proto-mag-right {
-  left: calc(var(--cx) + var(--sw) / 2 + 52px);
+  left: calc(var(--cx) + var(--sw) / 2 + 44px);
 }
 [data-layout="c"]:is(.m-book, .m-single) .book-pages > :is(.page, .cf-page).is-shown {
   cursor: zoom-in;
@@ -389,7 +394,7 @@ html.proto-zoomed {
     240px,
     min(
       780px,
-      calc((100vw - 176px) / 2),
+      calc((100vw - 140px) / 2),
       max(calc((100dvh - 32px) / var(--page-aspect)), var(--hy-minw, 0px))
     )
   );
@@ -399,7 +404,7 @@ html.proto-zoomed {
     240px,
     min(
       780px,
-      calc(100vw - 176px),
+      calc(100vw - 140px),
       max(calc((100dvh - 32px) / var(--page-aspect)), var(--hy-minw, 0px))
     )
   );
@@ -446,6 +451,10 @@ html.proto-zoomed {
     left: 12px;
     right: auto;
     flex-direction: column;
+  }
+  /* the side frame's left gutter is only 50px: keep them off the book */
+  [data-chrome="side"]:is(.m-book, .m-single) .wishtools {
+    left: 3px;
   }
   :is([data-chrome="side"], [data-chrome="viewer"]):is(.m-book, .m-single)
     .wishtools

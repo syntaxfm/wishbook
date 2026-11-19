@@ -238,6 +238,44 @@ test("hybrid: when the spread fits, it is a's spread to the pixel", async ({ pag
   expect((await page.locator(".tabs").boundingBox())!.width).toBeLessThan(60);
 });
 
+for (const layout of ["a", "hybrid"]) {
+  test(`${layout}: a 1280×800 window shows a spread with arrows and tabs clear of the pages`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto(`/2026/favorites/wes/?layout=${layout}`);
+    await page.evaluate(() => document.fonts.ready);
+    await expect(page.locator("html")).toHaveClass(/m-book/);
+    if (layout === "hybrid") {
+      await expect(page.locator("html")).toHaveAttribute("data-hy-tier", "spread");
+    }
+    const f = await frame(page);
+    expect(f.docScroll).toBeLessThanOrEqual(0);
+    expect(f.pages).toHaveLength(2);
+    const box = async (sel: string) => (await page.locator(sel).boundingBox())!;
+    const stage = await box(".book-pages");
+    const prev = await box(".pager .prev");
+    const next = await box(".pager .next");
+    const tabs = await box(".tabs");
+    for (const [name, b] of [
+      ["prev", prev],
+      ["next", next],
+      ["tabs", tabs],
+    ] as const) {
+      expect(b.x, name).toBeGreaterThanOrEqual(0);
+      expect(b.y, name).toBeGreaterThanOrEqual(0);
+      expect(b.x + b.width, name).toBeLessThanOrEqual(1280);
+      expect(b.y + b.height, name).toBeLessThanOrEqual(800);
+    }
+    expect(prev.width).toBeGreaterThanOrEqual(44);
+    expect(next.width).toBeGreaterThanOrEqual(44);
+    // nothing over the pages, and the next arrow clear of the tabs
+    expect(prev.x + prev.width).toBeLessThanOrEqual(stage.x);
+    expect(tabs.x).toBeGreaterThanOrEqual(stage.x + stage.width - 1);
+    expect(next.x).toBeGreaterThan(tabs.x + tabs.width);
+  });
+}
+
 test("hybrid: every spread has the same height, fitting or scrolling", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   for (const [w, h, scrolls] of [
@@ -299,14 +337,14 @@ test("hybrid: a spread taller than the window scrolls; turning snaps to the top"
 test("hybrid: one page when two readable pages don't fit; the feed below that", async ({
   page,
 }) => {
-  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.setViewportSize({ width: 1240, height: 800 });
   await openHybrid(page, "/2026/favorites/wes/");
   await expect(page.locator("html")).toHaveAttribute("data-hy-tier", "single");
   await expect(page.locator("html")).toHaveClass(/m-single/);
   await expect(page.locator("html")).toHaveAttribute("data-chrome", "side");
   expect((await frame(page)).pages).toHaveLength(1);
 
-  await page.setViewportSize({ width: 700, height: 900 });
+  await page.setViewportSize({ width: 680, height: 900 });
   await expect(page.locator("html")).toHaveAttribute("data-hy-tier", "feed");
   await expect(page.locator("html")).toHaveClass(/m-scroll/);
   await expect(page.locator("html")).toHaveAttribute("data-chrome", "feed");
@@ -331,7 +369,7 @@ test("hybrid: resizing across tiers keeps the page", async ({ page }) => {
   await expect(page.locator("html")).toHaveAttribute("data-hy-tier", "spread");
   const current = page.locator(".book-pages > .is-current");
   for (const [w, h, t, mode] of [
-    [1280, 800, "single", /m-single/],
+    [1240, 800, "single", /m-single/],
     [600, 900, "feed", /m-scroll/],
     [1440, 700, "spread", /m-book/],
     [1920, 1080, "spread", /m-book/],

@@ -63,10 +63,10 @@ export function chromeFor(layout: Layout, mode: ReadingMode): Chrome {
 
 /*
  * The page box in the side frame (keep in step with proto-layout.css):
- * gutters of 68px left (prev arrow) and 108px right (tabs, next arrow),
- * 16px above and below, pages at most 780px wide.
+ * gutters of 50px left (prev arrow) and 90px right (tabs, next arrow), not
+ * mirrored, 16px above and below, pages at most 780px wide.
  */
-export const SIDE_GUTTERS_X = 176;
+export const SIDE_GUTTERS_X = 140;
 export const SIDE_GUTTERS_Y = 32;
 export const PAGE_MAX = 780;
 export const PAGE_ASPECT = 1.303;

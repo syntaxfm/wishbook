@@ -117,10 +117,12 @@ describe("prototype layouts", () => {
 
   it("hybrid: tiers by width alone", () => {
     expect(hybridMode(1920, 556)).toBe("book");
-    expect(hybridMode(1366, 556)).toBe("book"); // (1366 - 176) / 2 = 595
-    expect(hybridMode(1280, 556)).toBe("single"); // 552 per page is too narrow
+    expect(hybridMode(1366, 556)).toBe("book"); // (1366 - 140) / 2 = 613
+    expect(hybridMode(1280, 556)).toBe("book"); // 570 per page
+    expect(hybridMode(1252, 556)).toBe("book"); // 556 per page, just enough
+    expect(hybridMode(1250, 556)).toBe("single"); // 555 per page is too narrow
     expect(hybridMode(820, 556)).toBe("single");
-    expect(hybridMode(700, 556)).toBe("scroll"); // 524 for one page
+    expect(hybridMode(690, 556)).toBe("scroll"); // 550 for one page
     expect(hybridMode(600, 300)).toBe("scroll"); // phones always
   });
 
@@ -149,14 +151,14 @@ describe("prototype layouts", () => {
   });
 
   it("hybrid: the head script uses the readable width measured earlier", () => {
-    const minw = JSON.stringify({ 11: 600 });
+    const minw = JSON.stringify({ 11: 620 });
     const r = runHead("?layout=hybrid", null, 1366, 768, { [HYBRID_MINW_KEY]: minw });
-    expect(r.classes).toContain(MODE_CLASS.single); // 595 < 600
-    expect(r.minw).toBe("600px");
+    expect(r.classes).toContain(MODE_CLASS.single); // 613 < 620
+    expect(r.minw).toBe("620px");
     expect(r.chrome).toBe("side");
     const g = runHead("?layout=hybrid", null, 1366, 768);
     expect(g.classes).toContain(MODE_CLASS.book);
-    expect(runHead("?layout=hybrid", null, 700, 900).chrome).toBe("feed");
+    expect(runHead("?layout=hybrid", null, 690, 900).chrome).toBe("feed");
   });
 
   it("b shows one page when spread pages would be small", () => {
