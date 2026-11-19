@@ -7,7 +7,8 @@ The Syntax Holiday Gift Guide as an interactive 90s Christmas catalog: a "wish b
 - A new WishBook every year. Each edition lives under its year (`/2026/…`), so every shared link is permanent.
 - Every page has its own URL and its own share card.
 - Every catalog number is a timestamp into the gift guide episode.
-- Circle items to build a wish list. Share it as a link or print it as an order form.
+- Circle items to build a wish list. Share it as a link or print it as an order form (⌘P).
+- Press ⌘K (Ctrl+K) to search every gift by name, brand, or shopper.
 - Fully static, with no analytics. Hosted on Cloudflare Pages.
 
 ## Stack
@@ -57,16 +58,16 @@ pnpm preview      # serve the built site
 
 Every real URL includes the edition year:
 
-| URL                       | What it is                 |
-| ------------------------- | -------------------------- |
-| `/2026/`                  | Cover                      |
-| `/2026/<section>/`        | Section divider            |
-| `/2026/<section>/<slug>/` | Any other page             |
-| `/2026/wishlist/?w=…`     | A shared wish list         |
-| `/2026/catalog.txt`       | Plain-text catalog         |
-| `/2026/og/<slug>.png`     | Share card for a page      |
-| `/2026/og/wishlist.png`   | Share card for a wish list |
-| `/2026/og/default.png`    | Fallback share card        |
+| URL                       | What it is                                                           |
+| ------------------------- | -------------------------------------------------------------------- |
+| `/2026/`                  | Cover                                                                |
+| `/2026/<section>/`        | Section divider                                                      |
+| `/2026/<section>/<slug>/` | Any other page                                                       |
+| `/2026/wishlist/?w=…`     | A shared wish list (`w`: the circled item ids as a base64url bitset) |
+| `/2026/catalog.txt`       | Plain-text catalog                                                   |
+| `/2026/og/<slug>.png`     | Share card for a page                                                |
+| `/2026/og/wishlist.png`   | Share card for a wish list                                           |
+| `/2026/og/default.png`    | Fallback share card                                                  |
 
 `/` and `/catalog.txt` are build-time copies of the current edition's cover and catalog. Their canonical URL points at `/2026/`. Year-less section links (`/favorites/…`) redirect (302) to the current edition via `_redirects`, generated at build from the current edition's sections.
 
@@ -90,7 +91,7 @@ In each edition (`content/<year>/`):
 - **Book order** (`book.yaml`): which pages exist, in what order, which layout each uses, which items they show (optionally with page-specific copy), and their copy. Page numbers, filler pages, and cross-references are all computed from this.
 - **Sections** (`sections.yaml`): the thumb-index sections, in order.
 - **Timestamps** (`timestamps.yaml`): the one file mapping each item to its moment in the episode. Update it when the final video is published.
-- **Site settings** (`site.yaml`): episode, share description, purchase-link labels and the affiliate disclosure, cover band, welcome page, symbol key, order lines, back cover, and the copy for automatic filler pages. A page shows an order-line banner only when its `orderLine` is set.
+- **Site settings** (`site.yaml`): episode, share description, purchase-link labels and the affiliate disclosure, cover band, welcome page, symbol key, order lines, order form buttons, wish-list and search copy (including the printed form's mail-to box), back cover, and the copy for automatic filler pages. A page shows an order-line banner only when its `orderLine` is set.
 - **Generated art** (`assets.yaml`): each generated image's key, file, placeholder title and color, aspect, prompt, and source item. `pnpm assets` lists which of them still need making.
 
 In copy, write `{page:icemag}` for a page reference (rendered "page 6 A"), `{syn:leatherman-arc}` for a catalog number, `{count}` for the number of gifts, `{phone}` for the phone number, and `**bold**` / `*italic*` for emphasis.
