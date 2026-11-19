@@ -87,6 +87,22 @@ test("every internal link points into the edition (or at built assets)", () => {
   }
 });
 
+test("catalog.txt is a plain-text catalog, copied to the root", async ({ request }) => {
+  const edition = read("2026/catalog.txt");
+  expect(read("catalog.txt")).toBe(edition);
+  expect(edition).toMatch(/ \.{3,} \d+\.\d{2}( est\.)?$/m);
+  expect(edition).toContain("SYN ");
+  for (const line of edition.split("\n")) expect([...line].length, line).toBeLessThanOrEqual(80);
+  // Served as-is, no redirect, from the root.
+  const res = await request.get("/catalog.txt", { maxRedirects: 0 });
+  expect(res.status()).toBe(200);
+  expect(await res.text()).toBe(edition);
+  // The deployed Content-Type comes from _headers.
+  expect(read("_headers")).toMatch(
+    /^\/\*\/catalog\.txt\n\s+Content-Type: text\/plain; charset=utf-8$/m,
+  );
+});
+
 test("_redirects sends year-less section paths to the current edition", () => {
   const rules = read("_redirects")
     .split("\n")
