@@ -1,0 +1,92 @@
+---
+/**
+ * The paper order form: hidden on screen, the only thing printed (⌘P or the
+ * Print button). A masthead, the wish list as a table (catalog number, item
+ * with its buy link written out, quantity, price), the total with estimates
+ * flagged, the share link, and a mail-to-Santa box. Render as a direct child
+ * of <body>; src/scripts/print-sheet.ts fills it from the item index. With an
+ * empty list it prints blank lines to write on.
+ */
+import Copy from "./Copy.astro";
+import type { BookContext } from "../lib/book";
+import { editionUrl } from "../lib/urls";
+
+interface Props {
+  ctx: BookContext;
+}
+
+const { ctx } = Astro.props;
+const { wishList, links, guarantee } = ctx.content.site;
+const orderPage = ctx.book.pages.find((p) => p.template === "order-form");
+const BLANK_ROWS = 6;
+---
+
+<section
+  class="print-sheet"
+  data-print-sheet
+  data-share-path={editionUrl(ctx.edition, "wishlist")}
+  data-missing-buy={links.missingBuy ?? ""}
+  aria-hidden="true"
+>
+  <header class="ps-head">
+    <div class="ps-mast">{ctx.global.name}</div>
+    <div class="ps-edition kicker">{ctx.edition}</div>
+  </header>
+  <h2 class="ps-title display">{orderPage?.title ?? wishList.title}</h2>
+  <table class="ps-form">
+    <thead>
+      <tr>
+        <th scope="col">Cat. No.</th>
+        <th scope="col">Item</th>
+        <th scope="col">Qty</th>
+        <th scope="col">Price</th>
+      </tr>
+    </thead>
+    <tbody data-print-rows>
+      {Array.from({ length: BLANK_ROWS }, () => (
+        <tr class="blank">
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      ))}
+    </tbody>
+    <tfoot>
+      <tr>
+        <td></td>
+        <th scope="row">Total</th>
+        <td></td>
+        <td class="ps-total" data-print-total></td>
+      </tr>
+    </tfoot>
+  </table>
+  {wishList.unpriced && (
+    <p class="ps-small" data-print-unpriced hidden>
+      <Copy text={wishList.unpriced} ctx={ctx} />
+    </p>
+  )}
+  <p class="ps-url mono" data-print-url></p>
+  <div class="ps-foot">
+    {wishList.mailTo.length > 0 && (
+      <div class="ps-santa">
+        {wishList.mailTo.map((line) => (
+          <div>{line}</div>
+        ))}
+      </div>
+    )}
+    <div class="ps-notes">
+      {guarantee.text && (
+        <p>
+          {guarantee.lead && <b>{guarantee.lead} </b>}
+          <Copy text={guarantee.text} ctx={ctx} />
+        </p>
+      )}
+      {links.disclosure && (
+        <p class="ps-small">
+          <Copy text={links.disclosure} ctx={ctx} />
+        </p>
+      )}
+    </div>
+  </div>
+</section>
