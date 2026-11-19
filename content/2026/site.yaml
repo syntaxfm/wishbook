@@ -11,7 +11,7 @@ links:
 cover:
   price: FREE
   tagline: The Internet's Largest Developer Gift Catalogue
-  note: "{count} gifts · index on {page:order-form}"
+  note: "{count} gifts · index on {page:index}"
 welcome:
   title: How to Shop Your WishBook
   steps:

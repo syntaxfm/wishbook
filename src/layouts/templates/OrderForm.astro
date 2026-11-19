@@ -1,13 +1,14 @@
 ---
 /**
- * Index & order form: an alphabetical index of every gift with its page, a
- * carbon-copy order blank that the wish list fills in (data-order-* hooks),
- * share and print buttons, and the affiliate disclosure.
+ * Order form: a carbon-copy order blank that the wish list fills in
+ * (data-order-* hooks), share and print buttons, and the affiliate disclosure.
+ * The alphabetical index of every gift is its own page (Index.astro).
  *
  * Every item has a prerendered, hidden row (data-order-item) with its catalog
  * number, name, purchase links, and price; the wish list (src/scripts/
  * wishlist.ts) reveals the circled ones in the order they were circled and
- * fills in the total. Blank rows pad the form until it has a few lines.
+ * fills in the total. Blank rows pad the form until it has a few lines. In the
+ * fixed page box the rows are six lines tall and a longer list scrolls inside.
  */
 import CatalogNumber from "../../components/CatalogNumber.astro";
 import Copy from "../../components/Copy.astro";
@@ -21,33 +22,15 @@ type Props = TemplateProps;
 const { page, content, ctx, state } = Astro.props;
 const { orderForm, links, wishList } = ctx.content.site;
 const videoUrl = ctx.content.site.episode.videoUrl;
-const index = ctx.content.items
-  .filter((i) => !i.mention)
-  .flatMap((i) => {
-    const target = ctx.indexPageOf(i);
-    return target ? [{ item: i, slug: target.slug }] : [];
-  })
-  .toSorted((a, b) =>
-    a.item.indexName.localeCompare(b.item.indexName, "en", { sensitivity: "base" }),
-  );
 const rows = ctx.content.items.map((item) => ({ item, home: ctx.indexPageOf(item) }));
-// Blank lines on the order form until the wish list fills them.
-const BLANK_ROWS = 3;
+// Blank lines on the order form until the wish list fills them (as on the
+// printed form).
+const BLANK_ROWS = 6;
+const { guarantee } = ctx.content.site;
 ---
 
 <PageShell page={page} ctx={ctx} state={state} class="orderpage">
   <h2 class="display">{content.copy.headline ?? content.title}</h2>
-  <div class="ix">
-    <ul class="dotlist">
-      {index.map(({ item, slug }) => (
-        <li>
-          <a href={ctx.href(slug)}>{item.indexName}</a>
-          <span class="dots"></span>
-          {ctx.book.label(slug)}
-        </li>
-      ))}
-    </ul>
-  </div>
   <div class="form" data-order-form data-share-path={editionUrl(ctx.edition, "wishlist")}>
     <div class="row head">
       <span>Cat. No.</span>
@@ -127,9 +110,21 @@ const BLANK_ROWS = 3;
       hidden
     />
   </p>
+  {wishList.mailTo.length > 0 && (
+    <div class="santa" aria-hidden="true">
+      {wishList.mailTo.map((line) => (
+        <div>{line}</div>
+      ))}
+    </div>
+  )}
   {links.disclosure && (
     <p class="disclosure">
       <Copy text={links.disclosure} ctx={ctx} />
     </p>
+  )}
+  {guarantee.text && (
+    <div class="guarantee">
+      {guarantee.lead && <b>{guarantee.lead}</b>} <span class="quote">{guarantee.text}</span>
+    </div>
   )}
 </PageShell>

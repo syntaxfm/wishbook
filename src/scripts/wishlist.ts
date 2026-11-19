@@ -5,15 +5,17 @@
  * Toggles are added here, not in the static markup, so a page without
  * JavaScript shows no dead buttons. Each item block (`[data-item-id]`, except
  * centerfold hotspot links) gets a `button.wish-toggle` (aria-pressed) and a
- * hand-drawn marker loop (`svg.wish-circle`) that draws when circled.
+ * hand-drawn marker loop (`svg.wish-circle`) that draws when circled. The
+ * toggle fills the slot at the end of the item's purchase row
+ * (`[data-wish-slot]`, see ItemLinks.astro), so adding it moves nothing.
  */
 import { MARKER_LOOP } from "../lib/marker";
 import { fillPrintSheet, renderTotal, totalOf } from "./print-sheet";
 import { getList, indexItem, onList, shareUrl, toggle, type IndexItem } from "./wishlist-store";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
-/** Below this many rows the order form pads itself with blank lines. */
-const MIN_ROWS = 3;
+/** Below this many rows the order form pads itself with blank lines (as on paper). */
+const MIN_ROWS = 6;
 
 let started = false;
 
@@ -83,7 +85,13 @@ function addToggles(labels: Labels): void {
         }
       }
     });
-    block.append(svg, button);
+    block.append(svg);
+    // The toggle goes in the item's purchase row (the slot ItemLinks reserves
+    // on this page); a block without one gets it at its end.
+    const slot =
+      block.querySelector<HTMLElement>(`[data-wish-slot="${id}"]:empty`) ??
+      block.closest(".page")?.querySelector<HTMLElement>(`[data-wish-slot="${id}"]:empty`);
+    (slot ?? block).append(button);
   }
 }
 
@@ -112,7 +120,9 @@ function renderToggles(ids: number[], labels: Labels): void {
     const pressed = on.has(Number(button.dataset.wishToggle));
     button.setAttribute("aria-pressed", String(pressed));
     button.textContent = pressed ? labels.circled : labels.circle;
-    button.closest(".wishable")?.classList.toggle("is-wished", pressed);
+  }
+  for (const block of document.querySelectorAll<HTMLElement>(".wishable[data-item-id]")) {
+    block.classList.toggle("is-wished", on.has(Number(block.dataset.itemId)));
   }
 }
 

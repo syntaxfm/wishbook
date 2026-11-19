@@ -27,7 +27,7 @@ const kicker = content.copy.kicker ?? content.section.kicker;
   page={page}
   ctx={ctx}
   state={state}
-  class="trupage"
+  class:list={["trupage", { banded: !!content.copy.footer }]}
   orderLine={ctx.orderLine(content.orderLine)}
 >
   <div class="truhead">

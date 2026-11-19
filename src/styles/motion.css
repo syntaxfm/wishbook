@@ -1,7 +1,9 @@
 /* =========================================================
    Motion: tasteful, plays once, respects reduced motion.
    A page gets .in the first time it is shown; that triggers its reveal, the
-   price-box and NEW pops, the hotspot pulse, and the marker draw.
+   price-box and NEW pops, the hotspot pulse, and the marker draw. Every one
+   animates only transform, opacity, shadow, or stroke: never layout, so a
+   reveal can't move the feed.
    ========================================================= */
 .reveal {
   opacity: 0;
@@ -59,6 +61,19 @@
   to {
     stroke-dashoffset: 0;
   }
+}
+
+/* A page that came into view while the feed flew past shows its end state
+   without playing anything (the engine adds .quiet with .in). */
+.quiet .pricebox,
+.quiet .newbanner,
+.quiet .newoval,
+.quiet .hot {
+  animation: none;
+}
+.quiet .circled path {
+  animation: none;
+  stroke-dashoffset: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -5,9 +5,10 @@
  * absolute and year-scoped, including on the root copy ("/"), whose canonical
  * is the edition's cover.
  *
- * A tiny inline script picks the reading mode before first paint (book ≥ 1000px,
- * single ≥ 640px, scroll below) so there is no flash; without JavaScript the
- * current page renders on its own.
+ * A tiny inline script picks the reading mode before first paint (spreads, a
+ * single page, or the scroll feed, by width and readable page size; see
+ * src/lib/modes.ts) so there is no flash; without JavaScript the current page
+ * renders on its own.
  */
 import Book from "../components/Book.astro";
 import DesignSystem from "../components/DesignSystem.astro";

@@ -62,11 +62,14 @@ for (const [width, mode] of WIDTHS) {
     } else if (mode === "m-single") {
       expect(await onScreen(page)).toEqual(["wes"]);
     } else {
-      // The feed scrolled to the page: it starts at the top of the screen.
+      // The feed scrolled to the page: it starts at the top of the screen,
+      // just below the running head.
       const top = await page
         .locator('.book-pages > [data-slug="wes"]')
-        .evaluate((e) => e.getBoundingClientRect().top);
-      expect(Math.abs(top)).toBeLessThan(40);
+        .evaluate(
+          (e) => e.getBoundingClientRect().top - parseFloat(getComputedStyle(e).scrollMarginTop),
+        );
+      expect(Math.abs(top)).toBeLessThanOrEqual(2);
       expect(await page.evaluate(() => scrollY)).toBeGreaterThan(0);
     }
     await expect(page).toHaveTitle(/^Wes's Favorite Things · /);

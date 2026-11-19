@@ -2,12 +2,26 @@
  * The book engine. Takes over the server-rendered book (Book.astro) and turns
  * it into an instant, flippable catalog with real URLs:
  *
- *   book    ≥ 1000px  the current spread, with a 3D page turn
- *   single  ≥ 640px   one page, the old page lifts away
- *   scroll  below     every page in a vertical feed; the URL follows reading
+ *   book    the current spread, with a 3D page turn
+ *   single  one page, the old page lifts away
+ *   scroll  every page in a vertical feed; the URL follows reading
+ *
+ * The mode follows the viewport width and the measured readable page width
+ * (src/lib/modes.ts, src/scripts/readable.ts): spreads when two readable
+ * pages fit side by side, one page when one does, the feed otherwise.
  *
  * Every page is already in the document, so turns and jumps never touch the
  * network: they only change which pages show and update the address.
+ *
+ * The feed scrolls freely: no snapping, and wheel, touch, and the arrow keys
+ * up and down stay native. Page Down / Page Up, Space / Shift+Space, and the
+ * left and right arrows step to the next or previous page top. Every page's
+ * height is reserved before the feed is shown (see reserveFeed), so a deep
+ * link lands once and stays put; the browser's scroll anchoring absorbs any
+ * later change above the reader. In book and single modes the book fits the
+ * window and nothing scrolls the document, unless the window is too short for
+ * a readable page: then the window scrolls down the spread, and every turn or
+ * jump opens the new page at the top of the book.
  *
  * History: a turn (prev/next, arrow keys, swipe, scrolling the feed) replaces
  * the URL; a jump (tab, cross-reference, hotspot, search result, navigate())
@@ -23,10 +37,12 @@
  *   wishbook:navigate  detail: { slug, path, kind, mode }   after each page change
  *   wishbook:mode      detail: { mode }                     when the reading mode changes
  */
-import { MODE_CLASS, modeFor, type ReadingMode } from "../lib/modes";
+import { MODE_CLASS, type ReadingMode } from "../lib/modes";
 import { RouteTable } from "../lib/routes";
 import { buildSpreads, spreadPages, type Spread } from "../lib/spreads";
 import { linkCenterfolds } from "./centerfold";
+import { watchFit } from "./fit";
+import { clearMeasurements, modeForViewport } from "./readable";
 
 /** How a page change happened. */
 export type NavKind = "init" | "turn" | "jump" | "pop" | "scroll" | "mode";
@@ -71,6 +87,16 @@ let settle: (() => void) | null = null;
 let feedObserver: IntersectionObserver | null = null;
 /** While the feed scrolls to a jump target, reading position doesn't move the URL. */
 let feedHoldUntil = 0;
+/** Where a running page step (Page Down…) is headed, so repeated presses keep going. */
+let stepTarget: number | null = null;
+/** The running head over the feed: section and folio of the page being read. */
+let runHead: { section: HTMLElement; folio: HTMLElement } | null = null;
+/** Feed scroll speed in px/ms, and when it was last measured. */
+let scrollSpeed = 0;
+let scrollAt = 0;
+let lastScrollY = 0;
+/** The page edges that turn (book and single modes). */
+let edges: HTMLButtonElement[] = [];
 
 const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 const bySlug = (slug: string) => pages.find((p) => p.slug === slug);
@@ -156,19 +182,59 @@ export function start(): void {
     pages[0]!;
 
   insertSectionHeads();
+  insertRunningHead();
   convertPager();
   history.scrollRestoration = "manual";
   history.replaceState({ slug: current.slug }, "", location.href);
 
-  mode = modeFor(innerWidth);
+  edges = [...stage.querySelectorAll<HTMLButtonElement>(":scope > .edge")];
+  mode = modeForViewport(innerWidth);
   applyModeClass();
   render();
+  // Until now the feed showed only the opened page (book.css); from here on
+  // the engine shows every page and keeps the opened one where it was.
+  root.classList.add("is-live");
   if (mode === "scroll") enterFeed();
 
+  watchFit(
+    stage,
+    pages.map((p) => p.el),
+    () => mode !== "scroll",
+  );
   observeReveals();
   linkCenterfolds(stage);
   bindInput();
+  watchFeedSizes();
+  // Sizes measured with fallback fonts are wrong: measure again once the web
+  // fonts are in.
+  if (document.fonts.status !== "loaded") {
+    void document.fonts.ready.then(() => {
+      clearMeasurements();
+      setMode(modeForViewport(innerWidth));
+    });
+  }
   emit("init");
+}
+
+/** Re-reserves feed heights when web fonts arrive or the feed's width changes. */
+function watchFeedSizes(): void {
+  let queued = false;
+  const queue = () => {
+    if (queued || mode !== "scroll") return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      reserveFeed();
+    });
+  };
+  if (document.fonts.status !== "loaded") void document.fonts.ready.then(queue);
+  document.fonts.addEventListener("loadingdone", queue);
+  let width = stage.clientWidth;
+  new ResizeObserver(() => {
+    if (stage.clientWidth === width) return;
+    width = stage.clientWidth;
+    queue();
+  }).observe(stage);
 }
 
 function emit(kind: NavKind): void {
@@ -202,7 +268,9 @@ function render(): void {
   }
   document.title = current.docTitle;
   updateTabs();
+  updateRunningHead();
   updatePager();
+  updateEdges();
   primeImages();
 }
 
@@ -220,11 +288,23 @@ function go(
   }
   render();
   if (kind === "scroll") return emit(kind);
-  if (mode === "scroll") scrollFeedTo(page, true);
-  else keepBookInView();
+  if (mode === "scroll") scrollFeedTo(page, "jump");
+  else toBookTop();
   announce(page);
   if (focus) focusHeading(page);
   emit(kind);
+}
+
+/**
+ * Book and single modes normally fit the window, but the page box never drops
+ * below the readable width, so in a short window it is taller than the
+ * window (which then scrolls down the spread). A new
+ * page always opens at its top: if the reader has scrolled down, go back to
+ * the top of the book at once, before any turn plays.
+ */
+function toBookTop(): void {
+  const top = Math.max(0, Math.round(root!.getBoundingClientRect().top + scrollY));
+  if (scrollY > top + 1) scrollTo({ top, behavior: "instant" });
 }
 
 function normalizeHere(): string {
@@ -241,14 +321,6 @@ function focusHeading(page: PageInfo): void {
   if (!heading) return;
   if (!heading.hasAttribute("tabindex")) heading.tabIndex = -1;
   heading.focus({ preventScroll: true });
-}
-
-/** After a turn or jump in book/single mode, bring the top of the book back into view. */
-function keepBookInView(): void {
-  const top = stage.getBoundingClientRect().top;
-  if (top < 0) {
-    scrollTo({ top: Math.max(0, top + scrollY - 12), behavior: "instant" });
-  }
 }
 
 function updateTabs(): void {
@@ -305,6 +377,38 @@ function updatePager(): void {
   }
 }
 
+/** An edge shows only when there is a page to turn to that way. */
+function updateEdges(): void {
+  for (const edge of edges) edge.hidden = !neighbour(edge.dataset.turn === "-1" ? -1 : 1);
+}
+
+/**
+ * A click on a page edge turns, like the pager. If a control on the page sits
+ * under the strip, the click goes to it instead.
+ */
+function onEdgeClick(e: MouseEvent): void {
+  const edge = e.currentTarget as HTMLButtonElement;
+  const control = e.detail > 0 ? controlUnder(e) : null;
+  if (control) control.click();
+  else turn(edge.dataset.turn === "-1" ? -1 : 1);
+}
+
+/** A link or control on a page under the edge strip at the pointer, if any. */
+function controlUnder(e: MouseEvent): HTMLElement | null {
+  const under = document
+    .elementsFromPoint(e.clientX, e.clientY)
+    .find((el) => !edges.includes(el as HTMLButtonElement) && stage.contains(el));
+  const control = under?.closest<HTMLElement>(
+    "a[href], button, input, select, textarea, label, summary",
+  );
+  return control && stage.contains(control) ? control : null;
+}
+
+/** Over a control under the strip, the edge drops its hint and acts as that control. */
+function onEdgeMove(e: PointerEvent): void {
+  (e.currentTarget as HTMLElement).classList.toggle("over-control", !!controlUnder(e));
+}
+
 /* ---------- book mode: the 3D leaf ---------- */
 
 function turnBook(dir: 1 | -1): void {
@@ -315,6 +419,7 @@ function turnBook(dir: 1 | -1): void {
   if (!from || !to) return;
   const target = (to.left ?? to.right)!;
   const finish = () => go(target, "turn");
+  toBookTop();
 
   // The leaf carries the turning page (front) and the page on its back (rear);
   // underneath, the spread shows what the turn will reveal.
@@ -364,6 +469,7 @@ function turnSingle(dir: 1 | -1): void {
   const target = pages[current.index + dir];
   if (!target) return;
   const finish = () => go(target, "turn");
+  toBookTop();
   if (reducedMotion()) return finish();
 
   // Forward: the current page lifts off to reveal the next one underneath.
@@ -452,9 +558,82 @@ function insertSectionHeads(): void {
   }
 }
 
+/**
+ * The running head: a small strip naming the section and folio of the page
+ * being read ("Our Favorite Things · page 6 A"). Shown only in the feed
+ * (book.css). Hidden from assistive tech: the live region announces turns
+ * and jumps, and reading position alone shouldn't be chatty.
+ */
+function insertRunningHead(): void {
+  const el = document.createElement("div");
+  el.className = "run-head";
+  el.setAttribute("aria-hidden", "true");
+  const section = document.createElement("span");
+  section.className = "rh-section";
+  const folio = document.createElement("span");
+  folio.className = "rh-folio";
+  el.append(section, folio);
+  root!.append(el);
+  runHead = { section, folio };
+}
+
+function updateRunningHead(): void {
+  if (!runHead) return;
+  runHead.section.textContent = current.sectionName;
+  runHead.folio.textContent = current.label
+    ? `${current.end > current.n ? "pages" : "page"} ${current.label}`
+    : "";
+}
+
+/** Feed pages on screen (display not none), in book order. */
+const feedPages = () => pages.filter((p) => p.el.getClientRects().length > 0);
+
+/**
+ * Reserves every feed page's real height, so pages that skip rendering
+ * (content-visibility: auto) take exactly the room they will need and nothing
+ * moves when they render.
+ *
+ * Feed pages have natural heights (at least the page aspect, often taller on
+ * a phone), which depend on the width and the fonts, so they are measured in
+ * the browser: every page renders once (`.feed-measure`), its height becomes
+ * its `contain-intrinsic-height` (`auto <px>`), and the pages stay rendered
+ * for one frame so the browser also remembers that size. Measuring is one
+ * layout of the book (tens of ms); it runs on entering the feed, when the
+ * feed width changes, and when web fonts finish loading. Any size change
+ * above the reader is absorbed by scroll anchoring.
+ */
+let reserveToken = 0;
+function reserveFeed(): void {
+  if (mode !== "scroll") return;
+  const token = ++reserveToken;
+  stage.classList.add("feed-measure");
+  const sizes = pages.map((p) => p.el.getBoundingClientRect().height);
+  pages.forEach((p, i) => {
+    if (sizes[i]! > 0) p.el.style.containIntrinsicHeight = `auto ${Math.round(sizes[i]!)}px`;
+  });
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() => {
+      if (token === reserveToken) stage.classList.remove("feed-measure");
+    }),
+  );
+}
+
+function clearReserved(): void {
+  reserveToken++;
+  stage.classList.remove("feed-measure");
+  for (const p of pages) p.el.style.removeProperty("contain-intrinsic-height");
+}
+
+/** The scroll position that puts a page at the top of the feed (below the running head). */
+function feedTop(page: PageInfo): number {
+  const margin = parseFloat(getComputedStyle(page.el).scrollMarginTop) || 0;
+  return Math.round(page.el.getBoundingClientRect().top + scrollY - margin);
+}
+
 function enterFeed(): void {
   feedObserver?.disconnect();
-  scrollFeedTo(current, false);
+  reserveFeed();
+  scrollFeedTo(current, "land");
   feedObserver = new IntersectionObserver(
     (entries) => {
       if (Date.now() < feedHoldUntil) return;
@@ -472,21 +651,87 @@ function enterFeed(): void {
 function leaveFeed(): void {
   feedObserver?.disconnect();
   feedObserver = null;
+  stepTarget = null;
+  clearReserved();
 }
 
-function scrollFeedTo(page: PageInfo, flash: boolean): void {
-  const smooth = flash && !reducedMotion();
+/** A jump within this many viewport heights scrolls smoothly; further ones are instant. */
+const SMOOTH_JUMP_SCREENS = 2;
+
+/**
+ * Brings a page to the top of the feed. "land" (opening the feed) is instant
+ * and unmarked. A jump scrolls smoothly when the page is near (within two
+ * screens) and jumps instantly when it is far, and the page it lands on
+ * flashes. Reduced motion: always instant.
+ */
+function scrollFeedTo(page: PageInfo, kind: "land" | "jump"): void {
+  const top = feedTop(page);
+  const near = Math.abs(top - scrollY) <= SMOOTH_JUMP_SCREENS * innerHeight;
+  const smooth = kind === "jump" && near && !reducedMotion();
+  stepTarget = null;
   feedHoldUntil = Date.now() + (smooth ? 1500 : 200);
-  const top = page.el.getBoundingClientRect().top + scrollY - 12;
   scrollTo({ top, behavior: smooth ? "smooth" : "instant" });
   if (smooth) {
     addEventListener("scrollend", () => (feedHoldUntil = Date.now() + 100), { once: true });
   }
-  if (flash) {
+  if (kind === "jump") {
     page.el.classList.remove("flash");
     void page.el.offsetWidth;
     page.el.classList.add("flash");
   }
+}
+
+/**
+ * Page keys in the feed: scroll to the next (or previous) page top. Page
+ * Down / Page Up and the left and right arrows always step whole pages, like
+ * turning one. Space / Shift+Space read on: within a page that runs well past
+ * the window they move a window at a time first (as the browser's own paging
+ * does), so nothing is skipped. Returns false when there is no page that way
+ * (the key then does what it natively does).
+ */
+function stepFeed(dir: 1 | -1, read: boolean): boolean {
+  const shown = feedPages();
+  if (!shown.length) return false;
+  const from = stepTarget ?? scrollY;
+  const tops = [...new Set(shown.map(feedTop))].toSorted((a, b) => a - b);
+  const target = dir > 0 ? tops.find((t) => t > from + 2) : tops.findLast((t) => t < from - 2);
+  if (target === undefined) return false;
+  const screen = innerHeight - (parseFloat(getComputedStyle(shown[0]!.el).scrollMarginTop) || 0);
+  // Within a page that runs well past the window, page through it first.
+  let to = target;
+  if (read && Math.abs(target - from) > screen * 1.1) to = from + dir * (screen - 48);
+  const max = document.documentElement.scrollHeight - innerHeight;
+  to = Math.max(0, Math.min(max, to));
+  if (Math.abs(to - scrollY) < 1) return false;
+  stepTarget = to;
+  scrollTo({ top: to, behavior: reducedMotion() ? "instant" : "smooth" });
+  if (reducedMotion()) stepTarget = null;
+  return true;
+}
+
+/** Keys that step the feed page by page: none of them while typing or in a dialog. */
+function feedStepKey(e: KeyboardEvent): 1 | -1 | 0 {
+  if (mode !== "scroll" || e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return 0;
+  const dir =
+    e.key === "PageDown" || e.key === "ArrowRight"
+      ? 1
+      : e.key === "PageUp" || e.key === "ArrowLeft"
+        ? -1
+        : e.key === " "
+          ? e.shiftKey
+            ? -1
+            : 1
+          : 0;
+  if (!dir || (e.shiftKey && e.key !== " ")) return 0;
+  const t = e.target instanceof Element ? e.target : null;
+  if (t?.closest("input, textarea, select, [contenteditable]:not([contenteditable='false'])")) {
+    return 0;
+  }
+  if (t?.closest("dialog, [role='dialog']") || document.querySelector("dialog[open]")) return 0;
+  // Space presses a focused button; arrows scroll a focused strip sideways.
+  if (e.key === " " && t?.closest("button, summary, [role='button'], [role='checkbox']")) return 0;
+  if (e.key.startsWith("Arrow") && t?.closest(".cf-scroll")) return 0;
+  return dir;
 }
 
 /* ---------- modes ---------- */
@@ -500,12 +745,14 @@ function applyModeClass(): void {
 function setMode(next: ReadingMode): void {
   if (next === mode) return;
   settle?.();
-  if (mode === "scroll") leaveFeed();
+  const wasFeed = mode === "scroll";
+  if (wasFeed) leaveFeed();
   mode = next;
   applyModeClass();
   render();
   if (mode === "scroll") enterFeed();
-  else keepBookInView();
+  // The book fits the window: leave the feed's scroll position behind.
+  else if (wasFeed) scrollTo({ top: 0, behavior: "instant" });
   document.dispatchEvent(new CustomEvent("wishbook:mode", { detail: { mode } }));
 }
 
@@ -534,13 +781,36 @@ function primeImages(): void {
 
 /* ---------- reveal ---------- */
 
-/** Pages get `.in` once, the first time they come into view (pops, pulses, marker draws). */
+/** Above this feed scroll speed (px/ms) a page flying past skips its reveal. */
+const FAST_SCROLL = 2;
+
+/**
+ * Pages get `.in` once, the first time they come into view (pops, pulses,
+ * marker draws: transform and opacity only, never layout). A page that comes
+ * into view while the feed is flying past (a fling, a smooth jump) gets
+ * `.quiet` too, which shows the end state without playing anything.
+ */
 function observeReveals(): void {
+  addEventListener(
+    "scroll",
+    () => {
+      const now = performance.now();
+      if (now - scrollAt < 200)
+        scrollSpeed = Math.abs(scrollY - lastScrollY) / (now - scrollAt || 1);
+      else scrollSpeed = 0;
+      scrollAt = now;
+      lastScrollY = scrollY;
+    },
+    { passive: true },
+  );
   const io = new IntersectionObserver(
     (entries) => {
+      const fast =
+        mode === "scroll" && performance.now() - scrollAt < 150 && scrollSpeed > FAST_SCROLL;
       for (const e of entries) {
         if (e.isIntersecting) {
           e.target.classList.add("in");
+          if (fast) e.target.classList.add("quiet");
           io.unobserve(e.target);
         }
       }
@@ -584,6 +854,14 @@ function bindInput(): void {
     go(page, "jump", { push: true });
   });
 
+  // The feed: explicit keys step page by page; wheel, touch, and the up and
+  // down arrows scroll natively.
+  addEventListener("keydown", (e) => {
+    const dir = feedStepKey(e);
+    if (dir && stepFeed(dir, e.key === " ")) e.preventDefault();
+  });
+  addEventListener("scrollend", () => (stepTarget = null));
+
   addEventListener("keydown", (e) => {
     if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
     if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
@@ -615,9 +893,14 @@ function bindInput(): void {
     if (Math.abs(dx) > SWIPE_PX && Math.abs(dx) > Math.abs(dy)) turn(dx < 0 ? 1 : -1);
   });
 
+  for (const edge of edges) {
+    edge.addEventListener("click", onEdgeClick);
+    edge.addEventListener("pointermove", onEdgeMove);
+  }
+
   let resizeTimer = 0;
   addEventListener("resize", () => {
     clearTimeout(resizeTimer);
-    resizeTimer = window.setTimeout(() => setMode(modeFor(innerWidth)), 150);
+    resizeTimer = window.setTimeout(() => setMode(modeForViewport(innerWidth)), 150);
   });
 }

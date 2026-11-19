@@ -34,13 +34,20 @@
   justify-content: space-between;
   align-items: center;
   gap: 2cqi;
-  margin-bottom: 2.5cqi;
+  margin-bottom: 1.5cqi;
 }
 .pagehead .display {
   color: var(--red);
   font-size: 7.4cqi;
   line-height: 1;
   margin: 0;
+}
+/* a picked-by sticker shares the head row: a smaller title keeps it one line */
+.pagehead.with-sticker .display {
+  font-size: 5.8cqi;
+}
+.pagehead-titles {
+  min-width: 0;
 }
 .friendly {
   font-family: var(--f-tru);
@@ -90,6 +97,73 @@
   font-size: 0.8em;
   background: #fff8ea;
 }
+/* ---------- duo pages ----------
+   A grid, holly, or under page with two items: one row per item, a big photo
+   (quote on it) beside its copy, alternating sides. The page body is a flex
+   column and the rows share whatever room the page box has left, so the
+   photos grow to fill the page instead of leaving it half empty. The rows'
+   own size (photos at their minimum) is what has to fit. */
+.copyblock {
+  display: contents;
+}
+.duo-page > .pg,
+.duo-page .under {
+  display: flex;
+  flex-direction: column;
+}
+.duo-page .under {
+  flex: 1 0 auto;
+}
+:is(.cards, .twoup, .ulist).duo {
+  flex: 1 0 auto;
+  grid-template-columns: 1fr;
+  grid-auto-rows: 1fr;
+  gap: 3.5cqi;
+}
+.duo > [data-item-id] {
+  display: grid;
+  grid-template-columns: 1.55fr 1fr;
+  gap: 0 3.5cqi;
+}
+.duo > [data-item-id]:nth-child(even) {
+  grid-template-columns: 1fr 1.55fr;
+}
+/* the quote card takes the photo's foot, so the big letter moves up */
+.duo .frame:has(.pq.on) .bigletter {
+  top: 0.5em;
+  bottom: auto;
+}
+.duo > [data-item-id]:nth-child(even) > .frame {
+  order: 2;
+}
+.duo > [data-item-id] > .frame {
+  aspect-ratio: auto;
+  min-height: 34cqi;
+  margin: 0;
+}
+.duo > [data-item-id] > .frame > img,
+.duo > [data-item-id] > .frame > picture > img,
+.duo > [data-item-id] > .frame > .gen {
+  position: absolute;
+  inset: 0;
+}
+.duo .copyblock {
+  display: block;
+  min-width: 0;
+  align-self: center;
+}
+.duo .friendly {
+  margin-top: 0;
+}
+
+/* Photo frames with a set shape: the photo is contained in the frame (never
+   cropped, never sizing it). */
+:is(.card, .twoup > *, .hollygrid > *, .ulist > *) > .frame > :is(img, .gen),
+:is(.card, .twoup > *, .hollygrid > *, .ulist > *) > .frame > picture > img {
+  position: absolute;
+  inset: 0;
+}
+
 /* a cross-reference in copy: reads as print, still a link */
 a.pref {
   color: inherit;
@@ -340,7 +414,7 @@ a.tel {
 }
 .welcome h2.display {
   color: var(--red);
-  font-size: 17cqi;
+  font-size: 12.5cqi;
   line-height: 0.95;
   margin: 0;
   text-shadow: 0.5cqi 0.5cqi 0 #e9ae3a;
@@ -349,38 +423,38 @@ a.tel {
   display: block;
   width: 100%;
   height: 5cqi;
-  margin: -1cqi 0 2cqi;
+  margin: -1cqi 0 1.5cqi;
 }
 .two {
   display: grid;
-  grid-template-columns: 1.15fr 1fr;
-  gap: 5cqi;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 4cqi;
 }
 .welcome h3 {
   color: var(--red);
-  font-size: 6.4cqi;
+  font-size: 5.2cqi;
   line-height: 1;
   margin: 0 0 1cqi;
 }
 .welcome p {
-  margin: 0.4em 0;
+  margin: 0.3em 0;
 }
 .free {
   color: var(--green);
   font-family: var(--f-tru);
   font-weight: 700;
-  font-size: 10cqi;
+  font-size: 7.5cqi;
   line-height: 0.85;
-  margin-top: 2cqi;
+  margin-top: 2.5cqi;
 }
 .shiplink {
   color: var(--red);
-  font-size: 6.4cqi;
+  font-size: 5.2cqi;
   line-height: 1;
 }
 .video {
   aspect-ratio: 16 / 9;
-  margin-top: 1.5cqi;
+  margin-top: 1cqi;
   --gen: #1d1d1d;
 }
 a.video {
@@ -390,10 +464,10 @@ a.video {
 }
 .howto {
   list-style: none;
-  margin: 1cqi 0 2cqi;
+  margin: 1cqi 0 1.5cqi;
   padding: 0;
   display: grid;
-  gap: 1.1em;
+  gap: 0.6em;
 }
 .howto li {
   display: grid;
@@ -433,10 +507,10 @@ a.video {
 .key {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6em 1.4em;
+  gap: 0.4em 1.2em;
   align-items: center;
-  margin-top: 3cqi;
-  padding: 1.6cqi 2.2cqi;
+  margin-top: 2cqi;
+  padding: 1.2cqi 2cqi;
   border: 2px dashed rgba(43, 33, 25, 0.45);
   background: rgba(255, 248, 234, 0.55);
   font-size: 0.82em;
@@ -473,19 +547,19 @@ a.video {
 .meet .sub {
   font-size: 3.6cqi;
   color: var(--green);
-  margin: 0.6cqi 0 3cqi;
+  margin: 0.6cqi 0 2.5cqi;
 }
 .hosts {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 3cqi 3cqi;
+  gap: 2.5cqi 3cqi;
 }
 .host {
   text-align: center;
   min-width: 0;
 }
 .host .ph {
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 4 / 3;
   border: 0.9cqi solid var(--red);
   outline: 0.4cqi solid var(--green);
   outline-offset: -0.1cqi;
@@ -516,7 +590,7 @@ a.video {
   text-decoration: none;
 }
 .toc {
-  margin-top: 3.5cqi;
+  margin-top: 3cqi;
   column-count: 2;
   column-gap: 5cqi;
   font-size: 0.92em;
@@ -612,14 +686,17 @@ a.video {
 .cards {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 3cqi 4cqi;
+  gap: 2cqi 4cqi;
 }
 .cards > * {
   min-width: 0;
 }
 .card .frame {
-  aspect-ratio: 4 / 3;
-  margin-bottom: 0.7em;
+  aspect-ratio: 16 / 10;
+  margin-bottom: 0.4em;
+}
+.card .pq.below {
+  font-size: 0.85em;
 }
 .card .item {
   font-size: 0.95em;
@@ -652,7 +729,7 @@ a.video {
 .pagekicker {
   color: var(--green);
   font-size: 3.6cqi;
-  margin: -1.5cqi 0 2.5cqi;
+  margin: 0.8cqi 0 0;
 }
 
 /* ---------- 6. FULL-PAGE FEATURE ----------
@@ -665,7 +742,10 @@ a.video {
 }
 .stage {
   position: relative;
-  height: 96cqi;
+  /* at least 54% of the page width, growing into whatever room the copy
+     leaves in the page box */
+  flex: 1 0 54cqi;
+  min-height: 54cqi;
   overflow: hidden;
   display: grid;
   place-items: center;
@@ -736,20 +816,24 @@ a.video {
 .hero-shot {
   position: relative;
   z-index: 2;
-  max-height: 74cqi;
-  max-width: 66%;
+  max-height: 50cqi;
+  max-width: 46%;
   object-fit: contain;
-  filter: sepia(0.12) saturate(1.12) contrast(1.06) drop-shadow(0 4cqi 3cqi rgba(0, 0, 0, 0.45)) !important;
-  margin-top: -6cqi;
+  filter: sepia(0.12) saturate(1.12) contrast(1.06) drop-shadow(0 3cqi 2.5cqi rgba(0, 0, 0, 0.45)) !important;
+  margin-top: -1cqi;
+  /* left of centre, clear of the price numerals */
+  translate: -9cqi 0;
 }
 .hero-shot.gen {
-  width: 56%;
+  width: auto;
+  height: 46cqi;
   aspect-ratio: 1;
 }
 .hero-shot.blend {
   filter: sepia(0.22) saturate(1.05) contrast(1.06) brightness(0.98) !important;
-  max-height: 66cqi;
-  margin-top: -14cqi;
+  max-height: 56cqi;
+  max-width: 60%;
+  margin-top: -3cqi;
   -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 58%, transparent 74%);
   mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 58%, transparent 74%);
 }
@@ -765,7 +849,7 @@ a.video {
   bottom: 4cqi;
   z-index: 3;
   margin: 0;
-  width: 30cqi;
+  width: 26cqi;
   transform: rotate(-2deg);
 }
 .inset-shot .shot {
@@ -802,13 +886,13 @@ a.video {
   font-family: var(--f-display);
   font-style: italic;
   font-weight: 700;
-  font-size: 6cqi;
+  font-size: 5cqi;
   margin-right: 0.3em;
   padding-bottom: 1.2cqi;
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.35);
 }
 .stage-price .bignum {
-  font-size: 22cqi;
+  font-size: 16cqi;
   line-height: 0.85;
   color: #fff;
 }
@@ -823,7 +907,7 @@ a.video {
   font-family: var(--f-display);
   font-style: italic;
   font-weight: 700;
-  font-size: 4cqi;
+  font-size: 3.4cqi;
   margin-top: -0.2em;
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.35);
 }
@@ -851,9 +935,9 @@ a.video {
 }
 .feat-copy {
   display: grid;
-  grid-template-columns: 1.45fr 1fr;
-  gap: 5cqi;
-  padding: 4.5cqi 5.5cqi 0;
+  grid-template-columns: 1.7fr 1fr;
+  gap: 4cqi;
+  padding: 3.5cqi 5.5cqi 0;
   position: relative;
 }
 .feat-copy > * {
@@ -867,12 +951,13 @@ a.video {
   font-family: var(--f-itemname);
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.35em;
-  font-size: 3.4cqi;
+  letter-spacing: 0.25em;
+  font-size: 2.8cqi;
+  white-space: nowrap;
   color: var(--green);
 }
 .feat-head {
-  font-size: 6.8cqi;
+  font-size: 6cqi;
   line-height: 1;
   margin: 0.6cqi 0 2cqi;
   color: var(--ink);
@@ -916,7 +1001,7 @@ a.video {
   min-width: 0;
 }
 .twoup .frame {
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 4 / 3;
 }
 .twoup p {
   margin: 0.3em 0;
@@ -931,7 +1016,7 @@ a.video {
   min-width: 0;
 }
 .hollygrid .frame {
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 10;
 }
 .hollygrid .friendly {
   font-size: 3.6cqi;
@@ -943,7 +1028,7 @@ a.video {
 .hollyart {
   margin-top: 3cqi;
   border: 3px solid var(--red);
-  aspect-ratio: 3 / 1;
+  aspect-ratio: 4 / 1;
   overflow: hidden;
   position: relative;
   --gen: #8a5a3a;
@@ -972,10 +1057,12 @@ a.video {
   font-family: var(--f-tru);
   font-weight: 700;
   color: var(--red);
-  font-size: 9.5cqi;
+  /* a longer name sets smaller, so it stays one line in the column */
+  font-size: min(9.5cqi, calc(47.5cqi / var(--who-chars, 5)));
   line-height: 1.05;
   letter-spacing: 0.01em;
   text-transform: uppercase;
+  white-space: nowrap;
   margin: 0;
 }
 .brandcol .tag {
@@ -983,16 +1070,25 @@ a.video {
   line-height: 1.1;
   margin: 1.5cqi 0 3cqi;
 }
+/* the photos fill the room left in the page box, so the page fits by
+   construction; the images take the frames' size instead of setting it */
 .brandcol .photos {
   display: grid;
   grid-template-rows: 1.35fr 1fr;
   gap: 2.5cqi;
+  box-sizing: border-box;
+  height: var(--room);
   padding-bottom: 4cqi;
 }
 .brandcol .photos .frame {
   border: 0.7cqi solid var(--green);
-  height: 100%;
-  min-height: 24cqi;
+  min-height: 0;
+}
+.brandcol .photos .frame > img,
+.brandcol .photos .frame > picture > img,
+.brandcol .photos .frame > .gen {
+  position: absolute;
+  inset: 0;
 }
 .brandcol .sticker {
   position: static;
@@ -1173,7 +1269,7 @@ a.video {
   gap: 3cqi 5cqi;
 }
 .watches.n4 .w {
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 16 / 9;
 }
 /* extra photos under a single product */
 .gallery {
@@ -1184,7 +1280,7 @@ a.video {
   position: relative;
 }
 .gallery .w {
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 4 / 3;
   background: radial-gradient(circle, #fbe9d7 0%, var(--peach) 72%);
   display: grid;
   place-items: center;
@@ -1202,7 +1298,7 @@ a.video {
   align-items: center;
 }
 .watches .w {
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 4 / 3;
   background: radial-gradient(circle, #fbe9d7 0%, var(--peach) 72%);
   display: grid;
   place-items: center;
@@ -1235,14 +1331,14 @@ a.video {
   justify-content: center;
   align-items: center;
   gap: 3cqi;
-  margin: 4cqi 0 2cqi;
+  margin: 2.5cqi 0 1.5cqi;
   position: relative;
 }
 .brandword {
   font-family: var(--f-kicker);
   font-weight: 700;
   color: #1d4fb6;
-  font-size: 16cqi;
+  font-size: 13cqi;
   line-height: 1;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -1338,7 +1434,7 @@ a.video {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 4cqi;
-  margin-top: 4cqi;
+  margin-top: 3cqi;
 }
 .faceoff .bubble {
   margin: 0;
@@ -1413,7 +1509,7 @@ a.video {
   min-width: 0;
 }
 .ulist .frame {
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 10;
 }
 .ulist .friendly {
   font-size: 4cqi;
@@ -1421,16 +1517,43 @@ a.video {
 .ulist p {
   margin: 0.3em 0;
 }
+/* a full under page: wider photos, quotes a touch smaller */
+.ulist:not(.duo) .frame {
+  aspect-ratio: 2 / 1;
+  margin-bottom: 0;
+}
+.ulist:not(.duo) .pq.below {
+  font-size: 0.85em;
+}
+.ulist:not(.duo) {
+  gap: 2.5cqi 3cqi;
+}
+/* the order line sits at the foot of the page, beside the folio */
 .tollfree {
-  text-align: center;
-  margin-top: 2cqi;
+  position: absolute;
+  z-index: 6;
+  left: 15cqi;
+  right: 3cqi;
+  bottom: 1.6cqi;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8cqi;
+  white-space: nowrap;
+}
+.right .tollfree {
+  left: 3cqi;
+  right: 15cqi;
+}
+.underpage.has-line > .pg {
+  padding-bottom: 14cqi;
 }
 .tollfree .a {
   font-family: var(--f-kicker);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  font-size: 4cqi;
+  font-size: 3.6cqi;
   border-bottom: 2px solid currentColor;
   display: inline-block;
 }
@@ -1441,9 +1564,8 @@ a.video {
   letter-spacing: 0.06em;
 }
 .tollfree .mono-order {
-  font-size: 3.6cqi;
+  font-size: 3.2cqi;
   letter-spacing: 0;
-  margin-top: 0.6cqi;
 }
 .tollfree .mono-order .mono {
   background: #1d1d1d;
@@ -1458,26 +1580,31 @@ a.video {
 .trupage {
   background: #f6ecd4;
 }
+/* room for the folio; a green band at the foot needs a little more */
 .trupage .pg {
-  padding-bottom: 16cqi;
+  padding-bottom: 9cqi;
 }
+.trupage.banded .pg {
+  padding-bottom: 12cqi;
+}
+/* kicker and red tab on one line */
 .truhead {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: 2cqi;
-  margin-bottom: 3cqi;
+  margin-bottom: 2cqi;
+  white-space: nowrap;
 }
 .truhead .k {
   color: var(--green);
-  font-size: 4.6cqi;
+  font-size: 3.8cqi;
 }
 .truhead .tab {
   background: var(--red);
   color: #fff;
   font-family: var(--f-tru);
   font-weight: 700;
-  font-size: 7cqi;
+  font-size: 5.8cqi;
   padding: 0.1em 0.5em;
   line-height: 1.15;
   margin: 0;
@@ -1488,7 +1615,7 @@ a.video {
 }
 .truitem img,
 .truitem > .gen {
-  height: 24cqi;
+  height: 17cqi;
   width: 100%;
   object-fit: contain;
   margin-bottom: 1cqi;
@@ -1535,7 +1662,7 @@ a.video {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 4cqi;
-  margin-bottom: 3cqi;
+  margin-bottom: 4.5cqi;
 }
 .tru-grid {
   display: grid;
@@ -1544,7 +1671,7 @@ a.video {
 }
 .tru-grid .truitem img,
 .tru-grid .truitem > .gen {
-  height: 18cqi;
+  height: 19cqi;
 }
 .tru-grid .truitem .name {
   font-size: 3.6cqi;
@@ -1554,7 +1681,7 @@ a.video {
 }
 .habox {
   border: 0.6cqi solid var(--green);
-  padding: 3cqi;
+  padding: 2.5cqi 3cqi;
   position: relative;
 }
 .habox h3 {
@@ -1574,7 +1701,7 @@ a.video {
 }
 .habox .truitem img,
 .habox .truitem > .gen {
-  height: 17cqi;
+  height: 14cqi;
 }
 .habox .truitem .name {
   font-size: 3.3cqi;
@@ -1728,12 +1855,13 @@ a.video {
   opacity: 1;
   visibility: visible;
 }
+/* only as tall as its list, and narrow enough to stay clear of the hotspots */
 .cf-legend {
   position: absolute;
   top: 4%;
   right: 3%;
-  bottom: 9%;
-  width: min(330px, 30%);
+  max-height: 87%;
+  width: min(300px, 27%);
   z-index: 4;
   background: rgba(241, 226, 196, 0.95);
   border: 3px solid var(--red);
@@ -1837,7 +1965,6 @@ a.video {
 @media (max-width: 760px) {
   .cf-scroll {
     overflow-x: auto;
-    scroll-snap-type: x proximity;
     -webkit-overflow-scrolling: touch;
   }
   .cf-art {
@@ -1975,8 +2102,16 @@ a.video {
   background: none;
   color: #b8862b;
 }
-.lux .links {
+.lux .links,
+.lux .links.has-wish {
   justify-content: center;
+}
+.lux .links .wish-slot {
+  margin-left: 0;
+}
+.lux .wish-toggle {
+  color: #e9dcc2;
+  border-color: rgba(233, 220, 194, 0.6);
 }
 .lux .links a,
 .lux .links .tba {
@@ -1999,11 +2134,21 @@ a.video {
   margin: 0.05em 0;
   break-inside: avoid;
 }
+/* the index has a page to itself: book-size type */
+.indexpage h2.display {
+  font-size: 10cqi;
+  margin-bottom: 3cqi;
+}
+.indexpage .ix {
+  font-size: 1em;
+  line-height: 1.5;
+  column-gap: 6cqi;
+}
 .form {
   margin-top: 3cqi;
   border: 2px solid var(--ink);
   background: #fff;
-  font-size: 0.9em;
+  font-size: 0.95em;
   position: relative;
 }
 .form .row {
@@ -2011,7 +2156,25 @@ a.video {
   grid-template-columns: 8.6em 1fr 3em 5.5em;
   white-space: nowrap;
   border-top: 1px solid var(--ink);
-  min-height: 1.9em;
+  min-height: 2.3em;
+  align-items: center;
+}
+/* the order form's page: the mail-to box and the disclosure sit at its foot */
+.orderpage:not(.indexpage) > .pg {
+  display: flex;
+  flex-direction: column;
+}
+/* "TO: SANTA CLAUS", handwritten in a dashed box, as on the printed form */
+.santa {
+  width: fit-content;
+  margin: auto 6cqi 2cqi auto;
+  padding: 0.6em 1.4em;
+  border: 2px dashed rgba(43, 33, 25, 0.6);
+  font-family: var(--f-hand);
+  font-size: 1.5em;
+  line-height: 1.5;
+  color: var(--red);
+  transform: rotate(-3deg);
 }
 .form .row > * {
   padding: 0.35em 0.5em;
@@ -2208,7 +2371,7 @@ a.video {
   font-family: var(--f-tru);
   font-weight: 700;
   color: var(--red);
-  font-size: 7.4cqi;
+  font-size: 6cqi;
   line-height: 1.05;
   margin: 0 0 2cqi;
 }
@@ -2341,6 +2504,24 @@ a.video {
   .brandcol.mirror .photos {
     padding-left: 0;
   }
+  .brandcol .photos {
+    height: auto;
+  }
+  .duo > [data-item-id],
+  .duo > [data-item-id]:nth-child(even) {
+    grid-template-columns: 1fr;
+  }
+  .duo > [data-item-id]:nth-child(even) > .frame {
+    order: 0;
+  }
+  .duo > [data-item-id] > .frame {
+    aspect-ratio: 4 / 3;
+    min-height: 0;
+    margin-bottom: 0.6em;
+  }
+  .brandcol .photos .frame {
+    aspect-ratio: 4 / 3;
+  }
   .lineup .pg {
     grid-template-columns: 1fr;
   }
@@ -2404,7 +2585,9 @@ a.video {
   }
   .hero-shot {
     max-height: 300px;
+    max-width: 66%;
     margin-top: -60px;
+    translate: none;
   }
   .form .row {
     grid-template-columns: 6.6em 1fr 2.4em 4.6em;

@@ -160,7 +160,9 @@ test("lists are kept per edition", async ({ page }) => {
   await page.goto("/2026/favorites/wes/");
   await page.locator('.book-pages > [data-slug="wes"] [data-wish-toggle]').first().click();
   const keys = await page.evaluate(() => Object.keys(localStorage));
-  expect(keys).toEqual([KEY]);
+  expect(keys.filter((k) => k.endsWith(":wishlist"))).toEqual([KEY]);
+  // everything stored is scoped to the edition
+  expect(keys.every((k) => k.startsWith("wishbook:2026:"))).toBe(true);
 });
 
 for (const width of [1360, 390]) {

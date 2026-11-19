@@ -1,9 +1,10 @@
 /* =========================================================
    The book shell: pages, reading modes, tabs, prev/next.
-   <html> gets a mode class before first paint (inline head script):
-     .m-book    ≥ 1000px  the current spread, side by side
-     .m-single  ≥ 640px   the current page
-     .m-scroll  < 640px   the current page (the engine adds the feed)
+   <html> gets a mode class before first paint (inline head script; the
+   choice is by width and readable page size, see src/lib/modes.ts):
+     .m-book    the current spread, side by side (two readable pages fit)
+     .m-single  the current page (one readable page fits)
+     .m-scroll  the current page (the engine adds the feed); always < 640px
    Without JavaScript there is no mode class: the current page shows alone,
    and every tab, folio, cross-reference, and prev/next is a real link.
    ========================================================= */
@@ -58,13 +59,110 @@
 .book-pages > .is-shown {
   content-visibility: visible;
 }
+/* The engine renders every feed page once to reserve its real height (the
+   pages then get `contain-intrinsic-height: auto <px>`; see reserveFeed). */
+.book-pages.feed-measure > :is(.page, .cf-page) {
+  content-visibility: visible;
+}
+/* The readable-width measuring host (src/scripts/readable.ts): every page in
+   the fixed box at one layout width, content at its natural height; laid out
+   and removed in one task, so it never paints. */
+.readable-measure {
+  position: fixed;
+  top: 0;
+  left: -20000px;
+  visibility: hidden;
+  pointer-events: none;
+  contain: layout style;
+}
+.readable-measure > .page {
+  display: flex;
+  width: 100%;
+  height: var(--measure-h);
+  min-height: 0;
+  zoom: 1;
+  content-visibility: visible;
+}
+.readable-measure > .page > .pg {
+  flex: none;
+}
+/* ---------- the fixed page box (book and single modes) ----------
+   Every page of the book is the same box, --pw × --ph at the catalog's page
+   aspect. Its width fits the spread (or the page) to the window height, but
+   never drops below --readable-w (the narrowest page whose body copy is
+   readable, set by src/scripts/readable.ts) and never exceeds the room beside
+   the side controls or 780px. In a window too short for a readable page the
+   box is taller than the window: the book grows and the window scrolls down
+   the spread (every spread the same height); the arrows and tabs stay put.
+   Content never changes the box: a page whose content is still taller than
+   its box is scaled down to fit (the engine sets --fit and .is-fit).
+
+   The side controls: prev sits in the left gutter; the thumb-index tabs hang
+   off the book's right edge with next beside them. The gutters are tight (a
+   44px arrow, 4px from the book or the tabs, 2px from the window edge) and
+   not mirrored: the left one has no room for tabs, so the book sits a little
+   left of centre, its tabs sticking out on the right like a real catalog's.
+   50 + 90 = 140px in all, plus 16px above and below. Keep the numbers in
+   step with SIDE_GUTTERS_X and PAGE_MAX in src/lib/modes.ts. */
+.m-book .book,
+.m-single .book {
+  --page-aspect: 1.303;
+  --ph: calc(var(--pw) * var(--page-aspect));
+  /* the page width that fits the window height, floored at the readable width */
+  --pw-fit: max(calc((100dvh - 32px) / var(--page-aspect)), var(--readable-w, 0px));
+  --gl: 50px;
+  --gr: 90px;
+  /* the book's centre line */
+  --cx: calc(var(--gl) + (100vw - var(--gl) - var(--gr)) / 2);
+  min-height: 100dvh;
+  padding: 16px var(--gr) 16px var(--gl);
+  display: grid;
+  place-items: center;
+}
+.m-book .book {
+  --pw: max(240px, min(780px, calc((100vw - 140px) / 2), var(--pw-fit)));
+  /* the width of what is shown */
+  --sw: calc(var(--pw) * 2);
+}
+.m-single .book {
+  --pw: max(240px, min(780px, calc(100vw - 140px), var(--pw-fit)));
+  /* the centerfold keeps its width and shares the page height */
+  --cfw: min(calc(var(--pw) * 2), calc(100vw - 140px));
+  --sw: var(--pw);
+}
+.m-single .book:has(.cf-page.is-current) {
+  --sw: var(--cfw);
+}
+
+/* A box narrower than the page design's minimum lays its page out at --dw and
+   zooms it down to the box (set by the engine; see src/scripts/fit.ts). */
+:is(.m-book, .m-single) .book-pages > .page {
+  width: var(--dw, auto);
+  zoom: var(--pz, 1);
+}
+
+/* Fit: content taller than its box shrinks uniformly from the top centre. */
+:is(.m-book, .m-single) .book-pages > .page.is-fit > .pg,
+:is(.m-book, .m-single) .book-pages > .cf-page.is-fit > .cf {
+  transform: scale(var(--fit, 1));
+  transform-origin: top center;
+  /* the layout box stays full height: pull it back inside the page */
+  margin-bottom: calc(-1 * var(--fit-over, 0px));
+  /* Keep the natural height. A growing flex item would fill the room the
+     negative margin frees, measure taller, and refit forever. */
+  flex: none;
+}
+
 /* Book mode: the current spread side by side, even page left. A page alone in
    its spread keeps its side, like a real book: the cover on the right, the
    back cover on the left. Every shown page shares one row, so a turning leaf
    lies over the spread underneath it. */
 .m-book .book-pages {
-  max-width: 1240px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: none;
+  width: calc(var(--pw) * 2);
+  height: var(--ph);
+  grid-template-columns: repeat(2, var(--pw));
+  grid-template-rows: var(--ph);
   gap: 0;
   perspective: 2600px;
 }
@@ -72,7 +170,8 @@
 .m-book .book-pages > .page.leaf {
   display: flex;
   grid-row: 1;
-  min-height: calc(50cqi * 1.303);
+  height: calc(var(--dw, var(--pw)) * var(--page-aspect));
+  min-height: 0;
 }
 .m-book .book-pages > .left {
   grid-column: 1;
@@ -85,6 +184,16 @@
   grid-row: 1;
   grid-column: 1 / -1;
   width: 100%;
+  height: var(--ph);
+}
+/* The centerfold fills the spread: its art covers the box around its focal point. */
+.m-book .book-pages > .cf-page > .cf,
+.m-book .book-pages > .cf-page .cf-scroll {
+  height: 100%;
+}
+.m-book .book-pages > .cf-page .cf-art {
+  aspect-ratio: auto;
+  height: 100%;
 }
 
 /* The turning leaf: the page being turned (front) and the page on its back
@@ -122,6 +231,10 @@
 
 /* Single mode: one page; on a turn the old page lifts away over the new one. */
 .m-single .book-pages {
+  max-width: none;
+  width: var(--pw);
+  height: var(--ph);
+  grid-template-rows: var(--ph);
   perspective: 2200px;
 }
 .m-single .book-pages > .is-current,
@@ -129,16 +242,61 @@
 .m-single .book-pages > .lift {
   grid-area: 1 / 1;
 }
-.m-single .book-pages > .page.under,
-.m-single .book-pages > .page.lift {
+.m-single .book-pages > .page:is(.is-current, .under, .lift) {
   display: flex;
-  min-height: calc(min(100cqi, 620px) * 1.303);
+  height: calc(var(--dw, var(--pw)) * var(--page-aspect));
+  min-height: 0;
 }
-.m-single .book-pages > .cf-page.under,
-.m-single .book-pages > .cf-page.lift {
-  display: block;
-  width: min(1240px, calc(100vw - 28px));
+/* The centerfold keeps its own width, centred on the page, in a box of page
+   height; its art sits in the middle at its natural aspect. */
+.m-single .book-pages > .cf-page:is(.is-current, .under, .lift) {
+  display: flex;
+  flex-direction: column;
+  width: var(--cfw);
+  height: var(--ph);
   justify-self: center;
+}
+/* The centerfold fills that box: the legend runs below the art in two
+   columns, and the art takes the rest at its own aspect (contained in the
+   room, letterboxed on ink), so the whole spread always fits. */
+.m-single .book-pages > .cf-page > .cf {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.m-single .book-pages > .cf-page .cf-scroll {
+  flex: 1 1 0;
+  min-height: 0;
+  container-type: size;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--ink);
+}
+.m-single .book-pages > .cf-page .cf-art {
+  aspect-ratio: auto;
+  width: min(100cqw, 150cqh);
+  height: min(100cqh, calc(100cqw / 1.5));
+}
+.m-single .book-pages > .cf-page .cf-legend {
+  position: static;
+  width: auto;
+  max-height: none;
+  overflow: visible;
+  border-width: 3px 0 0;
+  box-shadow: none;
+  padding: 10px 16px 38px;
+}
+.m-single .book-pages > .cf-page .cf-legend h3 {
+  font-size: 22px;
+}
+.m-single .book-pages > .cf-page .cf-legend ol {
+  columns: 2;
+  column-gap: 28px;
+}
+.m-single .book-pages > .cf-page .cf-legend li {
+  break-inside: avoid;
 }
 .lift {
   position: relative;
@@ -171,9 +329,21 @@
 }
 
 /* Scroll mode: every page in one vertical feed, with a small head before each
-   section. The pager gives way to scrolling. */
+   section and a running head on top. The pager gives way to scrolling. The
+   feed scrolls freely (no snapping); a gutter and the page shadow mark where
+   one page ends and the next begins. */
 .sec-h {
   display: none;
+}
+.m-scroll .book {
+  /* clears the running head; a page brought to the top lands at the same spot */
+  padding-top: 36px;
+}
+/* The gutter is wider than the landing margin, so a page brought to the top
+   is the first thing on screen (the browser's scroll anchor), not the foot of
+   the page before it. */
+.m-scroll .book-pages {
+  gap: 40px;
 }
 .m-scroll .book-pages > .page {
   display: flex;
@@ -183,6 +353,66 @@
   display: block;
   width: min(1240px, calc(100vw - 28px));
   justify-self: center;
+}
+.m-scroll .book-pages > :is(.page, .cf-page) {
+  scroll-margin-top: 36px;
+}
+.m-scroll .book-pages > .page {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 12px 30px rgba(0, 0, 0, 0.45);
+}
+/* Until the engine takes over, the feed shows only the opened page, at the
+   spot the engine then keeps it: the deep link lands once, without a jump. */
+.m-scroll .book:not(.is-live) .book-pages > :not(.is-current) {
+  display: none;
+}
+/* The running head: section and folio of the page being read. */
+.run-head {
+  display: none;
+}
+.m-scroll .run-head {
+  position: fixed;
+  z-index: 34;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5em;
+  height: 28px;
+  padding: 0 14px;
+  background: rgba(17, 17, 17, 0.9);
+  border-bottom: 1px solid #3a322a;
+  color: #f3e3b0;
+  font-family: var(--f-kicker);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 11px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.run-head .rh-section {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.run-head .rh-folio {
+  flex: none;
+  font-family: var(--f-mono);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #bbb;
+}
+.run-head .rh-section:not(:empty) + .rh-folio:not(:empty)::before {
+  content: "·";
+  margin-right: 0.5em;
+}
+.run-head:has(> :empty + :empty) {
+  visibility: hidden;
 }
 .m-scroll .book-pages > .sec-h {
   display: block;
@@ -199,16 +429,61 @@
 .m-scroll .pager {
   display: none;
 }
-/* A jump in the feed flashes the page it lands on. */
+/* Wider than a phone (a window too narrow for one readable page beside the
+   side controls): one column of pages at a readable size, with the section
+   tabs as a sticky rail on the left that marks the section and carries the
+   folio at its foot. */
+@media (min-width: 640px) {
+  .m-scroll {
+    --rail: 136px;
+  }
+  .m-scroll .book {
+    padding: 28px 28px 80px calc(var(--rail) + 28px);
+  }
+  .m-scroll .book-pages {
+    max-width: min(700px, calc(100vw - var(--rail) - 56px));
+  }
+  .m-scroll .book-pages > .page {
+    min-height: calc(100cqi * 1.303);
+  }
+  .m-scroll .book-pages > .cf-page {
+    width: min(1400px, calc(100vw - var(--rail) - 56px));
+  }
+  /* a page brought to the top lands where the first page sits (the gutters
+     stay wider than this, so it is the first thing on screen) */
+  .m-scroll .book-pages > :is(.page, .cf-page) {
+    scroll-margin-top: 28px;
+  }
+  /* the running head: just the folio, at the foot of the rail (the rail's
+     lit tab names the section) */
+  .m-scroll .run-head {
+    z-index: 36;
+    top: auto;
+    bottom: 56px;
+    right: auto;
+    width: var(--rail);
+    height: auto;
+    padding: 0 12px;
+    background: none;
+    border: 0;
+  }
+  .m-scroll .run-head .rh-section {
+    display: none;
+  }
+  .m-scroll .run-head .rh-folio {
+    font-size: 12px;
+  }
+  .m-scroll .run-head > .rh-section + .rh-folio:not(:empty)::before {
+    content: none;
+  }
+}
+/* A jump in the feed flashes the page it lands on (back to its own shadow). */
 .flash {
   animation: flash 1.2s ease-out;
 }
 @keyframes flash {
   0% {
     box-shadow: 0 0 0 6px var(--syntax);
-  }
-  100% {
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
   }
 }
 
@@ -264,9 +539,149 @@
   font-size: 12px;
   color: #bbb;
 }
+/* Book and single modes: round arrows beside the book, fixed at mid-window
+   (they stay put while a tall spread scrolls). */
+:is(.m-book, .m-single) .pager {
+  position: fixed;
+  inset: 0;
+  margin: 0;
+  display: block;
+  pointer-events: none;
+}
+:is(.m-book, .m-single) .pager .where {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+:is(.m-book, .m-single) .pager > :is(.prev, .next) {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0;
+  pointer-events: auto;
+  background: rgba(29, 29, 29, 0.85);
+}
+:is(.m-book, .m-single) .pager > :is(.prev, .next) > span {
+  font-size: 20px;
+}
+:is(.m-book, .m-single) .pager > .prev {
+  left: calc(var(--cx) - var(--sw) / 2 - 48px);
+}
+/* beyond the 40px tabs */
+:is(.m-book, .m-single) .pager > .next {
+  left: calc(var(--cx) + var(--sw) / 2 + 44px);
+}
+
+/* ---------- page edges ----------
+   In book and single modes the outer edge of the spread turns the page: the
+   right edge forward, the left edge back. A strip along the edge, full page
+   height; on hover the corner lifts a little, like a page about to turn. */
+.edge {
+  display: none;
+}
+:is(.m-book, .m-single) .book-pages {
+  position: relative;
+}
+:is(.m-book, .m-single) .edge:not([hidden]) {
+  display: block;
+  position: absolute;
+  z-index: 30;
+  top: 0;
+  bottom: 0;
+  width: max(32px, calc(var(--pw) * 0.05));
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.edge-prev {
+  left: 0;
+}
+.edge-next {
+  right: 0;
+}
+/* single mode: the centerfold is wider than a page, so its edges sit further out */
+.m-single .book-pages:has(> .cf-page.is-current) > .edge-prev {
+  left: calc((var(--pw) - var(--cfw)) / 2);
+}
+.m-single .book-pages:has(> .cf-page.is-current) > .edge-next {
+  right: calc((var(--pw) - var(--cfw)) / 2);
+}
+/* the hint: a soft shadow along the edge and a lifted corner */
+.edge::before,
+.edge::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity 0.2s,
+    width 0.2s,
+    height 0.2s;
+}
+.edge::before {
+  inset: 0;
+}
+.edge-next::before {
+  background: linear-gradient(270deg, rgba(43, 33, 25, 0.16), transparent);
+}
+.edge-prev::before {
+  background: linear-gradient(90deg, rgba(43, 33, 25, 0.16), transparent);
+}
+.edge::after {
+  bottom: 0;
+  width: 0;
+  height: 0;
+}
+.edge-next::after {
+  right: 0;
+  background: linear-gradient(to top left, #2a2622 50%, #e6d2ac 50%, #f4e7cc 78%, #d9c29a);
+  box-shadow: -3px -3px 6px rgba(0, 0, 0, 0.22);
+}
+.edge-prev::after {
+  left: 0;
+  background: linear-gradient(to top right, #2a2622 50%, #e6d2ac 50%, #f4e7cc 78%, #d9c29a);
+  box-shadow: 3px -3px 6px rgba(0, 0, 0, 0.22);
+}
+.edge:hover:not(.over-control)::before,
+.edge:hover:not(.over-control)::after {
+  opacity: 1;
+}
+.edge:hover:not(.over-control)::after {
+  width: 44px;
+  height: 44px;
+}
+@media (hover: none) {
+  .edge::before,
+  .edge::after {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .edge::before,
+  .edge::after {
+    transition: none;
+  }
+}
+@media print {
+  .edge {
+    display: none !important;
+  }
+}
 
 /* ---------- section tabs (thumb index) ----------
-   A bottom bar by default; on the book's edge in book mode. */
+   A bottom bar by default (phones, and without JavaScript); on the book's
+   edge in book and single modes; a rail beside the wider feed. */
 .tabs {
   position: fixed;
   z-index: 35;
@@ -305,26 +720,65 @@
   outline: 2px solid var(--syntax);
   outline-offset: 2px;
 }
-.m-book .tabs {
-  left: auto;
-  right: 0;
+/* Book and single modes: hanging off the book's right edge, the height of the
+   page (at most the window's, so they never scroll away with a tall spread). */
+:is(.m-book, .m-single) .tabs {
+  --tabh: min(var(--ph), calc(100dvh - 32px));
+  left: calc(var(--cx) + var(--sw) / 2);
+  right: auto;
+  top: calc(50% - var(--tabh) / 2);
   bottom: auto;
-  top: 50%;
-  transform: translateY(-50%);
+  width: 40px;
+  height: var(--tabh);
   flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  padding: 0;
   background: none;
   border: 0;
-  padding: 0;
   overflow: visible;
 }
-.m-book .tabs a {
+:is(.m-book, .m-single) .tabs a {
   writing-mode: vertical-rl;
   transform: rotate(180deg);
-  border-radius: 0 6px 6px 0;
-  padding: 12px 7px;
-  min-height: 84px;
-  min-width: 44px;
   justify-content: center;
+  flex: 0 1 100px;
+  min-height: 0;
+  min-width: 0;
+  width: 40px;
+  padding: 8px 6px;
+  overflow: hidden;
+  border-radius: 6px 0 0 6px;
+  /* shorter books get smaller tab labels so they still fit */
+  font-size: clamp(9px, calc(var(--tabh) / 62), 11px);
+  letter-spacing: 0.06em;
+}
+/* Wider than a phone, the feed's tabs are a sticky rail on the left. */
+@media (min-width: 640px) {
+  .m-scroll .tabs {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: auto;
+    width: var(--rail);
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px;
+    border-top: 0;
+    border-right: 2px solid var(--syntax);
+    background: #1b1916;
+    overflow-y: auto;
+  }
+  .m-scroll .tabs a {
+    min-height: 40px;
+    justify-content: flex-start;
+    white-space: normal;
+    line-height: 1.15;
+  }
+  .m-scroll .tabs a.on {
+    translate: 6px 0;
+  }
 }
 
 /* ---------- purchase links (provisional placement) ----------
@@ -378,6 +832,27 @@
 }
 .links .sep {
   opacity: 0.5;
+}
+/* In the book the row is the whole purchase row: links on the left, the
+   wish-list toggle on the right, in a slot reserved at build time. The toggle
+   overhangs the 16px line instead of growing it, so the row is one line tall
+   with or without JavaScript. */
+.links.has-wish {
+  justify-content: flex-start;
+}
+.links .wish-slot {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  padding-left: 0.6em;
+}
+.links .wish-toggle {
+  margin: -0.55em 0;
+  font-size: 1.25em;
+  font-weight: 400;
+  line-height: 1.15;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 /* ---------- small template additions ---------- */

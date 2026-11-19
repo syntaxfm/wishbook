@@ -29,6 +29,7 @@ const lineText = line ? ctx.plain(line.text).replaceAll("-", "·") : null;
       asset={art}
       alt={ctx.artAlt(content.art!)}
       class="art-img"
+      bleed
       widths={[480, 720, 960, 1280]}
       sizes="(min-width: 1000px) 620px, 100vw"
       priority={state.current}

@@ -4,6 +4,7 @@ import { copyTokens } from "./copy";
 import { readEditions } from "./editions";
 import {
   createKeystaticConfig,
+  ITEM_CAPS,
   TIMESTAMP_RE,
   type KeySymbol,
   type KeystaticConfig,
@@ -613,6 +614,15 @@ async function loadEdition(root: string, edition: number): Promise<EditionConten
     }
     if (opt(p.orderLine) && !orderLineIds.has(p.orderLine)) {
       fail(where, `order line "${p.orderLine}" is not in ${siteFile}`);
+    }
+    const cap = ITEM_CAPS[p.template];
+    if (p.items.length > cap) {
+      fail(
+        where,
+        cap === 0
+          ? `the ${p.template} layout shows no items (found ${p.items.length})`
+          : `the ${p.template} layout fits at most ${cap} item${cap === 1 ? "" : "s"} in its page box (found ${p.items.length}); split the page`,
+      );
     }
     const c = p.copy;
     pages.push({

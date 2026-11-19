@@ -1,0 +1,47 @@
+---
+/**
+ * Index: every gift in alphabetical order with a dot leader to its page (its
+ * own feature page, else its first appearance), in two columns.
+ */
+import Copy from "../../components/Copy.astro";
+import PageShell from "../../components/PageShell.astro";
+import type { TemplateProps } from "./types";
+
+type Props = TemplateProps;
+const { page, content, ctx, state } = Astro.props;
+const index = ctx.content.items
+  .filter((i) => !i.mention)
+  .flatMap((i) => {
+    const target = ctx.indexPageOf(i);
+    return target ? [{ item: i, slug: target.slug }] : [];
+  })
+  .toSorted((a, b) =>
+    a.item.indexName.localeCompare(b.item.indexName, "en", { sensitivity: "base" }),
+  );
+---
+
+<PageShell
+  page={page}
+  ctx={ctx}
+  state={state}
+  class="orderpage indexpage"
+  orderLine={ctx.orderLine(content.orderLine)}
+>
+  <h2 class="display">{content.copy.headline ?? content.title}</h2>
+  {content.copy.kicker && (
+    <div class="pagekicker kicker">
+      <Copy text={content.copy.kicker} ctx={ctx} />
+    </div>
+  )}
+  <div class="ix">
+    <ul class="dotlist">
+      {index.map(({ item, slug }) => (
+        <li>
+          <a href={ctx.href(slug)}>{item.indexName}</a>
+          <span class="dots"></span>
+          {ctx.book.label(slug)}
+        </li>
+      ))}
+    </ul>
+  </div>
+</PageShell>
