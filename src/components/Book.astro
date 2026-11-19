@@ -6,9 +6,11 @@
  * opened at is `.is-current`; it and its spread partner are `.is-shown`.
  *
  * Without JavaScript only the current page shows, and every control is a real
- * link to another static page. The book engine takes over from this markup.
+ * link to another static page. The book engine (src/scripts/book.ts) takes
+ * over from this markup.
  */
 import { getBookContext, type BookPage } from "../lib/book";
+import { getCurrentEdition } from "../lib/content";
 import type { Edition } from "../lib/urls";
 import ActualSize from "../layouts/templates/ActualSize.astro";
 import BackCover from "../layouts/templates/BackCover.astro";
@@ -45,6 +47,9 @@ const { book } = ctx;
 const here = book.page(current);
 const spread = book.spreadOf(current);
 const shown = new Set([spread.left, spread.right].filter(Boolean) as BookPage[]);
+// The bare "/" opens the current edition's cover; in any other edition it is
+// not a page of this book.
+const rootSlug = ctx.edition === getCurrentEdition() ? book.pages[0]?.slug : undefined;
 
 const TEMPLATES = {
   cover: Cover,
@@ -90,7 +95,7 @@ const nextSpread = firstOfSpread(spreadIndex + 1);
 const where = here.end > here.n ? `Pages ${here.label}` : `Page ${here.label}`;
 ---
 
-<div class="book" data-current={current} data-edition={ctx.edition}>
+<div class="book" data-current={current} data-edition={ctx.edition} data-root-slug={rootSlug}>
   <div class="book-pages">
     {book.pages.map((page) => {
       const state = { current: page === here, shown: shown.has(page) };
@@ -146,3 +151,9 @@ const where = here.end > here.n ? `Pages ${here.label}` : `Page ${here.label}`;
   </nav>
   <div class="sr-only" role="status" aria-live="polite" data-live></div>
 </div>
+
+<script>
+  import { start } from "../scripts/book";
+
+  start();
+</script>

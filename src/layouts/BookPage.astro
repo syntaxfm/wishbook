@@ -13,6 +13,7 @@ import Book from "../components/Book.astro";
 import DesignSystem from "../components/DesignSystem.astro";
 import PrintFilters from "../components/PrintFilters.astro";
 import { getBookContext } from "../lib/book";
+import { MODE_SCRIPT } from "../lib/modes";
 import { absoluteUrl, editionUrl, type Edition } from "../lib/urls";
 
 interface Props {
@@ -24,16 +25,14 @@ const { edition, slug } = Astro.props;
 const ctx = await getBookContext(edition);
 const page = ctx.book.page(slug);
 const name = ctx.global.name;
-const section = ctx.content.sections.find((s) => s.id === page.section);
 const isCover = page.kind === "cover";
-const title = isCover ? name : `${page.title} · ${name}`;
+const title = ctx.docTitle(slug);
 const description = isCover
   ? ctx.plain(ctx.content.site.meta.description) || name
-  : `${page.title}, from “${section?.name ?? ""}” in the ${name}.`;
+  : `${page.title}, from “${ctx.sectionName(page.section)}” in the ${name}.`;
 const canonical = absoluteUrl(ctx.href(slug));
 const image = absoluteUrl(editionUrl(ctx.edition, `og/${slug}.png`));
-const modeScript =
-  "(function(){var w=innerWidth,c=document.documentElement.classList;c.add('js',w>=1000?'m-book':w>=640?'m-single':'m-scroll')})()";
+const modeScript = MODE_SCRIPT;
 ---
 
 <!doctype html>

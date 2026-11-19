@@ -70,7 +70,7 @@ Every real URL includes the edition year:
 
 `/` and `/catalog.txt` are build-time copies of the current edition's cover and catalog. Their canonical URL points at `/2026/`. Year-less section links (`/favorites/…`) redirect (302) to the current edition via `_redirects`, generated at build from the current edition's sections.
 
-Every page file contains the whole book, opened at that page. Filler pages (inserted to keep spreads on the right sides) get real URLs too, in the section before them.
+Every page file contains the whole book, opened at that page. After the first load, turning pages and jumping (tabs, cross-references, hotspots) happen in the browser with no reloads; the address bar always shows the open page's year-scoped URL, so whatever a visitor copies is permanent. Opening `/` and turning a page moves the address to `/2026/…`. Filler pages (inserted to keep spreads on the right sides) get real URLs too, in the section before them.
 
 All URLs are built with the helper in `src/lib/urls.ts`. Never hard-code a path, and don't use Astro's `base` option.
 

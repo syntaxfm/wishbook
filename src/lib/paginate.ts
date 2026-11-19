@@ -15,6 +15,7 @@
  */
 import { getEdition, type EditionContent } from "./content";
 import type { Template } from "./schema";
+import { buildSpreads, type Spread as SpreadOf } from "./spreads";
 import type { Edition } from "./urls";
 
 /** The catalog's page suffix: "6 A". */
@@ -62,10 +63,7 @@ export interface BookPage {
   index: number;
 }
 
-export interface Spread {
-  left: BookPage | null;
-  right: BookPage | null;
-}
+export type Spread = SpreadOf<BookPage>;
 
 export interface Book {
   /** Every page in order. The centerfold is one entry spanning two numbers. */
@@ -190,14 +188,8 @@ export function paginateBook(
   }
 
   // Spreads: page 1 alone on the right, then even|odd pairs.
-  const spreads: Spread[] = [];
-  const byNumber = new Map<number, BookPage>();
-  for (const p of pages) for (let k = p.n; k <= p.end; k++) byNumber.set(k, p);
+  const spreads: Spread[] = buildSpreads(pages);
   const last = n - 1;
-  if (last >= 1) spreads.push({ left: null, right: byNumber.get(1) ?? null });
-  for (let k = 2; k <= last; k += 2) {
-    spreads.push({ left: byNumber.get(k) ?? null, right: byNumber.get(k + 1) ?? null });
-  }
 
   const bySlug = new Map(pages.map((p) => [p.slug, p]));
   const page = (slug: string) => {

@@ -48,6 +48,9 @@ const lightRules = spots
   data-path={ctx.href(page.slug)}
   data-section={page.section}
   data-title={page.title}
+  data-doc-title={ctx.docTitle(page.slug)}
+  data-section-name={ctx.sectionName(page.section)}
+  data-label={page.label}
   aria-labelledby={`title-${page.slug}`}
 >
   <style is:inline set:html={lightRules}></style>
