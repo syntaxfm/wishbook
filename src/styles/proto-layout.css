@@ -34,9 +34,7 @@
 }
 
 /* prev / next: round arrows beside the book, vertically centred */
-:is([data-chrome="side"], [data-chrome="viewer"], [data-chrome="page"]):is(.m-book, .m-single)
-  .pager
-  .where {
+:is([data-chrome="side"], [data-chrome="viewer"]):is(.m-book, .m-single) .pager .where {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -374,78 +372,45 @@ html.proto-zoomed {
   }
 }
 
-/* ---------- page frame (hybrid, tier 2) ----------
-   One page at a readable size, never fit-scaled: it may run taller than the
-   window, and the window scrolls within it. The arrows stay fixed beside the
-   page, vertically centred; the tabs are the compact bar at the bottom.
-   Keep the numbers in step with SINGLE_* in proto-layout.ts. */
-[data-chrome="page"].m-single .book {
-  --pw: min(700px, calc(100vw - 128px));
-  --cfw: min(calc(var(--pw) * 2), calc(100vw - 128px));
-  --sw: var(--pw);
-  padding: 16px 64px 84px;
-}
-[data-chrome="page"].m-single .book:has(.cf-page.is-current) {
-  --sw: var(--cfw);
-}
-[data-chrome="page"].m-single .book-pages {
+/* ---------- hybrid: the side frame with a floor under the page box ----------
+   One box for every page, as in a, but never narrower than --hy-minw (the
+   readable page width, set by src/scripts/proto-hybrid.ts). Below that the
+   box is taller than the window: the book grows and the window scrolls down
+   the spread. The arrows (fixed, mid-window) and the tabs (fixed on the
+   book's edge, at most the window's height) never move. When the box fits,
+   everything here computes to exactly a's values.
+   Keep the numbers in step with hybridPageWidth in proto-layout.ts. */
+[data-layout="hybrid"][data-chrome="side"]:is(.m-book, .m-single) .book {
   height: auto;
-  grid-template-rows: auto;
-  /* a tall page lifts away around the part on screen */
-  perspective-origin: 50% 40vh;
+  min-height: 100dvh;
 }
-[data-chrome="page"].m-single .book-pages > .page:is(.is-current, .under, .lift) {
-  height: auto;
-  min-height: calc(var(--dw, var(--pw)) * var(--page-aspect));
+[data-layout="hybrid"][data-chrome="side"].m-book .book {
+  --pw: max(
+    240px,
+    min(
+      780px,
+      calc((100vw - 176px) / 2),
+      max(calc((100dvh - 32px) / var(--page-aspect)), var(--hy-minw, 0px))
+    )
+  );
 }
-[data-chrome="page"].m-single .book-pages > .cf-page:is(.is-current, .under, .lift) {
-  height: auto;
+[data-layout="hybrid"][data-chrome="side"].m-single .book {
+  --pw: max(
+    240px,
+    min(
+      780px,
+      calc(100vw - 176px),
+      max(calc((100dvh - 32px) / var(--page-aspect)), var(--hy-minw, 0px))
+    )
+  );
 }
-/* Never scaled here: undo a fit left from the spread until the fit code
-   measures again (it then finds the page fits). */
-[data-chrome="page"].m-single .book-pages > :is(.page, .cf-page).is-fit > :is(.pg, .cf) {
-  transform: none;
-  margin-bottom: 0;
+[data-layout="hybrid"][data-chrome="side"]:is(.m-book, .m-single) .tabs {
+  --tabh: min(var(--ph), calc(100dvh - 32px));
+  top: calc(50% - var(--tabh) / 2);
+  height: var(--tabh);
 }
-[data-chrome="page"].m-single .book-pages > .page.is-fit > .pg {
-  flex: 1;
-}
-[data-chrome="page"].m-single .pager {
-  position: fixed;
-  inset: 0;
-  margin: 0;
-  display: block;
-  pointer-events: none;
-}
-[data-chrome="page"].m-single .pager .where {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-}
-[data-chrome="page"].m-single .pager > :is(.prev, .next) {
-  position: absolute;
-  top: 50%;
-  translate: 0 -50%;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  justify-content: center;
-  border-radius: 50%;
-  font-size: 0;
-  pointer-events: auto;
-  background: rgba(29, 29, 29, 0.85);
-}
-[data-chrome="page"].m-single .pager > :is(.prev, .next) > span {
-  font-size: 20px;
-}
-[data-chrome="page"].m-single .pager > .prev {
-  left: max(10px, calc(50% - var(--sw) / 2 - 54px));
-}
-[data-chrome="page"].m-single .pager > .next {
-  left: min(calc(100% - 54px), calc(50% + var(--sw) / 2 + 10px));
+[data-layout="hybrid"][data-chrome="side"]:is(.m-book, .m-single) .tabs a {
+  font-size: clamp(9px, calc(var(--tabh) / 62), 11px);
 }
 
 /* hybrid's measuring host (src/scripts/proto-hybrid.ts): every page in the
@@ -475,19 +440,14 @@ html.proto-zoomed {
    side and feed: compact icon buttons (top of the left gutter / the rail);
    viewer: bottom right, fading with the other controls. Phones keep theirs. */
 @media (min-width: 640px) {
-  :is(
-      [data-chrome="side"]:is(.m-book, .m-single),
-      [data-chrome="page"].m-single,
-      [data-chrome="feed"].m-scroll
-    )
-    .wishtools {
+  :is([data-chrome="side"]:is(.m-book, .m-single), [data-chrome="feed"].m-scroll) .wishtools {
     top: 16px;
     bottom: auto;
     left: 12px;
     right: auto;
     flex-direction: column;
   }
-  :is([data-chrome="side"], [data-chrome="viewer"], [data-chrome="page"]):is(.m-book, .m-single)
+  :is([data-chrome="side"], [data-chrome="viewer"]):is(.m-book, .m-single)
     .wishtools
     :is(.tool-label, kbd, [data-wish-link] > span:first-child),
   [data-chrome="feed"].m-scroll
@@ -500,9 +460,7 @@ html.proto-zoomed {
     clip: rect(0 0 0 0);
     white-space: nowrap;
   }
-  :is([data-chrome="side"], [data-chrome="viewer"], [data-chrome="page"]):is(.m-book, .m-single)
-    .wishtools
-    .tool,
+  :is([data-chrome="side"], [data-chrome="viewer"]):is(.m-book, .m-single) .wishtools .tool,
   [data-chrome="feed"].m-scroll .wishtools .tool {
     position: relative;
     justify-content: center;
@@ -511,7 +469,7 @@ html.proto-zoomed {
     border-radius: 50%;
   }
   /* the wish list: a hand-drawn circle, like the marker on circled items */
-  :is([data-chrome="side"], [data-chrome="viewer"], [data-chrome="page"]):is(.m-book, .m-single)
+  :is([data-chrome="side"], [data-chrome="viewer"]):is(.m-book, .m-single)
     .wishtools
     [data-wish-link]::before,
   [data-chrome="feed"].m-scroll .wishtools [data-wish-link]::before {
@@ -522,7 +480,7 @@ html.proto-zoomed {
     border-radius: 50%;
     transform: rotate(-12deg);
   }
-  :is([data-chrome="side"], [data-chrome="viewer"], [data-chrome="page"]):is(.m-book, .m-single)
+  :is([data-chrome="side"], [data-chrome="viewer"]):is(.m-book, .m-single)
     .wishtools
     [data-wish-link]
     .count,
@@ -595,8 +553,8 @@ html.proto-zoomed {
 .proto-switch:not(:hover, :focus-within) b {
   display: none;
 }
-/* hybrid: the tier and why, plus the floor and max-screens knobs. Collapsed,
-   just the tier number shows beside the layout button. */
+/* hybrid: the tier and why, the floor knob, and the pages that overflow the
+   box. Collapsed, just the tier shows beside the layout button. */
 .proto-switch {
   flex-wrap: wrap;
   max-width: calc(100vw - 16px);
@@ -628,15 +586,16 @@ html.proto-zoomed {
   display: none;
 }
 [data-layout="hybrid"] .proto-switch:not(:hover, :focus-within)::after {
-  content: "T" attr(data-tier);
+  content: attr(data-tier);
   margin-left: 4px;
   font-weight: 700;
   color: var(--syntax);
 }
-/* on phones and in hybrid's page frame the bottom tab bar is there: sit above it */
-[data-chrome="page"].m-single .proto-switch {
-  bottom: 66px;
+.hy-over {
+  flex-basis: 100%;
+  color: #f3cf6a;
 }
+/* on phones the bottom tab bar is there: sit above it */
 @media (max-width: 639px) {
   .proto-switch {
     bottom: 66px;

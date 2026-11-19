@@ -1,32 +1,35 @@
 import { describe, expect, it } from "vitest";
 import { MODE_CLASS } from "../../src/lib/modes";
 import {
-  HYBRID_CACHE_KEY,
+  HYBRID_MINW_KEY,
   LAYOUT_KEY,
   LAYOUTS,
   PAGE_ASPECT,
   PROTO_HEAD_SCRIPT,
-  chooseTier,
   chromeFor,
-  hybridCacheKey,
+  fitScale,
+  hybridMode,
+  hybridPageWidth,
   layoutMode,
   parseLayout,
+  readableWidth,
   type Layout,
   type PageMeasure,
 } from "../../src/lib/proto-layout";
 
 /**
  * A fake book: page text in cqi, like the real pages, so sizes scale with the
- * layout width. `fill` is the content height as a share of the page box.
+ * layout width (`k` × the base body size). `fill` is the content height as a
+ * share of the page box.
  */
-function book(fills: number[]) {
+function book(pages: { fill: number; k?: number }[]) {
   return (lw: number): PageMeasure[] =>
-    fills.map((fill, i) => ({
+    pages.map(({ fill, k = 1 }, i) => ({
       slug: `p${i}`,
       title: `Page ${i}`,
       natural: lw * PAGE_ASPECT * fill,
       pad: 0,
-      body: Math.min(15, lw * 0.0215),
+      body: k * Math.min(15, lw * 0.0215),
     }));
 }
 
@@ -39,6 +42,7 @@ function runHead(
   extra: Record<string, string> = {},
 ) {
   const attrs: Record<string, string> = {};
+  const props: Record<string, string> = {};
   const classes = new Set<string>(["js", "m-book"]);
   const fn = new Function(
     "location",
@@ -52,13 +56,19 @@ function runHead(
   fn({ search }, { getItem, setItem: () => {} }, w, h, {
     documentElement: {
       setAttribute: (k: string, v: string) => (attrs[k] = v),
+      style: { setProperty: (k: string, v: string) => (props[k] = v) },
       classList: {
         add: (c: string) => classes.add(c),
         remove: (c: string) => classes.delete(c),
       },
     },
   });
-  return { layout: attrs["data-layout"], chrome: attrs["data-chrome"], classes: [...classes] };
+  return {
+    layout: attrs["data-layout"],
+    chrome: attrs["data-chrome"],
+    classes: [...classes],
+    minw: props["--hy-minw"],
+  };
 }
 
 describe("prototype layouts", () => {
@@ -92,50 +102,61 @@ describe("prototype layouts", () => {
     expect(runHead("", null, 1360, 900).layout).toBe("a");
   });
 
-  it("hybrid: the spread while every page stays readable", () => {
-    const c = chooseTier(1920, 1080, book([0.8, 1, 1.2]));
-    expect(c.tier).toBe(1);
-    expect(c.mode).toBe("book");
-    // 780px pages: body 15px (capped), the densest page scaled by 1/1.2
-    expect(c.spread?.slug).toBe("p2");
-    expect(c.spread?.value).toBeCloseTo(15 / 1.2, 1);
+  it("hybrid: the readable width is where the smallest body copy reaches the floor", () => {
+    // body at 560px is 12.04px; below 560 the page zooms, so text shrinks in proportion
+    const r = readableWidth(book([{ fill: 1 }]), 11);
+    expect(r).toBe(Math.ceil((560 * 11) / 12.04));
+    // a page with smaller copy (0.9×) sets the width; above 560 it's found by search
+    const dense = readableWidth(book([{ fill: 1 }, { fill: 1, k: 0.85 }]), 11);
+    expect(dense).toBeGreaterThan(560);
+    expect(0.85 * dense * 0.0215).toBeGreaterThanOrEqual(11 - 0.02);
+    expect(0.85 * (dense - 1) * 0.0215).toBeLessThan(11);
+    // copy too small even at the widest page
+    expect(readableWidth(book([{ fill: 1, k: 0.5 }]), 11)).toBe(Infinity);
   });
 
-  it("hybrid: one dense page drops the whole viewport to a single page", () => {
-    const c = chooseTier(1920, 1080, book([0.8, 1, 1.6]));
-    expect(c.tier).toBe(2);
-    expect(c.mode).toBe("single");
-    expect(c.spread?.slug).toBe("p2");
+  it("hybrid: tiers by width alone", () => {
+    expect(hybridMode(1920, 556)).toBe("book");
+    expect(hybridMode(1366, 556)).toBe("book"); // (1366 - 176) / 2 = 595
+    expect(hybridMode(1280, 556)).toBe("single"); // 552 per page is too narrow
+    expect(hybridMode(820, 556)).toBe("single");
+    expect(hybridMode(700, 556)).toBe("scroll"); // 524 for one page
+    expect(hybridMode(600, 300)).toBe("scroll"); // phones always
   });
 
-  it("hybrid: the feed when a single page needs too many screens", () => {
-    expect(chooseTier(1280, 800, book([1, 2.2])).tier).toBe(3);
-    expect(chooseTier(1280, 800, book([1, 2.2]), { screens: 4 }).tier).toBe(2);
+  it("hybrid: the page box fits the window, but never below the readable width", () => {
+    // fits: a's width
+    expect(hybridPageWidth("book", 1600, 800, 556)).toBeCloseTo((800 - 32) / PAGE_ASPECT, 5);
+    expect(hybridPageWidth("book", 1366, 768, 556)).toBeCloseTo((768 - 32) / PAGE_ASPECT, 5);
+    // short window: held at the readable width (taller than the window)
+    expect(hybridPageWidth("book", 1440, 600, 556)).toBe(556);
+    // never wider than the room
+    expect(hybridPageWidth("single", 820, 400, 556)).toBe(556);
+    expect(hybridPageWidth("book", 3000, 3000, 556)).toBe(780);
   });
 
-  it("hybrid: the floor is tunable, and phones always scroll", () => {
-    const pages = book([1, 1.3]);
-    expect(chooseTier(1920, 1080, pages, { floor: 11 }).tier).toBe(1);
-    expect(chooseTier(1920, 1080, pages, { floor: 12 }).tier).toBe(2);
-    expect(chooseTier(600, 900, pages).mode).toBe("scroll");
+  it("hybrid: overflowing pages still fit down (not floored)", () => {
+    const [light, dense] = book([{ fill: 0.8 }, { fill: 1.5 }])(600);
+    expect(fitScale(light!, 600)).toBe(1);
+    expect(fitScale(dense!, 600)).toBeCloseTo(1 / 1.5, 3);
   });
 
   it("hybrid: the frame follows the tier", () => {
     expect(chromeFor("hybrid", "book")).toBe("side");
-    expect(chromeFor("hybrid", "single")).toBe("page");
+    expect(chromeFor("hybrid", "single")).toBe("side");
     expect(chromeFor("hybrid", "scroll")).toBe("feed");
     expect(chromeFor("a", "single")).toBe("side");
   });
 
-  it("hybrid: the head script reuses a tier decided earlier for this viewport", () => {
-    const tiers = JSON.stringify({ [hybridCacheKey(1440, 900, 11, 2)]: "scroll" });
-    const r = runHead("?layout=hybrid", null, 1440, 900, { [HYBRID_CACHE_KEY]: tiers });
-    expect(r.classes).toContain(MODE_CLASS.scroll);
-    expect(r.chrome).toBe("feed");
-    // another size: the first guess
-    const g = runHead("?layout=hybrid", null, 1280, 800, { [HYBRID_CACHE_KEY]: tiers });
-    expect(g.classes).toContain(MODE_CLASS[layoutMode("hybrid", 1280, 800)]);
-    expect(g.chrome).toBe(chromeFor("hybrid", layoutMode("hybrid", 1280, 800)));
+  it("hybrid: the head script uses the readable width measured earlier", () => {
+    const minw = JSON.stringify({ 11: 600 });
+    const r = runHead("?layout=hybrid", null, 1366, 768, { [HYBRID_MINW_KEY]: minw });
+    expect(r.classes).toContain(MODE_CLASS.single); // 595 < 600
+    expect(r.minw).toBe("600px");
+    expect(r.chrome).toBe("side");
+    const g = runHead("?layout=hybrid", null, 1366, 768);
+    expect(g.classes).toContain(MODE_CLASS.book);
+    expect(runHead("?layout=hybrid", null, 700, 900).chrome).toBe("feed");
   });
 
   it("b shows one page when spread pages would be small", () => {

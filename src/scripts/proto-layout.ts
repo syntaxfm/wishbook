@@ -27,7 +27,7 @@ let layout: Layout = parseLayout(html.dataset.layout) ?? DEFAULT_LAYOUT;
  * first layout (and the feed's height reservation) already uses it.
  */
 function resolve(w: number, h: number): ReadingMode {
-  const mode = layout === "hybrid" ? decide(w, h).mode : layoutMode(layout, w, h);
+  const mode = layout === "hybrid" ? decide(w, h) : layoutMode(layout, w, h);
   if (layout !== "hybrid") delete html.dataset.hyTier;
   html.dataset.chrome = chromeFor(layout, mode);
   return mode;

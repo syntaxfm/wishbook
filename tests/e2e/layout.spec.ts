@@ -183,113 +183,157 @@ for (const layout of ["e1", "e2"]) {
   });
 }
 
-/* ---------- hybrid: spread, single page, or feed by readability ---------- */
+/* ---------- hybrid: a's spread with a floor under the page box ---------- */
 
-/** Opens a page in the hybrid layout with these floor / max-screens settings. */
-async function openHybrid(
-  page: Page,
-  path: string,
-  { floor, screens }: { floor?: number; screens?: number } = {},
-): Promise<void> {
-  await page.addInitScript(
-    ([f, s]) => {
-      if (f) localStorage.setItem("wishbook:hybrid:floor", String(f));
-      if (s) localStorage.setItem("wishbook:hybrid:screens", String(s));
-    },
-    [floor ?? 0, screens ?? 0],
-  );
+/** Opens a page in the hybrid layout (optionally with a floor). */
+async function openHybrid(page: Page, path: string, floor?: number): Promise<void> {
+  if (floor) {
+    await page.addInitScript(
+      (f) => localStorage.setItem("wishbook:hybrid:floor", String(f)),
+      floor,
+    );
+  }
   await page.goto(`${path}?layout=hybrid`);
   await page.evaluate(() => document.fonts.ready);
 }
 
 const tier = (page: Page) => page.locator("html").getAttribute("data-hy-tier");
 
-test("hybrid tier 1: a's spread, no document scroll, side controls", async ({ page }) => {
+/** Height of the spread on screen and of the document, at the current page. */
+const heights = (page: Page) =>
+  page.evaluate(() => ({
+    stage: Math.round(document.querySelector(".book-pages")!.getBoundingClientRect().height),
+    doc: document.documentElement.scrollHeight,
+  }));
+
+/** Turns through the whole book (instantly) and returns every spread's height. */
+async function everySpread(page: Page): Promise<{ stage: number; doc: number }[]> {
+  const out = [await heights(page)];
+  for (let i = 0; i < 60; i++) {
+    if ((await page.locator(".pager .next").getAttribute("aria-disabled")) === "true") break;
+    await page.keyboard.press("ArrowRight");
+    out.push(await heights(page));
+  }
+  return out;
+}
+
+test("hybrid: when the spread fits, it is a's spread to the pixel", async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
-  // The densest page needs about 10px body copy at this size: a 9px floor allows the spread.
-  await openHybrid(page, "/2026/favorites/wes/", { floor: 9 });
-  await expect(page.locator("html")).toHaveAttribute("data-hy-tier", "1");
+  await page.goto("/2026/favorites/wes/?layout=a");
+  const a = await frame(page);
+  await openHybrid(page, "/2026/favorites/wes/");
+  await expect(page.locator("html")).toHaveAttribute("data-hy-tier", "spread");
   await expect(page.locator("html")).toHaveClass(/m-book/);
   await expect(page.locator("html")).toHaveAttribute("data-chrome", "side");
   const f = await frame(page);
   expect(f.docScroll).toBeLessThanOrEqual(0);
-  expect(f.pages).toHaveLength(2);
+  expect(f.stage).toEqual(a.stage);
+  expect(f.prev).toEqual(a.prev);
+  expect(f.next).toEqual(a.next);
+  expect(f.pages).toEqual(a.pages);
   for (const sel of [".pager .prev", ".pager .next", ".tabs", ".edge-next"]) {
     await expect(page.locator(sel)).toBeInViewport({ ratio: 1 });
   }
-  // the tabs hang off the book's edge, not along the bottom
-  const tabs = (await page.locator(".tabs").boundingBox())!;
-  expect(tabs.width).toBeLessThan(60);
+  // the tabs hang off the book's edge
+  expect((await page.locator(".tabs").boundingBox())!.width).toBeLessThan(60);
 });
 
-test("hybrid tier 2: one page that scrolls; a turn opens the next page at its top", async ({
+test("hybrid: every spread has the same height, fitting or scrolling", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  for (const [w, h, scrolls] of [
+    [1920, 1080, false],
+    [1440, 700, true],
+  ] as const) {
+    await page.setViewportSize({ width: w, height: h });
+    await openHybrid(page, "/2026/");
+    const all = await everySpread(page);
+    expect(all.length).toBeGreaterThan(15);
+    expect(new Set(all.map((s) => s.stage)).size, `${w}×${h} spread heights`).toBe(1);
+    expect(new Set(all.map((s) => s.doc)).size, `${w}×${h} document heights`).toBe(1);
+    expect(all[0]!.doc > h, `${w}×${h} scrolls`).toBe(scrolls);
+  }
+});
+
+test("hybrid: a spread taller than the window scrolls; turning snaps to the top", async ({
+  page,
+}) => {
+  // 1440×700: the window fit would make pages 513px wide, under the readable width
+  await page.setViewportSize({ width: 1440, height: 700 });
+  await openHybrid(page, "/2026/under-30/under-30-picks/");
+  await expect(page.locator("html")).toHaveAttribute("data-hy-tier", "spread");
+  const f = await frame(page);
+  expect(f.docScroll).toBeGreaterThan(20);
+  expect(f.pages).toHaveLength(2);
+  const before = await heights(page);
+
+  const arrows = async () => ({
+    prev: await page.locator(".pager .prev").boundingBox(),
+    next: await page.locator(".pager .next").boundingBox(),
+    tabs: await page.locator(".tabs").boundingBox(),
+  });
+  const top = await arrows();
+  await page.evaluate(() => scrollTo({ top: document.documentElement.scrollHeight }));
+  await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(20);
+  // arrows and tabs don't move while the window scrolls
+  expect(await arrows()).toEqual(top);
+
+  await page.locator(".pager .next").click();
+  await settled(page);
+  await expect(page).toHaveURL(/\/2026\/tech\/$/);
+  expect(await page.evaluate(() => scrollY)).toBeLessThanOrEqual(1);
+  expect(await heights(page)).toEqual(before);
+  // back with the keyboard, and a jump: each opens at the top
+  await page.evaluate(() => scrollTo({ top: 100, behavior: "instant" }));
+  await page.keyboard.press("ArrowLeft");
+  await settled(page);
+  await expect(page).toHaveURL(/\/2026\/under-30\/under-30-picks\/$/);
+  expect(await page.evaluate(() => scrollY)).toBeLessThanOrEqual(1);
+  await page.evaluate(() => scrollTo({ top: 100, behavior: "instant" }));
+  await page.locator('.tabs a[data-section="desk"]').click();
+  await expect(page).toHaveURL(/\/2026\/desk\/$/);
+  expect(await page.evaluate(() => scrollY)).toBeLessThanOrEqual(1);
+  expect(await heights(page)).toEqual(before);
+});
+
+test("hybrid: one page when two readable pages don't fit; the feed below that", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  await openHybrid(page, "/2026/under-30/under-30-picks/");
-  await expect(page.locator("html")).toHaveAttribute("data-hy-tier", "2");
+  await openHybrid(page, "/2026/favorites/wes/");
+  await expect(page.locator("html")).toHaveAttribute("data-hy-tier", "single");
   await expect(page.locator("html")).toHaveClass(/m-single/);
-  const current = page.locator(".book-pages > .is-current");
-  await expect(current).toHaveAttribute("data-slug", "under-30-picks");
-  // never fit-scaled: the page is taller than the window and the document scrolls
-  await expect(page.locator(".book-pages > .is-fit")).toHaveCount(0);
-  const tall = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
-  expect(tall).toBeGreaterThan(200);
+  await expect(page.locator("html")).toHaveAttribute("data-chrome", "side");
+  expect((await frame(page)).pages).toHaveLength(1);
 
-  await page.evaluate(() => scrollTo({ top: 600, behavior: "instant" }));
-  await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(500);
-  // the arrows stay on screen while scrolled
-  await expect(page.locator(".pager .next")).toBeInViewport({ ratio: 1 });
-  await page.locator(".pager .next").click();
-  await settled(page);
-  await expect(page).toHaveURL(/\/2026\/under-30\/waveshare\/$/);
-  await expect(current).toHaveAttribute("data-slug", "waveshare");
-  expect(await page.evaluate(() => scrollY)).toBeLessThanOrEqual(1);
-  // the same with the keyboard, back again
-  await page.evaluate(() => scrollTo({ top: 400, behavior: "instant" }));
-  await page.keyboard.press("ArrowLeft");
-  await settled(page);
-  await expect(current).toHaveAttribute("data-slug", "under-30-picks");
-  expect(await page.evaluate(() => scrollY)).toBeLessThanOrEqual(1);
-  // a jump (a tab) opens at the top too
-  await page.evaluate(() => scrollTo({ top: 500, behavior: "instant" }));
-  await page.locator('.tabs a[data-section="tech"]').click();
-  await expect(page).toHaveURL(/\/2026\/tech\/$/);
-  expect(await page.evaluate(() => scrollY)).toBeLessThanOrEqual(1);
-});
-
-test("hybrid tier 3: the feed when one page would need too many screens", async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 800 });
-  await openHybrid(page, "/2026/favorites/wes/", { screens: 1 });
-  await expect(page.locator("html")).toHaveAttribute("data-hy-tier", "3");
+  await page.setViewportSize({ width: 700, height: 900 });
+  await expect(page.locator("html")).toHaveAttribute("data-hy-tier", "feed");
   await expect(page.locator("html")).toHaveClass(/m-scroll/);
   await expect(page.locator("html")).toHaveAttribute("data-chrome", "feed");
   await expect(page.locator('.book-pages > [data-slug="icemag"]')).toBeVisible();
-  await expect(page.locator(".tabs")).toBeInViewport({ ratio: 1 });
 });
 
 test("hybrid: the tier holds across turns", async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.setViewportSize({ width: 1440, height: 700 });
   await openHybrid(page, "/2026/favorites/wes/");
-  const first = await tier(page);
-  expect(first).toBe("2");
+  await expect(page.locator("html")).toHaveAttribute("data-hy-tier", "spread");
   for (let i = 0; i < 4; i++) {
     await page.locator(".pager .next").click();
     await settled(page);
-    expect(await tier(page)).toBe(first);
-    await expect(page.locator("html")).toHaveClass(/m-single/);
+    expect(await tier(page)).toBe("spread");
+    await expect(page.locator("html")).toHaveClass(/m-book/);
   }
 });
 
 test("hybrid: resizing across tiers keeps the page", async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
-  await openHybrid(page, "/2026/favorites/kaitlin/", { floor: 9 });
-  await expect(page.locator("html")).toHaveAttribute("data-hy-tier", "1");
+  await openHybrid(page, "/2026/favorites/kaitlin/");
+  await expect(page.locator("html")).toHaveAttribute("data-hy-tier", "spread");
   const current = page.locator(".book-pages > .is-current");
   for (const [w, h, t, mode] of [
-    [1280, 800, "2", /m-single/],
-    [600, 900, "3", /m-scroll/],
-    [1920, 1080, "1", /m-book/],
+    [1280, 800, "single", /m-single/],
+    [600, 900, "feed", /m-scroll/],
+    [1440, 700, "spread", /m-book/],
+    [1920, 1080, "spread", /m-book/],
   ] as const) {
     await page.setViewportSize({ width: w, height: h });
     await expect(page.locator("html")).toHaveAttribute("data-hy-tier", t);

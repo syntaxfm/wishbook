@@ -1,12 +1,13 @@
 /**
  * PROTOTYPE: alternative reading layouts for screens wider than a phone, to
  * try side by side before one is chosen. Everything prototype-only lives in
- * this module, src/scripts/proto-layout.ts, and src/styles/proto-layout.css;
- * removing them (and their three hooks: the head script in BookPage.astro,
- * the import in Book.astro, the stylesheet import in global.css) leaves the
- * chosen layout's code to fold into book.css and the engine.
+ * this module, src/scripts/proto-layout.ts, src/scripts/proto-hybrid.ts, and
+ * src/styles/proto-layout.css; removing them (and their three hooks: the head
+ * script in BookPage.astro, the import in Book.astro, the stylesheet import
+ * in global.css) leaves the chosen layout's code to fold into book.css and
+ * the engine.
  *
- * Pick a layout with `?layout=a|b|c|d|e1|e2` (`e` means `e1`) or the
+ * Pick a layout with `?layout=a|b|c|d|e1|e2|hybrid` (`e` means `e1`) or the
  * switcher panel; the choice is remembered in localStorage. <html> gets
  * `data-layout` (the variant) and `data-chrome` (the frame it uses):
  *
@@ -16,9 +17,9 @@
  *   d   Viewer            the spread fills the screen; auto-hiding overlay controls
  *   e1  Scroll: pages     no flipping; one column of pages, sticky section rail
  *   e2  Scroll: spreads   no flipping; spreads stacked, sticky section rail
- *   hybrid                a's spread while body text stays readable, else one
- *                         page at a readable size that scrolls, else the feed
- *                         (see "hybrid" below and src/scripts/proto-hybrid.ts)
+ *   hybrid                a, but the page box never shrinks below a readable
+ *                         size: below that every spread is taller than the
+ *                         window and scrolls (see "hybrid" below)
  */
 import { BOOK_MIN_WIDTH, MODE_CLASS, SINGLE_MIN_WIDTH, type ReadingMode } from "./modes";
 
@@ -37,11 +38,12 @@ export const LAYOUT_NAMES: Record<Layout, string> = {
   hybrid: "Hybrid",
 };
 
-export type Chrome = "side" | "viewer" | "feed" | "page";
+export type Chrome = "side" | "viewer" | "feed";
 
 /**
- * The frame each layout uses (styles key off `data-chrome`). Hybrid changes
- * frame with its tier: see chromeFor.
+ * The frame each layout uses (styles key off `data-chrome`). Hybrid uses the
+ * side frame for spreads and single pages and the feed below that: see
+ * chromeFor.
  */
 export const LAYOUT_CHROME: Record<Layout, Chrome> = {
   a: "side",
@@ -53,10 +55,10 @@ export const LAYOUT_CHROME: Record<Layout, Chrome> = {
   hybrid: "side",
 };
 
-/** The frame for a layout in a reading mode (hybrid: side, page, or feed by tier). */
+/** The frame for a layout in a reading mode. */
 export function chromeFor(layout: Layout, mode: ReadingMode): Chrome {
   if (layout !== "hybrid") return LAYOUT_CHROME[layout];
-  return mode === "book" ? "side" : mode === "single" ? "page" : "feed";
+  return mode === "scroll" ? "feed" : "side";
 }
 
 /*
@@ -84,57 +86,55 @@ export function sideSpreadPageWidth(w: number, h: number): number {
 
 /**
  * The reading mode a layout uses at a viewport size. Phones always scroll.
- * For hybrid this is only the first guess (before the client has measured
- * the book): see chooseTier.
+ * Hybrid needs the readable page width (measured): see hybridMode.
  */
 export function layoutMode(layout: Layout, w: number, h: number): ReadingMode {
   if (w < SINGLE_MIN_WIDTH) return "scroll";
   if (LAYOUT_CHROME[layout] === "feed") return "scroll";
   if (layout === "b") return sideSpreadPageWidth(w, h) >= READABLE_PAGE ? "book" : "single";
-  if (layout === "hybrid")
-    return sideSpreadPageWidth(w, h) >= HYBRID_GUESS_PAGE ? "book" : "single";
+  if (layout === "hybrid") return hybridMode(w, guessReadableWidth(HYBRID_FLOOR));
   return w >= BOOK_MIN_WIDTH ? "book" : "single";
 }
 
 /* ---------- hybrid ----------
- * Three tiers, chosen per viewport size from the book's worst page:
+ * Layout a with a floor under the page size. Every page of the book is one
+ * box, W × page aspect: W is a's (the spread fits the window height) but
+ * never narrower than the readable width, the narrowest page at which the
+ * book's body copy, at its design size, is at least `floor` px on screen.
+ * Below that the box stays at the readable width: every spread is the same
+ * height, taller than the window, and the window scrolls the same amount on
+ * every spread; turning snaps back to the top. A page whose content is
+ * taller than the box still scales down to fit, as in a (not floored).
  *
- *   1  spread   layout a, only while every page's body copy, at the fit scale
- *               its spread page needs, renders at least `floor` px
- *   2  single   one page at a readable size (width up to SINGLE_PAGE_MAX,
- *               never fit-scaled); the window scrolls within the page, and a
- *               turn brings the next page in at the top. Used while every
- *               page needs at most `screens` window heights
- *   3  feed     the whole catalog as one scrolling column (like e1)
+ * Tiers, by width alone:
+ *   spread  two pages side by side, whenever the window is wide enough for
+ *           two pages whose body copy (at the page's own design size, before
+ *           any fit) is at least the floor
+ *   single  one page, when there is room for one such page but not two
+ *   feed    the scroll feed, when there is room for neither (and on phones)
  *
  * Body copy size is measured, not assumed: the client lays every page out
- * at the width in question and reads the computed font size of its item
- * copy (see src/scripts/proto-hybrid.ts). Text sizes are in cqi, so they
- * follow the page width; fit and the narrow-box zoom (--pz) shrink them
- * further.
+ * at a width and reads the computed font size of its item copy (see
+ * src/scripts/proto-hybrid.ts). Text sizes are in cqi, so they follow the
+ * page width; a page narrower than DESIGN_MIN lays out at DESIGN_MIN and
+ * zooms down (--pz), which shrinks them too.
  */
 
 /** Default readability floor: the effective size of body copy, in px. */
 export const HYBRID_FLOOR = 11;
 export const HYBRID_FLOOR_RANGE = [9, 14] as const;
-/** Default limit for one page in tier 2, in window heights. */
-export const HYBRID_SCREENS = 2;
-export const HYBRID_SCREENS_RANGE = [1, 4] as const;
 export const HYBRID_FLOOR_KEY = "wishbook:hybrid:floor";
-export const HYBRID_SCREENS_KEY = "wishbook:hybrid:screens";
-/** Tiers already decided, by viewport and settings, so a reload paints right first. */
-export const HYBRID_CACHE_KEY = "wishbook:hybrid:tiers";
-/** Before anything is measured: a spread with pages at least this wide. */
-export const HYBRID_GUESS_PAGE = 600;
-
+/** Readable page widths already measured, by floor, so a reload paints right first. */
+export const HYBRID_MINW_KEY = "wishbook:hybrid:minw";
 /** Pages narrower than this lay out at this width and zoom down (src/scripts/fit.ts). */
 export const DESIGN_MIN = 560;
-/** Tier 2: the page grows to this width at most (body copy reaches its 15px cap here). */
-export const SINGLE_PAGE_MAX = 700;
-/** Tier 2: room beside the page for the arrows. Keep in step with proto-layout.css. */
-export const SINGLE_GUTTER = 64;
-/** Tier 2: the window height left for the page (top padding, the tab bar below). */
-export const SINGLE_CHROME_Y = 80;
+/** Smallest item-copy size at DESIGN_MIN, as measured on the 2026 book (for the first guess). */
+const GUESS_BODY_AT_MIN = 11.08;
+
+/** Before anything is measured: the readable page width for a floor. */
+export function guessReadableWidth(floor: number): number {
+  return Math.ceil((DESIGN_MIN * floor) / GUESS_BODY_AT_MIN);
+}
 
 /** A page laid out at a width (in layout px, before any --pz zoom). */
 export interface PageMeasure {
@@ -148,115 +148,77 @@ export interface PageMeasure {
   body: number;
 }
 
-/** A page box: its width on screen, the width it lays out at, and the zoom between. */
-export interface PageGeometry {
-  /** On-screen page width. */
-  pw: number;
-  /** Layout width (at least DESIGN_MIN). */
-  lw: number;
-  /** Zoom from layout to screen (≤ 1). */
-  pz: number;
-}
-
-function geometry(pw: number): PageGeometry {
+/** The layout width a page of this on-screen width uses, and the zoom between. */
+export function layoutWidth(pw: number): { lw: number; pz: number } {
   const lw = Math.max(DESIGN_MIN, Math.round(pw));
-  return { pw, lw, pz: Math.min(1, pw / lw) };
+  return { lw, pz: Math.min(1, pw / lw) };
 }
 
-/** Tier 1: a page of layout a's spread (same sizes as proto-layout.css). */
-export function spreadGeometry(w: number, h: number): PageGeometry {
-  return geometry(Math.max(240, sideSpreadPageWidth(w, h)));
+/** Room for a spread / single page by width alone (the side frame's gutters). */
+export function availableWidth(mode: "book" | "single", w: number): number {
+  return Math.min(PAGE_MAX, mode === "book" ? (w - SIDE_GUTTERS_X) / 2 : w - SIDE_GUTTERS_X);
 }
 
-/** Tier 2: the single scrolling page. */
-export function singleGeometry(w: number): PageGeometry {
-  return geometry(Math.min(SINGLE_PAGE_MAX, w - 2 * SINGLE_GUTTER));
-}
-
-/** The fit scale a page needs in a box of the page aspect at its layout width. */
-export function fitScale(m: PageMeasure, lw: number): number {
-  const room = lw * PAGE_ASPECT - m.pad;
-  return m.natural <= room + 1 ? 1 : room / m.natural;
-}
-
-/** Effective body copy size of a page in the spread: body × fit × zoom. */
-export function spreadBodyPx(m: PageMeasure, g: PageGeometry): number {
-  return m.body * fitScale(m, g.lw) * g.pz;
-}
-
-/** How many window heights a page needs in tier 2. */
-export function singleScreens(m: PageMeasure, g: PageGeometry, h: number): number {
-  const height = Math.max(m.natural + m.pad, g.lw * PAGE_ASPECT) * g.pz;
-  return height / Math.max(1, h - SINGLE_CHROME_Y);
-}
-
-export interface Worst {
-  slug: string;
-  title: string;
-  value: number;
-}
-
-export interface TierChoice {
-  tier: 1 | 2 | 3;
-  mode: ReadingMode;
-  /** The page with the smallest body copy in a spread (effective px). */
-  spread: Worst | null;
-  /** The page needing the most window heights in tier 2. */
-  screens: Worst | null;
-  /** The page with the smallest body copy in tier 2 (effective px). */
-  single: Worst | null;
-}
-
-function worst(ms: PageMeasure[], value: (m: PageMeasure) => number, most: boolean): Worst | null {
-  let out: Worst | null = null;
-  for (const m of ms) {
-    const v = value(m);
-    if (!out || (most ? v > out.value : v < out.value)) {
-      out = { slug: m.slug, title: m.title, value: v };
-    }
-  }
-  return out;
+/** The tier for a viewport width, given the narrowest readable page width. */
+export function hybridMode(w: number, readable: number): ReadingMode {
+  if (w < SINGLE_MIN_WIDTH) return "scroll";
+  if (availableWidth("book", w) >= readable) return "book";
+  if (availableWidth("single", w) >= readable) return "single";
+  return "scroll";
 }
 
 /**
- * Picks the tier for a viewport from the book's worst case. `measure(lw)`
- * returns every page laid out at that width (the client caches it).
+ * The on-screen page width: a's (fit to the window), but never narrower
+ * than the readable width; the room by width is the limit. Keep in step with
+ * proto-layout.css.
  */
-export function chooseTier(
+export function hybridPageWidth(
+  mode: "book" | "single",
   w: number,
   h: number,
-  measure: (lw: number) => PageMeasure[],
-  { floor = HYBRID_FLOOR, screens = HYBRID_SCREENS }: { floor?: number; screens?: number } = {},
-): TierChoice {
-  if (w < SINGLE_MIN_WIDTH) {
-    return { tier: 3, mode: "scroll", spread: null, screens: null, single: null };
-  }
-  const sg = spreadGeometry(w, h);
-  const spread = worst(measure(sg.lw), (m) => spreadBodyPx(m, sg), false);
-  const og = singleGeometry(w);
-  const singles = measure(og.lw);
-  const tall = worst(singles, (m) => singleScreens(m, og, h), true);
-  const small = worst(singles, (m) => m.body * og.pz, false);
-  const base = { spread, screens: tall, single: small };
-  // A tiny allowance so a value that rounds to the floor counts as reaching it.
-  const eps = 0.005;
-  if (!spread || spread.value >= floor - eps) return { tier: 1, mode: "book", ...base };
-  if ((!tall || tall.value <= screens + eps) && (!small || small.value >= floor - eps)) {
-    return { tier: 2, mode: "single", ...base };
-  }
-  return { tier: 3, mode: "scroll", ...base };
+  readable: number,
+): number {
+  const byHeight = (h - SIDE_GUTTERS_Y) / PAGE_ASPECT;
+  return Math.max(240, Math.min(availableWidth(mode, w), Math.max(byHeight, readable)));
 }
 
-/** The cache key for a decided tier. */
-export function hybridCacheKey(w: number, h: number, floor: number, screens: number): string {
-  return `${w}x${h}:${floor}:${screens}`;
+/**
+ * The narrowest on-screen page width at which every page's body copy is at
+ * least `floor` px, from `measure(lw)` (every page laid out at lw). Infinity
+ * when even the widest page is too small.
+ */
+export function readableWidth(measure: (lw: number) => PageMeasure[], floor: number): number {
+  const smallest = (lw: number) => Math.min(...measure(lw).map((m) => m.body));
+  // Below DESIGN_MIN the page is zoomed, so its text shrinks in proportion.
+  const atMin = smallest(DESIGN_MIN);
+  if (atMin >= floor) return Math.ceil((DESIGN_MIN * floor) / atMin);
+  if (smallest(PAGE_MAX) < floor) return Infinity;
+  let lo = DESIGN_MIN;
+  let hi = PAGE_MAX;
+  while (hi - lo > 1) {
+    const mid = Math.round((lo + hi) / 2);
+    if (smallest(mid) >= floor) hi = mid;
+    else lo = mid;
+  }
+  return hi;
+}
+
+/**
+ * The scale a's fit gives a page in the box at layout width `lw` (1 when its
+ * content fits). Hybrid doesn't floor it: pages that still need it are the
+ * ones whose templates overflow the box at full size.
+ */
+export function fitScale(m: PageMeasure, lw: number): number {
+  const room = lw * PAGE_ASPECT - m.pad;
+  return m.natural <= room + 1 ? 1 : room / m.natural;
 }
 
 /**
  * The inline head script: runs after the mode script, picks the layout (query,
  * then storage, then the default), sets data-layout / data-chrome, and
  * corrects the mode class for layouts that choose modes differently. Hybrid
- * reuses the tier decided earlier for this viewport, if any.
+ * uses the readable width measured earlier for its floor, if any (else a
+ * guess), and exposes it to the page box CSS as --hy-minw.
  */
 export const PROTO_HEAD_SCRIPT = `(function(){
 var L=${JSON.stringify(LAYOUTS)},C=${JSON.stringify(LAYOUT_CHROME)},M=${JSON.stringify(MODE_CLASS)};
@@ -265,9 +227,12 @@ var l=null;try{l=p(new URLSearchParams(location.search).get('layout'));if(l)loca
 l=l||'${DEFAULT_LAYOUT}';
 var d=document.documentElement,w=innerWidth,h=innerHeight;
 var sp=Math.min(${PAGE_MAX},(w-${SIDE_GUTTERS_X})/2,(h-${SIDE_GUTTERS_Y})/${PAGE_ASPECT});
-var m=w<${SINGLE_MIN_WIDTH}?'scroll':C[l]==='feed'?'scroll':l==='b'?(sp>=${READABLE_PAGE}?'book':'single'):l==='hybrid'?(sp>=${HYBRID_GUESS_PAGE}?'book':'single'):w>=${BOOK_MIN_WIDTH}?'book':'single';
-if(l==='hybrid'&&w>=${SINGLE_MIN_WIDTH}){try{var f=parseFloat(localStorage.getItem('${HYBRID_FLOOR_KEY}'))||${HYBRID_FLOOR},s=parseFloat(localStorage.getItem('${HYBRID_SCREENS_KEY}'))||${HYBRID_SCREENS};var t=JSON.parse(localStorage.getItem('${HYBRID_CACHE_KEY}')||'{}')[w+'x'+h+':'+f+':'+s];if(M[t])m=t}catch(e){}}
-var c=l==='hybrid'?(m==='book'?'side':m==='single'?'page':'feed'):C[l];
+var m=w<${SINGLE_MIN_WIDTH}?'scroll':C[l]==='feed'?'scroll':l==='b'?(sp>=${READABLE_PAGE}?'book':'single'):w>=${BOOK_MIN_WIDTH}?'book':'single';
+if(l==='hybrid'){var f=${HYBRID_FLOOR},r;try{f=parseFloat(localStorage.getItem('${HYBRID_FLOOR_KEY}'))||f;r=JSON.parse(localStorage.getItem('${HYBRID_MINW_KEY}')||'{}')[f]}catch(e){}
+r=r||Math.ceil(${DESIGN_MIN}*f/${GUESS_BODY_AT_MIN});
+m=w<${SINGLE_MIN_WIDTH}?'scroll':Math.min(${PAGE_MAX},(w-${SIDE_GUTTERS_X})/2)>=r?'book':Math.min(${PAGE_MAX},w-${SIDE_GUTTERS_X})>=r?'single':'scroll';
+if(d.style)d.style.setProperty('--hy-minw',Math.min(r,1e5)+'px')}
+var c=l==='hybrid'&&m==='scroll'?'feed':C[l];
 d.setAttribute('data-layout',l);d.setAttribute('data-chrome',c);
 for(var k in M)d.classList.remove(M[k]);d.classList.add(M[m]);
 })()`;
