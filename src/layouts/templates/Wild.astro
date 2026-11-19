@@ -1,8 +1,9 @@
 ---
 /**
- * Two-up with quotes on the photos: tall framed photos with letters and an
- * on-photo quote card, a friendly headline, running copy, "also in" chips,
- * and the order line.
+ * Two-up with quotes on the photos, staggered: one row per item, a big framed
+ * photo (letter and on-photo quote card) beside a friendly headline, running
+ * copy, "also in" chips, and the order line, alternating sides. The rows grow
+ * into the room the page box has left (the duo layout).
  */
 import Copy from "../../components/Copy.astro";
 import CopyParas from "../../components/CopyParas.astro";
@@ -35,39 +36,41 @@ const items = await Promise.all(
   page={page}
   ctx={ctx}
   state={state}
-  class="wild"
+  class="wild duo-page"
   orderLine={ctx.orderLine(content.orderLine)}
 >
   <div class="pagehead">
     <h2 class="display">{content.copy.headline ?? content.title}</h2>
     {pickers.length > 0 && <PickedBy hosts={pickers} />}
   </div>
-  <div class="twoup">
+  <div class="twoup duo">
     {items.map((it) => (
       <div data-item-id={it.item.id}>
         <Frame tone={it.item.image.background === "dark" ? "dark" : "light"}>
           <Img
             asset={it.photo}
             alt={it.item.image.alt}
-            widths={[320, 480, 640]}
-            sizes="(min-width: 1000px) 270px, (min-width: 640px) 45vw, 90vw"
+            widths={[320, 480, 640, 800]}
+            sizes="(min-width: 1000px) 340px, (min-width: 640px) 55vw, 90vw"
           />
           <ItemLetter letter={it.letter} variant="photo" />
           {it.quote && <ItemQuote quote={it.quote} ctx={ctx} placement="on" />}
         </Frame>
-        <div class="friendly">
-          <ItemLetter letter={it.letter} />
-          {it.item.headline ? <Copy text={it.item.headline} ctx={ctx} /> : it.item.shortName}
-        </div>
-        <CopyParas text={it.text ?? it.item.description} ctx={ctx} />
-        {it.item.alsoIn.length > 0 && (
-          <div class="chips">
-            {it.item.alsoIn.map((option, i) => (
-              <span>{i === 0 ? `Also in: ${option}` : option}</span>
-            ))}
+        <div class="copyblock">
+          <div class="friendly">
+            <ItemLetter letter={it.letter} />
+            {it.item.headline ? <Copy text={it.item.headline} ctx={ctx} /> : it.item.shortName}
           </div>
-        )}
-        <ItemOrder item={it.item} ctx={ctx} page={content} />
+          <CopyParas text={it.text ?? it.item.description} ctx={ctx} />
+          {it.item.alsoIn.length > 0 && (
+            <div class="chips">
+              {it.item.alsoIn.map((option, i) => (
+                <span>{i === 0 ? `Also in: ${option}` : option}</span>
+              ))}
+            </div>
+          )}
+          <ItemOrder item={it.item} ctx={ctx} page={content} />
+        </div>
       </div>
     ))}
   </div>

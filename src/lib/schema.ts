@@ -578,7 +578,10 @@ export function createKeystaticConfig(edition: number) {
             description: "Hex color, e.g. #C5301F.",
             validation: { isRequired: true, pattern: { regex: HEX, message: "Use #RRGGBB" } },
           }),
-          kicker: copyText("Divider kicker", '"We have all the best for".'),
+          kicker: copyText(
+            "Section kicker",
+            '"We have all the best for": above the section name on its divider or opener, and on price-tag pages without their own kicker.',
+          ),
           tabLabel: optionalText("Tab label", "Thumb-index label. Defaults to the name."),
         }),
         {
@@ -600,7 +603,7 @@ export function createKeystaticConfig(edition: number) {
           slug: fields.text({
             label: "Slug",
             description:
-              "Unique. The URL is /<year>/<section>/<slug>/; a page whose slug equals its section is the divider at /<year>/<section>/.",
+              "Unique. The URL is /<year>/<section>/<slug>/; a page whose slug equals its section is the divider at /<year>/<section>/. Without a divider, /<year>/<section>/ opens the section's first page.",
             validation: { isRequired: true, pattern: { regex: SLUG, message: "Use a-z, 0-9, -" } },
           }),
           section: fields.text({
@@ -617,6 +620,11 @@ export function createKeystaticConfig(edition: number) {
             label: "Title",
             description: "Page title: the <title>, share card, and page heading.",
             validation: { isRequired: true },
+          }),
+          opener: fields.checkbox({
+            label: "Section opener",
+            description:
+              "Grid layout: a header across the top with the section's kicker, name, and page range.",
           }),
           hosts: fields.multiRelationship({
             label: "Picked by",
@@ -647,6 +655,12 @@ export function createKeystaticConfig(edition: number) {
                 "Group",
                 'Items with the same group share a box: "Home Assistant Corner".',
               ),
+              maxQuotes: fields.integer({
+                label: "Quotes shown",
+                description:
+                  "Full-page feature: how many of the item's quotes it shows, in order (at most 2). Empty for 2.",
+                validation: { min: 0 },
+              }),
             }),
             {
               label: "Items",
@@ -778,7 +792,7 @@ export function createKeystaticConfig(edition: number) {
         fields.object({
           key: fields.text({
             label: "Key",
-            description: 'Pages refer to art by this key, e.g. "IMG-S1".',
+            description: 'Pages refer to art by this key, e.g. "IMG-F1".',
             validation: {
               isRequired: true,
               pattern: { regex: /^[A-Za-z0-9-]+$/, message: "Use letters, digits, -" },

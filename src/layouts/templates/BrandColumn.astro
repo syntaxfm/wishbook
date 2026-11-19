@@ -1,8 +1,9 @@
 ---
 /**
- * Brand column: the shopper's name as a brand, a tagline, the item copy and
- * order lines in a side column, and big wood-framed photos with quotes on
- * them. "mirrored" puts the photos on the left.
+ * Brand column: the shopper's name as a brand, a tagline, the item copy (under
+ * the item's red headline, if it has one) and order lines in a side column
+ * (then any page quotes), and big wood-framed
+ * photos with quotes on them. "mirrored" puts the photos on the left.
  */
 import Copy from "../../components/Copy.astro";
 import Frame from "../../components/Frame.astro";
@@ -11,6 +12,7 @@ import ItemCopy from "../../components/ItemCopy.astro";
 import ItemLetter from "../../components/ItemLetter.astro";
 import ItemOrder from "../../components/ItemOrder.astro";
 import ItemQuote from "../../components/ItemQuote.astro";
+import LineQuote from "../../components/LineQuote.astro";
 import NewBanner from "../../components/NewBanner.astro";
 import PageShell from "../../components/PageShell.astro";
 import { letterFor } from "./letters";
@@ -47,10 +49,18 @@ const items = await Promise.all(
     )}
     {items.map((it) => (
       <div class="item" data-item-id={it.item.id}>
+        {it.item.headline && (
+          <div class="friendly">
+            <Copy text={it.item.headline} ctx={ctx} />
+          </div>
+        )}
         <ItemLetter letter={it.letter} />
         <ItemCopy item={it.item} ctx={ctx} text={it.text} short />
         <ItemOrder item={it.item} ctx={ctx} page={content} />
       </div>
+    ))}
+    {content.quotes.map((q) => (
+      <LineQuote quote={q} ctx={ctx} />
     ))}
     {content.copy.sticker && (
       <div class="sticker">

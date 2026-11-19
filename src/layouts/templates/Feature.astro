@@ -25,7 +25,7 @@ const shot = await ctx.itemImage(item, pi.photo);
 const inset = content.inset.art ? await ctx.art(content.inset.art) : null;
 const { confirmed, estimate, label, note, unit } = item.price;
 const numeric = confirmed !== null || estimate !== null;
-const quotes = item.quotes.slice(0, 2);
+const quotes = item.quotes.slice(0, Math.min(2, pi.maxQuotes ?? 2));
 const notes = [note, content.copy.note].filter(Boolean).map((n) => n!.replace(/\.?$/, "."));
 ---
 

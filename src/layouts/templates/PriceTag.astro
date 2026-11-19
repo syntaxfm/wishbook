@@ -1,55 +1,78 @@
 ---
-/** One toy-store price tag: cut-out photo, green brand, red name, caption, yellow price box. */
+/**
+ * One toy-store price tag: cut-out photo, green brand, red name, caption,
+ * yellow price box. As a row (`row`), the photo takes one side with the host
+ * quote on it and the tag, with its description, the other.
+ */
 import Copy from "../../components/Copy.astro";
 import Img from "../../components/Img.astro";
 import ItemLinks from "../../components/ItemLinks.astro";
+import ItemQuote from "../../components/ItemQuote.astro";
 import NewBanner from "../../components/NewBanner.astro";
 import Price from "../../components/Price.astro";
 import type { BookContext } from "../../lib/book";
-import type { PageItem } from "../../lib/content";
+import type { Page, PageItem } from "../../lib/content";
 
 interface Props {
   entry: PageItem;
   ctx: BookContext;
-  /** Show the description (the big top row has room for it). */
+  page: Page;
+  /** Show the description (the big top row and boxes with room for it). */
   describe?: boolean;
+  /** A full-width row: big photo (quote on it) beside the tag. */
+  row?: boolean;
 }
 
-const { entry, ctx, describe = false } = Astro.props;
+const { entry, ctx, page, describe = false, row = false } = Astro.props;
 const { item } = entry;
 const photo = await ctx.itemImage(item, entry.photo);
 const { confirmed, estimate, label } = item.price;
 const priced = confirmed !== null || estimate !== null || label !== null;
+const quote = row && !ctx.quotedElsewhere(item, page) ? (item.quotes[0] ?? null) : null;
 ---
 
-<div class="truitem" data-item-id={item.id}>
-  <Img
-    asset={photo}
-    alt={item.image.alt}
-    widths={[200, 320, 480]}
-    sizes="(min-width: 1000px) 240px, 45vw"
-  />
-  {item.isNew && <NewBanner />}
-  {item.brand && <div class="brand">{item.brand}</div>}
-  <div class="name">{item.shortName}</div>
-  {describe && item.description && (
-    <p>
-      <Copy text={item.description} ctx={ctx} />
-    </p>
-  )}
-  {entry.caption && (
-    <p class="age">
-      <Copy text={entry.caption} ctx={ctx} />
-    </p>
-  )}
-  {priced &&
-    (entry.badge ? (
-      <span class="savetop">
-        <span class="s">{entry.badge}</span>
+<div class:list={["truitem", { "tru-row": row }]} data-item-id={item.id}>
+  <div class="tagshot">
+    <Img
+      asset={photo}
+      alt={item.image.alt}
+      widths={row ? [320, 480, 640] : [200, 320, 480]}
+      sizes={
+        row
+          ? "(min-width: 1000px) 320px, (min-width: 640px) 50vw, 90vw"
+          : "(min-width: 1000px) 240px, 45vw"
+      }
+    />
+    {item.isNew && <NewBanner />}
+    {quote && <ItemQuote quote={quote} ctx={ctx} placement="on" />}
+  </div>
+  <div class="tagcopy">
+    {item.brand && <div class="brand">{item.brand}</div>}
+    <div class="name">{item.shortName}</div>
+    {(describe || row) && item.description && (
+      <p>
+        <Copy text={item.description} ctx={ctx} />
+      </p>
+    )}
+    {entry.caption && (
+      <p class="age">
+        <Copy text={entry.caption} ctx={ctx} />
+      </p>
+    )}
+    {priced &&
+      (entry.badge ? (
+        <span class="savetop">
+          <span class="s">{entry.badge}</span>
+          <Price
+            variant="box"
+            confirmed={confirmed}
+            estimate={estimate}
+            text={label ?? undefined}
+          />
+        </span>
+      ) : (
         <Price variant="box" confirmed={confirmed} estimate={estimate} text={label ?? undefined} />
-      </span>
-    ) : (
-      <Price variant="box" confirmed={confirmed} estimate={estimate} text={label ?? undefined} />
-    ))}
-  <ItemLinks item={item} ctx={ctx} wish />
+      ))}
+    <ItemLinks item={item} ctx={ctx} wish />
+  </div>
 </div>

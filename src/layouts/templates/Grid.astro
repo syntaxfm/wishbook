@@ -4,7 +4,8 @@
  * below the photo, then the item copy and order line. A picked-by sticker
  * sits beside the headline. Two items or fewer make a "duo" page: one big
  * photo per row (alternating sides, quote on the photo) beside its copy, the
- * photos growing into whatever room the page box has left.
+ * photos growing into whatever room the page box has left. A section opener
+ * (`opener`) starts with the section's kicker, name, and page range.
  */
 import Copy from "../../components/Copy.astro";
 import Frame from "../../components/Frame.astro";
@@ -34,15 +35,31 @@ const cards = await Promise.all(
 );
 // Two items or fewer: big photos in rows, quotes on the photos.
 const duo = cards.length <= 2;
+// A section opener (a section without a divider): its kicker, name, and pages.
+const section = content.section;
+const range = content.opener ? ctx.sectionRange(section.id) : null;
 ---
 
 <PageShell
   page={page}
   ctx={ctx}
   state={state}
-  class:list={[{ "duo-page": duo }]}
+  class:list={[{ "duo-page": duo, "opener-page": content.opener }]}
   orderLine={ctx.orderLine(content.orderLine)}
 >
+  {content.opener && (
+    <div class="opener">
+      <div class="opener-l">
+        {section.kicker && (
+          <div class="k kicker">
+            <Copy text={section.kicker} ctx={ctx} />
+          </div>
+        )}
+        {range && <div class="pages kicker">{range}</div>}
+      </div>
+      <div class="tab tru">{section.name}</div>
+    </div>
+  )}
   <div class:list={["pagehead", { "with-sticker": pickers.length > 0 }]}>
     <div class="pagehead-titles">
       <h2 class="display">{content.copy.headline ?? content.title}</h2>

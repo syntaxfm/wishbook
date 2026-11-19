@@ -2,8 +2,12 @@
 /**
  * Stocking stuffers & odds 'n' ends: a dense, mostly-text listing in two
  * columns, catalog style, with small cut-out thumbnails where photos exist.
+ * Four items or fewer get a two-by-two grid of cards instead: a framed photo
+ * (or its placeholder) over the copy, the cards growing into the room the
+ * page box has left.
  */
 import Copy from "../../components/Copy.astro";
+import Frame from "../../components/Frame.astro";
 import Img from "../../components/Img.astro";
 import ItemCopy from "../../components/ItemCopy.astro";
 import ItemLetter from "../../components/ItemLetter.astro";
@@ -21,9 +25,16 @@ const items = await Promise.all(
     photo: await ctx.itemImage(pi.item, pi.photo),
   })),
 );
+const roomy = items.length <= 4;
 ---
 
-<PageShell page={page} ctx={ctx} state={state} orderLine={ctx.orderLine(content.orderLine)}>
+<PageShell
+  page={page}
+  ctx={ctx}
+  state={state}
+  class:list={[{ "odds-roomy": roomy }]}
+  orderLine={ctx.orderLine(content.orderLine)}
+>
   <div class="pagehead">
     <h2 class="display">
       <Copy text={content.copy.headline ?? content.title} ctx={ctx} />
@@ -34,24 +45,47 @@ const items = await Promise.all(
       <Copy text={content.copy.subhead} ctx={ctx} />
     </div>
   )}
-  <div class="copycol">
-    {items.map((it) => (
-      <div class="item" data-item-id={it.item.id}>
-        {it.photo.kind === "image" && (
-          <Img
-            asset={it.photo}
-            alt={it.item.image.alt}
-            class="thumb"
-            widths={[120, 200]}
-            sizes="100px"
-          />
-        )}
-        <ItemLetter letter={it.letter} />
-        <ItemCopy item={it.item} ctx={ctx} text={it.text} />
-        <ItemOrder item={it.item} ctx={ctx} page={content} />
-      </div>
-    ))}
-  </div>
+  {roomy ? (
+    <div class="oddcards">
+      {items.map((it) => (
+        <div class="oddcard" data-item-id={it.item.id}>
+          <Frame tone={it.item.image.background === "dark" ? "dark" : "light"}>
+            <Img
+              asset={it.photo}
+              alt={it.item.image.alt}
+              widths={[240, 320, 480]}
+              sizes="(min-width: 1000px) 260px, (min-width: 640px) 45vw, 90vw"
+            />
+            <ItemLetter letter={it.letter} variant="photo" />
+          </Frame>
+          <div class="item">
+            <ItemLetter letter={it.letter} />
+            <ItemCopy item={it.item} ctx={ctx} text={it.text} />
+            <ItemOrder item={it.item} ctx={ctx} page={content} />
+          </div>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <div class="copycol">
+      {items.map((it) => (
+        <div class="item" data-item-id={it.item.id}>
+          {it.photo.kind === "image" && (
+            <Img
+              asset={it.photo}
+              alt={it.item.image.alt}
+              class="thumb"
+              widths={[120, 200]}
+              sizes="100px"
+            />
+          )}
+          <ItemLetter letter={it.letter} />
+          <ItemCopy item={it.item} ctx={ctx} text={it.text} />
+          <ItemOrder item={it.item} ctx={ctx} page={content} />
+        </div>
+      ))}
+    </div>
+  )}
   {content.copy.smallprint && (
     <p class="smallprint">
       <Copy text={content.copy.smallprint} ctx={ctx} />
