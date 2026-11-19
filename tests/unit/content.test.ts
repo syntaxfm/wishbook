@@ -159,7 +159,10 @@ describe("reading an edition", () => {
         "",
       ].join("\n"),
       "content/2026/site.yaml": [
-        readFileSync(join(FIXTURE, "content/2026/site.yaml"), "utf8").trimEnd(),
+        // Replace the fixture's own filler copy.
+        readFileSync(join(FIXTURE, "content/2026/site.yaml"), "utf8")
+          .split("\nfillers:")[0]!
+          .trimEnd(),
         "fillers:",
         "  - title: Notes for Santa",
         "  - title: The Grouse Says Hi",

@@ -23,3 +23,6 @@ orderLines:
   - id: phone
     kicker: Call any time
     text: "{phone}"
+fillers:
+  - title: Notes for Santa
+    text: Room for your list.

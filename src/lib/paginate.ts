@@ -13,7 +13,7 @@
  * When a rule would break, a filler page is inserted before the page. Filler
  * copy comes from the edition's site settings, used in order and repeated.
  */
-import { getEdition } from "./content";
+import { getEdition, type EditionContent } from "./content";
 import type { Template } from "./schema";
 import type { Edition } from "./urls";
 
@@ -240,18 +240,21 @@ export function paginate(edition: Edition): Promise<Book> {
   const key = String(edition);
   let book = cache.get(key);
   if (!book) {
-    book = getEdition(edition).then(({ pages, site }) =>
-      paginateBook(
-        pages.map((p) => ({
-          slug: p.slug,
-          section: p.section.id,
-          template: p.template,
-          title: p.title,
-        })),
-        site.fillers,
-      ),
-    );
+    book = getEdition(edition).then(paginateContent);
     cache.set(key, book);
   }
   return book;
+}
+
+/** Paginates already-read edition content (its book order and filler copy). */
+export function paginateContent({ pages, site }: Pick<EditionContent, "pages" | "site">): Book {
+  return paginateBook(
+    pages.map((p) => ({
+      slug: p.slug,
+      section: p.section.id,
+      template: p.template,
+      title: p.title,
+    })),
+    site.fillers,
+  );
 }

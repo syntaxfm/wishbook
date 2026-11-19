@@ -21,18 +21,21 @@ import {
   type OgDeps,
 } from "../../src/lib/og";
 import { OG_MAX_BYTES } from "../../src/lib/og-layout";
+import { paginate } from "../../src/lib/paginate";
 import { getStaticPaths } from "../../src/pages/[edition]/og/[slug].png";
 
 // ---------------------------------------------------------------- real content
 
 describe("share card routes", () => {
-  it("emit a card for every page of every edition, plus wishlist and default", async () => {
+  it("emit a card for every page of every edition, fillers included, plus wishlist and default", async () => {
     const paths = await getStaticPaths();
     const emitted = new Set(paths.map((p) => ogImageUrl(p.params.edition, p.params.slug)));
     expect(emitted.size).toBe(paths.length);
 
     for (const edition of getEditions()) {
-      for (const page of await getPages(edition)) {
+      const book = await paginate(edition);
+      expect(book.pages.length).toBeGreaterThanOrEqual((await getPages(edition)).length);
+      for (const page of book.pages) {
         expect(emitted, `${edition}/${page.slug}`).toContain(ogImageUrl(edition, page.slug));
       }
       for (const extra of EXTRA_CARDS) expect(emitted).toContain(ogImageUrl(edition, extra));
@@ -88,6 +91,7 @@ describe("share card models", () => {
       "favorites",
       "one-picks",
       "power-bank",
+      "notes-for-santa",
       "centerfold",
       "wishlist",
       "default",
@@ -97,11 +101,22 @@ describe("share card models", () => {
       "divider",
       "items",
       "feature",
+      "page",
       "centerfold",
       "wishlist",
       "default",
     ]);
     for (const c of cards) expect(c.edition).toBe(2026);
+    // Folios come from pagination; the cover carries none, the inserted filler
+    // sits on the right so the centerfold opens on an even page.
+    expect(cards.map((c) => [c.slug, c.folio, c.side]).slice(0, 6)).toEqual([
+      ["cover", null, "right"],
+      ["favorites", "2 A", "left"],
+      ["one-picks", "3 A", "right"],
+      ["power-bank", "4 A", "left"],
+      ["notes-for-santa", "5 A", "right"],
+      ["centerfold", "6–7 A", "right"],
+    ]);
 
     const grid = cards.find((c) => c.slug === "one-picks");
     if (grid?.variant !== "items") throw new Error("expected an items card");

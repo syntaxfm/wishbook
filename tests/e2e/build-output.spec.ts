@@ -36,6 +36,8 @@ test("every page has its own static file with year-scoped meta", () => {
     expect(canonical(html), file).toBe(url);
     expect(meta(html, "og:url"), file).toBe(url);
     expect(meta(html, "og:image"), file).toBe(`${SITE}/2026/og/${page.slug}.png`);
+    // …and that share card was emitted.
+    expect(existsSync(join(DIST, "2026/og", `${page.slug}.png`)), file).toBe(true);
     expect(decode(meta(html, "og:title") ?? ""), file).toBe(decode(title(html) ?? ""));
     expect(meta(html, "description"), file).toBeTruthy();
     expect(meta(html, "og:description"), file).toBe(meta(html, "description"));

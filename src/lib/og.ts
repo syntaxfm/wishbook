@@ -17,6 +17,7 @@ import {
 } from "./content";
 import { parseCopy } from "./copy";
 import { cardElement, OG_HEIGHT, OG_WIDTH, renderPng } from "./og-layout";
+import { paginateContent } from "./paginate";
 import { absoluteUrl, editionUrl, SITE_URL, type Edition } from "./urls";
 
 /**
@@ -27,8 +28,8 @@ import { absoluteUrl, editionUrl, SITE_URL, type Edition } from "./urls";
  * This module turns content into plain, serializable card models (one per
  * page, plus the wish list and default cards). og-layout.ts draws them.
  *
- * The cards a build emits come from `ogSources()`: swap its body to change
- * which pages get a card (e.g. physical pages with folios and fillers).
+ * The cards a build emits come from `ogSources()`: one per physical page of the
+ * paginated book (fillers included), with folios.
  */
 
 export { OG_HEIGHT, OG_WIDTH };
@@ -63,15 +64,34 @@ export interface OgSourceList {
 }
 
 /**
- * The pages that get a card, in book order. Today: every logical page of the
- * edition. Swap this one function to drive the cards from another page list.
+ * The pages that get a card, in book order: every physical page of the
+ * paginated book, including inserted fillers, with its folio and binding side.
+ * The cover and back cover carry no folio.
  */
 export async function ogSources(
   edition: Edition,
   deps: OgDeps = defaultDeps,
 ): Promise<OgSourceList> {
-  const { pages } = await deps.getEdition(edition);
-  return { sources: pages.map((page) => ({ slug: page.slug, page })) };
+  const content = await deps.getEdition(edition);
+  const book = paginateContent(content);
+  const pages = new Map(content.pages.map((p) => [p.slug, p]));
+  const sections = new Map(content.sections.map((s) => [s.id, s]));
+  const sources = book.pages.map((bp): OgSource => {
+    const base = {
+      slug: bp.slug,
+      folio: bp.kind === "cover" || bp.kind === "back" ? null : bp.label,
+      side: bp.side === "left" ? ("left" as const) : ("right" as const),
+    };
+    const page = pages.get(bp.slug);
+    if (page) return { ...base, page };
+    const copy = bp.fillerCopy ?? { title: bp.title, text: null, art: null };
+    return { ...base, filler: { ...copy, section: sections.get(bp.section) ?? null } };
+  });
+  const slugs = new Set(book.pages.map((p) => p.slug));
+  return {
+    sources,
+    pageLabel: (slug) => (slugs.has(slug) ? book.ref(slug) : null),
+  };
 }
 
 /** Card slugs that aren't pages. A page can't use these. */
