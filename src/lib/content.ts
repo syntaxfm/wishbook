@@ -187,6 +187,20 @@ export interface Site {
   guarantee: { lead: string | null; text: string | null };
   orderLines: { id: string; kicker: string | null; text: string }[];
   orderForm: { shareLabel: string | null; printLabel: string | null };
+  wishList: {
+    title: string | null;
+    circle: string | null;
+    circled: string | null;
+    copied: string | null;
+    empty: string | null;
+    shared: string | null;
+    add: string | null;
+    added: string | null;
+    start: string | null;
+    unpriced: string | null;
+    mailTo: string[];
+  };
+  search: { label: string | null; placeholder: string | null; none: string | null };
   backCover: {
     headline: string | null;
     returnAddress: string[];
@@ -552,6 +566,24 @@ async function loadEdition(root: string, edition: number): Promise<EditionConten
     guarantee: { lead: opt(s.guarantee.lead), text: opt(s.guarantee.text) },
     orderLines: s.orderLines.map((l) => ({ id: l.id, kicker: opt(l.kicker), text: l.text })),
     orderForm: { shareLabel: opt(s.orderForm.shareLabel), printLabel: opt(s.orderForm.printLabel) },
+    wishList: {
+      title: opt(s.wishList.title),
+      circle: opt(s.wishList.circle),
+      circled: opt(s.wishList.circled),
+      copied: opt(s.wishList.copied),
+      empty: opt(s.wishList.empty),
+      shared: opt(s.wishList.shared),
+      add: opt(s.wishList.add),
+      added: opt(s.wishList.added),
+      start: opt(s.wishList.start),
+      unpriced: opt(s.wishList.unpriced),
+      mailTo: [...s.wishList.mailTo],
+    },
+    search: {
+      label: opt(s.search.label),
+      placeholder: opt(s.search.placeholder),
+      none: opt(s.search.none),
+    },
     backCover: {
       headline: opt(s.backCover.headline),
       returnAddress: [...s.backCover.returnAddress],

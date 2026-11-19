@@ -458,6 +458,37 @@ export function createKeystaticConfig(edition: number) {
         },
         { label: "Order form" },
       ),
+      wishList: fields.object(
+        {
+          title: optionalText("Title", '"My Wish List". The wish-list page and the chrome link.'),
+          circle: optionalText("Circle button", 'On every item until it is circled: "Circle it".'),
+          circled: optionalText("Circled button", 'On a circled item: "Want!!".'),
+          copied: copyText("Link copied", "Shown after Share copies the wish-list link."),
+          empty: copyText("Empty list", "The wish-list page when a link lists nothing."),
+          shared: copyText("Shared list intro", "Above the items on a shared wish list."),
+          add: optionalText("Add button", '"Add these to my list".'),
+          added: copyText("Added", "Shown after the shared items are added."),
+          start: optionalText("Start button", '"Start my own".'),
+          unpriced: copyText(
+            "Unpriced footnote",
+            "Under the order form total when a listed item has no price yet. The total gets a *.",
+          ),
+          mailTo: fields.array(fields.text({ label: "Line" }), {
+            label: "Mail-to box (printed form)",
+            description: "Address lines in the printed order form's mail-to-Santa box.",
+            itemLabel: (props) => props.value || "Line",
+          }),
+        },
+        { label: "Wish list" },
+      ),
+      search: fields.object(
+        {
+          label: optionalText("Search title", '"Search the WishBook". Also the chrome button.'),
+          placeholder: optionalText("Placeholder"),
+          none: copyText("No results"),
+        },
+        { label: "Search (⌘K)" },
+      ),
       backCover: fields.object(
         {
           headline: copyText("Headline"),
