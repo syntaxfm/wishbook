@@ -57,14 +57,16 @@ pnpm preview      # serve the built site
 
 Every real URL includes the edition year:
 
-| URL                       | What it is            |
-| ------------------------- | --------------------- |
-| `/2026/`                  | Cover                 |
-| `/2026/<section>/`        | Section divider       |
-| `/2026/<section>/<slug>/` | Any other page        |
-| `/2026/wishlist/?w=…`     | A shared wish list    |
-| `/2026/catalog.txt`       | Plain-text catalog    |
-| `/2026/og/<slug>.png`     | Share card for a page |
+| URL                       | What it is                 |
+| ------------------------- | -------------------------- |
+| `/2026/`                  | Cover                      |
+| `/2026/<section>/`        | Section divider            |
+| `/2026/<section>/<slug>/` | Any other page             |
+| `/2026/wishlist/?w=…`     | A shared wish list         |
+| `/2026/catalog.txt`       | Plain-text catalog         |
+| `/2026/og/<slug>.png`     | Share card for a page      |
+| `/2026/og/wishlist.png`   | Share card for a wish list |
+| `/2026/og/default.png`    | Fallback share card        |
 
 `/` and `/catalog.txt` are build-time copies of the current edition's cover and catalog. Their canonical URL points at `/2026/`. Year-less section links (`/favorites/…`) redirect (302) to the current edition via `public/_redirects`.
 
@@ -92,6 +94,12 @@ In each edition (`content/<year>/`):
 In copy, write `{page:icemag}` for a page reference (rendered "page 6 A"), `{syn:leatherman-arc}` for a catalog number, `{count}` for the number of gifts, `{phone}` for the phone number, and `**bold**` / `*italic*` for emphasis.
 
 Missing or invalid content fails the build with a clear error.
+
+## Share cards
+
+Every page gets a crafted 1200×630 PNG at `/<year>/og/<slug>.png`, drawn from the same content as the page (title, product photos with item letters and prices, who picked them, section tab, folio, and the WishBook masthead), plus `wishlist.png` and `default.png`. They update on their own when content or images change; missing images show as labeled placeholder blocks, like on the page.
+
+Rendered cards are cached in `node_modules/.cache/wishbook-og/` by a hash of their content, images, and the renderer, so only changed cards are redrawn. Delete that folder to force a full re-render.
 
 ## Deploying
 
