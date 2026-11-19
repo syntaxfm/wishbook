@@ -22,7 +22,7 @@ pnpm links          # only the items missing a buy or maker link
 pnpm textures       # re-bake the paper, print, and wood texture tiles
 ```
 
-Before considering any change done, run `pnpm check`, `pnpm lint`, `pnpm format:check`, and `pnpm test`. Run `pnpm test:e2e` when touching layout, navigation, or the book engine.
+Before considering any change done, run `pnpm check`, `pnpm lint`, `pnpm format:check`, and `pnpm test`. Run `pnpm test:e2e` when touching layout, navigation, the book engine, URLs, or anything in the build output. It builds and previews the site itself; set `E2E_PORT` to run it on another port (several checkouts at once).
 
 ## Tooling notes
 
@@ -31,6 +31,8 @@ Before considering any change done, run `pnpm check`, `pnpm lint`, `pnpm format:
 - **oxlint** lints only the `<script>` blocks of `.astro` files, so template issues are caught by `astro check`, not the linter.
 - No UI framework: client code is vanilla TypeScript modules. Don't add React, Svelte, Vue, or similar without discussion.
 - No analytics, trackers, or third-party requests at runtime. Fonts are self-hosted.
+- **Everything is local, always.** Every image, font, stylesheet, and script is a checked-in file served from the site's own origin: no CDNs, no remote images, no embeds, no remote URLs ever. The only external URLs are outbound links (buy, maker, the episode). The e2e suite fails on any request to another origin and on any remote `src`, `srcset`, `<link href>`, or CSS `url()` in the build.
+- **Vitest uses Astro's Vite config** (`getViteConfig` in `vitest.config.ts`), so unit tests can import `.astro` components and render them with the container API (`experimental_AstroContainer`), as `tests/unit/item-links.test.ts` does.
 - **Keystatic is dev-only.** Its integration (and React) is added to the Astro config only for `astro dev`. The production build is always fully static: no adapter, no `/keystatic` or `/api/keystatic` routes, no React.
 - Dev accepts URLs with or without a trailing slash (Keystatic's API needs it); production URLs always end in `/`.
 - **Design showcase is dev-only.** `/dev/design-system/` renders every component with sample data. Its route is injected only for `astro dev`, so it never reaches `dist/`.
@@ -81,7 +83,20 @@ src/
 public/           static files (_headers); _redirects is generated at build
 scripts/          node scripts (assets report, texture baking)
 keystatic.config.ts   admin config: the schema for the current edition
-tests/            unit/ for vitest; e2e/ for playwright; fixtures/ (two fixture editions)
+tests/
+  fixtures/       two small fixture editions (content/2025, content/2026, assets/) for unit tests
+                  and the side-by-side build
+  unit/           vitest: content (reader + validation), paginate, assets (resolver), catalog
+                  (numbers, prices), copy, og (routes, models, rendering), catalog-txt (+ snapshot
+                  in __snapshots__/), redirects, routes (paths, spreads, modes), urls, wishlist
+                  (codec, search, item index), item-links (ItemLinks rendering vs placeholders)
+  e2e/            playwright, against the built site: smoke, build-output (static files, meta,
+                  year-scoped URLs, no foreign resources, root copies, catalog.txt, _redirects),
+                  engine (deep links per mode, turns/jumps, history, focus + live region, no-JS,
+                  image loading, centerfold), pages (every page at 390/820/1360 without overflow,
+                  modes, no-JS links, item ids, purchase links), design-system (showcase absent,
+                  fonts, no requests to other origins on any page), wishlist (round trip, order
+                  form, ⌘K, print), second-edition (a fixture year built side by side)
 ```
 
 ## Content rules
@@ -89,12 +104,14 @@ tests/            unit/ for vitest; e2e/ for playwright; fixtures/ (two fixture 
 - **Never hard-code content in markup.** Items, prices, quotes, timestamps, and settings come from content/config.
 - **Never type a page number.** Page numbers, filler pages, and cross-references are computed from the book order. Reference other pages or items by slug in content; the build renders the label ("page 6 A") and the link.
 - **Single sources of truth:** the phone number, episode URL, and timestamps each live in exactly one place.
+- **Item ids are permanent and never reused** within an edition. Image file names and shared wish-list codes are built from them, so renumbering or recycling an id breaks old links. A removed item's id stays retired; a new item gets the next unused id.
+- **Buy and maker links are editable content** (`buyLink`, `makerLink` in each item's YAML). A missing buy link renders the `links.missingBuy` placeholder; never hide the slot or hard-code a URL. **Link placement is pending owner review**: keep every purchase link going through `ItemLinks.astro` so it can move in one place.
 - **Content and copy live in YAML**, editable through Keystatic (`pnpm dev`, then `/keystatic`). Keystatic always edits the current edition.
 - **Catalog numbers are timestamps** into the episode (`SYN 036:41`). They come from the timestamps file. Clicking one opens the video at that moment.
 - **Quotes** are taken from the episode transcript. Use "…" to trim. Quotes marked as needing verification must keep that flag until reviewed.
 - **Prices:** show the confirmed price when set, otherwise the estimate with an "est." marker.
 - **Missing images** render the placeholder component (a solid color block with a short title) until the real asset exists. All images are local; never link remote image URLs.
-- **Per-edition content and assets:** each year's content lives in `content/<year>/` and its images in `assets/<year>/`. Item images are found by convention, not stored paths: `assets/<year>/items/<id>-<name>.<ext>`, extra photos `-2`, `-3`, item art `-hero`. Only the id prefix and suffix matter. Write ids zero-padded to three digits (`001-silicone-cables.png`); the resolver accepts any padding. Don't end a name in `-<digit>` (it reads as an extra-photo suffix). Item ids are permanent within an edition and never reused. Keystatic has no image upload fields on purpose: its uploads are named after the field, not the id, so they can't follow the convention. Drop files into the folders instead.
+- **Per-edition content and assets:** each year's content lives in `content/<year>/` and its images in `assets/<year>/`. Item images are found by convention, not stored paths: `assets/<year>/items/<id>-<name>.<ext>`, extra photos `-2`, `-3`, item art `-hero`. Only the id prefix and suffix matter. Write ids zero-padded to three digits (`001-silicone-cables.png`); the resolver accepts any padding. Don't end a name in `-<digit>` (it reads as an extra-photo suffix). Keystatic has no image upload fields on purpose: its uploads are named after the field, not the id, so they can't follow the convention. Drop files into the folders instead.
 - **Schema and reader:** the schema for every editable field is `src/lib/schema.ts` (Keystatic uses it through `keystatic.config.ts`). Read content only through `src/lib/content.ts` (`getItems(edition)`, `getPages(edition)`, …), which resolves references and fails the build with file-specific errors. Resolve images only through `src/lib/assets.ts` (`resolveAsset(edition, key)`), which returns the image or a placeholder.
 - **Copy markup:** copy fields are plain text plus `**bold**`, `*italic*`, and tokens: `{page:<slug>}` (rendered "page 6 A", linked), `{syn:<item-slug>}` (catalog number), `{count}` (gifts in the edition: items not marked "mentioned in passing", see `pickCount`), `{phone}`, `{catalog}`. Parse with `parseCopy` in `src/lib/copy.ts`. Unknown tokens and slugs fail the build.
 
@@ -140,7 +157,8 @@ The effects apply to any `.page` (with `.left` / `.right` for the gutter and wor
 - **Every real URL includes the edition year.** Each logical page has a real path: `/2026/` (cover), `/2026/<section>/` (section divider), `/2026/<section>/<slug>/`. Also `/2026/wishlist/?w=…`, `/2026/catalog.txt`, and `/2026/og/<slug>.png`. Each page has its own `<title>`, canonical URL, and Open Graph tags, all absolute and year-scoped.
 - **Root copies:** `/` and `/catalog.txt` are build-time copies of the current edition's cover and catalog, with canonical pointing at `/2026/`. They are real files, not redirects. `dist/_redirects` is generated at build from the current edition's sections (`src/lib/redirects.ts`) and sends (302) year-less section paths to the current edition.
 - **catalog.txt** is built by `formatCatalogText(ctx)` in `src/lib/catalog-txt.ts` from the book context (`createBookContext` takes already-loaded content, so tests use fixtures). Every line stays within 80 columns (78 wide; URLs never break). Each item is listed once, at the page the order-form index uses (its feature page, else its first appearance), under its section; items mentioned in passing are grouped under the page that lists them. It prints only order lines with `{phone}` or `{catalog}`, the catalog/estimate key entries, buy links (or `links.missingBuy`), the guarantee, and the disclosure: no new copy. `public/_headers` serves it as `text/plain; charset=utf-8`.
-- **Build every URL with the URL helper** (`src/lib/urls.ts`: `editionUrl`, `rootUrl`, `absoluteUrl`). Never hard-code a path. Don't use Astro's `base` option; routes live under `src/pages/[edition]/`.
+- **Build every URL with the URL helper** (`src/lib/urls.ts`: `editionUrl`, `rootUrl`, `absoluteUrl`). Never hard-code a path. Don't use Astro's `base` option; routes live under `src/pages/[edition]/`. The e2e suite checks every root-relative and same-origin URL in the built HTML, `catalog.txt`, and any sitemap (links, `data-path`s, share paths, canonical, `og:url`, `og:image`): each must start with `/<year>/` or `/_astro/`. Nothing links to the root copies.
+- **Editions are independent.** Adding a year must not change a byte of another year's output; `tests/e2e/second-edition.spec.ts` builds the fixture 2025 edition next to 2026 and compares. Edition-specific styling goes in `src/styles/editions/<year>.css`, never in shared styles keyed on a year. Steps for a new year are in the README ("Starting next year's WishBook").
 - The client never navigates across editions. Links to another year are normal full-page links.
 - **Share cards** are crafted 1200×630 images per page (not screenshots), generated at build with Satori + resvg. Satori supports flexbox only, with no CSS filters or masks, so textures are pre-baked images.
   - `src/lib/og.ts` turns content into plain card models (variants: cover, divider, items, feature, centerfold, page, wishlist, default) and renders them with a content-hash cache in `node_modules/.cache/wishbook-og/`. `src/lib/og-layout.ts` draws them. The route is `src/pages/[edition]/og/[slug].png.ts`; every page's `og:image` is `ogImageUrl(edition, slug)`.
@@ -159,7 +177,7 @@ The effects apply to any `.page` (with `.left` / `.right` for the gutter and wor
   - Images: the engine sets `loading="eager"` on images in the current spread and the spreads either side (pages and their neighbours in single/scroll mode); everything else stays `lazy`. Off-screen pages use `content-visibility: auto`.
   - Pages get `.in` once, the first time they come into view (pops, pulses, marker draws in `motion.css`).
   - The centerfold's legend and hotspots light each other (`.lit`). When the art is a swipe strip, the first tap on a legend entry scrolls the strip to its hotspot and the second follows the link.
-- **Purchase links** render only through `ItemLinks.astro` (placement is provisional): "Buy ↗" (`rel="noopener sponsored"`) and "Maker ↗" (`rel="noopener"`), new tab, 44px touch targets, quieter than the price. A missing buy link shows the muted `links.missingBuy` placeholder; a missing maker link shows a placeholder only in dev. Labels and the affiliate disclosure (on the order form) live in `site.yaml` under `links`.
+- **Purchase links** render only through `ItemLinks.astro` (placement is provisional, pending owner review): "Buy ↗" (`rel="noopener sponsored"`) and "Maker ↗" (`rel="noopener"`), new tab, 44px touch targets, quieter than the price. A missing buy link shows the muted `links.missingBuy` placeholder; a missing maker link shows a placeholder only in dev. Labels and the affiliate disclosure (on the order form) live in `site.yaml` under `links`.
 - **Wish list:** `wishlist.ts` adds a circle toggle (`button.wish-toggle`, `aria-pressed`) and a marker loop (`svg.wish-circle`, drawn on circling; instant with reduced motion) to every `[data-item-id]` block in the book except centerfold hotspot links. Toggles are added by script, so no-JS pages show none. Every copy of an item (it can appear on several pages) stays in sync.
   - Storage: `localStorage["wishbook:<year>:wishlist"]`, a JSON array of item ids in the order circled; per edition, so years never mix. Ids not in the edition's item index are ignored. Changes dispatch `wishbook:wishlist` on `document` with `{ ids }` (other tabs too).
   - Share code (`src/lib/wishlist-codec.ts`): a bitset of item ids (bit `id`, least significant bit first per byte), base64url without padding or trailing zero bytes: `[1, 2, 9]` → `BgI`. Item ids are permanent, so old codes stay valid as items are added; empty, malformed, or oversized codes decode to an empty list. The share URL is `/<year>/wishlist/?w=<code>` (no code for an empty list), copied to the clipboard, or shown selected in a field when the clipboard is unavailable.
