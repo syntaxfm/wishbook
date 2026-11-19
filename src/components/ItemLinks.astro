@@ -27,7 +27,7 @@ const dev = import.meta.env.DEV;
 const showMaker = item.makerLink || (dev && labels.missingMaker);
 ---
 
-<div class:list={["links", className]} data-links>
+<div class:list={["links", className]} data-links={item.id}>
   {item.buyLink ? (
     <a
       class="buy"
