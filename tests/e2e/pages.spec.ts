@@ -37,8 +37,8 @@ async function overflowing(page: Page): Promise<string[]> {
         // Clip to every ancestor inside the page that hides its overflow.
         let clipped = { left: b.left, right: b.right, top: b.top, bottom: b.bottom };
         for (let a = el.parentElement; a && a !== p; a = a.parentElement) {
-          const cs = getComputedStyle(a);
-          if (cs.overflowX !== "visible" || cs.overflowY !== "visible") {
+          const box = getComputedStyle(a);
+          if (box.overflowX !== "visible" || box.overflowY !== "visible") {
             const c = a.getBoundingClientRect();
             clipped = {
               left: Math.max(clipped.left, c.left),

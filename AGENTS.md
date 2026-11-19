@@ -49,20 +49,25 @@ src/
   lib/            urls.ts (URL helper), schema.ts (content schema), content.ts (reader),
                   assets.ts (asset resolver), copy.ts (copy markup), catalog.ts (catalog
                   numbers, prices, order lines), og.ts + og-layout.ts (share cards),
-                  editions, pagination
-  layouts/        page templates (one per catalog layout)
+                  editions, paginate.ts (page numbers, fillers, spreads, refs), book.ts
+                  (the per-edition context every template gets), redirects.ts (_redirects)
+  layouts/        BookPage.astro (one HTML file: meta + the whole book opened at a page);
+                  templates/ (one component per catalog layout, plus Filler)
   components/     catalog building blocks (Img, Placeholder, ItemLetter, PhotoQuote, Price,
-                  CatalogNumber, PickedBy, NewBanner, Folio, ShopLine, Kbd, Frame…);
-                  DesignSystem (styles + font preloads, in <head>), PrintFilters (in <body>)
+                  CatalogNumber, PickedBy, NewBanner, Folio, ShopLine, Kbd, Frame…); content
+                  renderers (Copy, CopyParas, ItemCopy, ItemOrder, ItemLinks, ItemQuote,
+                  LineQuote); PageShell (one page's <article>), Book (all pages, tabs,
+                  prev/next); DesignSystem (styles + font preloads, in <head>), PrintFilters
   scripts/        client modules: book engine, router, image loader, wish list, search
   styles/         global.css imports, in order: fonts, tokens (palette, type roles), textures,
-                  base, components, effects (paper & print), motion; editions/<year>.css
+                  base, components, templates (page layouts), book (shell, reading modes,
+                  tabs, purchase links), effects (paper & print), motion; editions/<year>.css
                   overrides; textures/ holds the baked tiles; print stylesheet
   dev/            dev-only design showcase and its sample images
   pages/
     index.astro   root copy of the current edition's cover
     [edition]/    every real route, generated per edition (pages, og/, wishlist/, catalog.txt)
-public/           static files (_headers, _redirects)
+public/           static files (_headers); _redirects is generated at build
 scripts/          node scripts (assets report, texture baking)
 keystatic.config.ts   admin config: the schema for the current edition
 tests/            unit/ for vitest; e2e/ for playwright; fixtures/ (two fixture editions)
@@ -122,7 +127,7 @@ The effects apply to any `.page` (with `.left` / `.right` for the gutter and wor
 ## Book, URLs, and navigation
 
 - **Every real URL includes the edition year.** Each logical page has a real path: `/2026/` (cover), `/2026/<section>/` (section divider), `/2026/<section>/<slug>/`. Also `/2026/wishlist/?w=…`, `/2026/catalog.txt`, and `/2026/og/<slug>.png`. Each page has its own `<title>`, canonical URL, and Open Graph tags, all absolute and year-scoped.
-- **Root copies:** `/` and `/catalog.txt` are build-time copies of the current edition's cover and catalog, with canonical pointing at `/2026/`. They are real files, not redirects. `public/_redirects` sends (302) year-less section paths to the current edition.
+- **Root copies:** `/` and `/catalog.txt` are build-time copies of the current edition's cover and catalog, with canonical pointing at `/2026/`. They are real files, not redirects. `dist/_redirects` is generated at build from the current edition's sections (`src/lib/redirects.ts`) and sends (302) year-less section paths to the current edition.
 - **Build every URL with the URL helper** (`src/lib/urls.ts`: `editionUrl`, `rootUrl`, `absoluteUrl`). Never hard-code a path. Don't use Astro's `base` option; routes live under `src/pages/[edition]/`.
 - The client never navigates across editions. Links to another year are normal full-page links.
 - **Share cards** are crafted 1200×630 images per page (not screenshots), generated at build with Satori + resvg. Satori supports flexbox only, with no CSS filters or masks, so textures are pre-baked images.
@@ -133,6 +138,10 @@ The effects apply to any `.page` (with `.left` / `.right` for the gutter and wor
   - In Satori, a div defaults to `display: block` and `box-sizing: content-box`; the `h()` helper sets flex and border-box. An image drawn over text hides the text, so put overlays (like the wish-list marker loop) before the content they surround.
 - **Reading mode by viewport:** book with spreads and a 3D page turn (≥ 1000px), single page with turn (≥ 640px), vertical scroll below that. On small screens the centerfold becomes a horizontal swipe strip with its legend below.
 - **Placement rules** are enforced at build: spreads are even (left) / odd (right), the centerfold opens as a spread, and the back cover sits alone on the left. Filler pages are inserted automatically to satisfy them.
+- **Pagination API:** `paginate(edition)` in `src/lib/paginate.ts` returns the `Book`: `pages` in order (each `BookPage` has `slug`, `path` inside the edition, `n`/`end`, folio `label` "6 A", `side` left/right/spread, `section`, `title`, `kind` cover/divider/centerfold/back/filler/page, `template`, and for fillers `fillerCopy` {title, text, art}), `spreads`, and helpers `page`, `label`, `ref` ("page 6 A"), `spreadOf`, `firstOf`, `rangeOf`. The centerfold is one entry spanning two numbers. Fillers get a slug from their title and a path in the section before them (`/2026/back/the-grouse-says-hi/`), so they are real pages too. `paginateBook()` is the pure core (unit-tested).
+- **The book DOM** (what the engine drives): `Book.astro` renders every page as `.book-pages > article.page` (the centerfold is `section.cf-page`) with `data-slug`, `data-n` (`data-end` on the centerfold), `data-side`, `data-path`, `data-section`, `data-title`, and a visually hidden `.page-title` heading (focus target). The opened page is `.is-current`; it and its spread partner are `.is-shown`. Also `nav.tabs` (links to each section's first page), `nav.pager` (prev/next links, with `data-spread-href` for book mode), and a `[data-live]` polite live region. Item blocks carry `data-item-id`; purchase links `data-links="<id>"`; the order form `data-order-form`, `data-order-row`, `data-order-total`, `data-share`, `data-print`.
+- **Reading-mode class:** an inline head script adds `js` and `m-book` / `m-single` / `m-scroll` to `<html>` before first paint. Without a class (no JS) only the current page shows, and every tab, folio, cross-reference, and prev/next is a real link.
+- **Purchase links** render only through `ItemLinks.astro` (placement is provisional): "Buy ↗" (`rel="noopener sponsored"`) and "Maker ↗" (`rel="noopener"`), new tab, 44px touch targets, quieter than the price. A missing buy link shows the muted `links.missingBuy` placeholder; a missing maker link shows a placeholder only in dev. Labels and the affiliate disclosure (on the order form) live in `site.yaml` under `links`.
 - **History:** a page turn _replaces_ the URL; a jump (tab, cross-ref, index, hotspot) _pushes_ it.
 - **Accessibility:** announce the new page in a polite live region and move focus to its heading after every turn or jump. Respect `prefers-reduced-motion` (instant swaps). Every static file renders its own page without JavaScript.
 - **Performance:** load images only for the current spread and its neighbors; use `content-visibility` for off-screen pages; preload the fonts used above the fold.
