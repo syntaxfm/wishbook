@@ -15,7 +15,9 @@
  * height is reserved before the feed is shown (see reserveFeed), so a deep
  * link lands once and stays put; the browser's scroll anchoring absorbs any
  * later change above the reader. In book and single modes the book fits the
- * window and nothing scrolls the document.
+ * window and nothing scrolls the document (a frame that lets a single page
+ * run taller than the window scrolls within it; every turn or jump then
+ * opens the new page at the top of the book).
  *
  * History: a turn (prev/next, arrow keys, swipe, scrolling the feed) replaces
  * the URL; a jump (tab, cross-reference, hotspot, search result, navigate())
@@ -285,9 +287,21 @@ function go(
   render();
   if (kind === "scroll") return emit(kind);
   if (mode === "scroll") scrollFeedTo(page, "jump");
+  else toBookTop();
   announce(page);
   if (focus) focusHeading(page);
   emit(kind);
+}
+
+/**
+ * Book and single modes normally fit the window, but a frame may let one
+ * page run taller than it (the window then scrolls within the page). A new
+ * page always opens at its top: if the reader has scrolled down, go back to
+ * the top of the book at once, before any turn plays.
+ */
+function toBookTop(): void {
+  const top = Math.max(0, Math.round(root!.getBoundingClientRect().top + scrollY));
+  if (scrollY > top + 1) scrollTo({ top, behavior: "instant" });
 }
 
 function normalizeHere(): string {
@@ -451,6 +465,7 @@ function turnSingle(dir: 1 | -1): void {
   const target = pages[current.index + dir];
   if (!target) return;
   const finish = () => go(target, "turn");
+  toBookTop();
   if (reducedMotion()) return finish();
 
   // Forward: the current page lifts off to reveal the next one underneath.

@@ -1,26 +1,41 @@
 /**
  * PROTOTYPE: the client half of the layout variants (see
  * src/lib/proto-layout.ts): the switcher panel, the mode choice per layout,
- * the magnifier and zoomed page (c), and the auto-hiding controls (d).
+ * the magnifier and zoomed page (c), the auto-hiding controls (d), and the
+ * hybrid tiers (src/scripts/proto-hybrid.ts).
  */
+import type { ReadingMode } from "../lib/modes";
 import {
-  LAYOUT_CHROME,
   LAYOUT_KEY,
   LAYOUT_NAMES,
   LAYOUTS,
   DEFAULT_LAYOUT,
+  chromeFor,
   layoutMode,
   parseLayout,
   type Layout,
 } from "../lib/proto-layout";
 import { currentMode, currentPage, navigate, setModeResolver } from "./book";
+import { clearMeasurements, decide, mountPanel } from "./proto-hybrid";
 
 const html = document.documentElement;
 let layout: Layout = parseLayout(html.dataset.layout) ?? DEFAULT_LAYOUT;
 
+/**
+ * The mode for this layout at a viewport size (hybrid measures the book).
+ * Sets the frame too, before the engine applies the mode, so the new mode's
+ * first layout (and the feed's height reservation) already uses it.
+ */
+function resolve(w: number, h: number): ReadingMode {
+  const mode = layout === "hybrid" ? decide(w, h).mode : layoutMode(layout, w, h);
+  if (layout !== "hybrid") delete html.dataset.hyTier;
+  html.dataset.chrome = chromeFor(layout, mode);
+  return mode;
+}
+
 /** Call before the engine starts, so it opens in the layout's mode. */
 export function installLayouts(): void {
-  setModeResolver((w, h) => layoutMode(layout, w, h));
+  setModeResolver(resolve);
 }
 
 /** Call after the engine starts. */
@@ -28,20 +43,27 @@ export function startLayouts(): void {
   renderSwitcher();
   startZoom();
   startIdle();
+  // Heights measured with fallback fonts are wrong: measure again once the
+  // web fonts are in.
+  if (document.fonts.status !== "loaded") {
+    void document.fonts.ready.then(() => {
+      clearMeasurements();
+      if (layout === "hybrid") setModeResolver(resolve);
+    });
+  }
 }
 
 function setLayout(next: Layout): void {
   if (next === layout) return;
   layout = next;
   html.dataset.layout = next;
-  html.dataset.chrome = LAYOUT_CHROME[next];
   try {
     localStorage.setItem(LAYOUT_KEY, next);
   } catch {
     // storage unavailable: the choice lasts for this page only
   }
   closeZoom();
-  setModeResolver((w, h) => layoutMode(layout, w, h));
+  setModeResolver(resolve);
   updateSwitcher();
   updateMagnifiers();
   // Keep the reader on their page when the feed's shape changes.
@@ -69,7 +91,7 @@ function renderSwitcher(): void {
   for (const l of LAYOUTS) {
     const b = document.createElement("button");
     b.type = "button";
-    b.textContent = l.toUpperCase();
+    b.textContent = l === "hybrid" ? "H" : l.toUpperCase();
     b.title = LAYOUT_NAMES[l];
     b.dataset.layout = l;
     b.addEventListener("click", () => setLayout(l));
@@ -78,6 +100,10 @@ function renderSwitcher(): void {
   const name = document.createElement("span");
   name.className = "name";
   switcher.append(name);
+  // hybrid: why this tier, and the floor / max-screens knobs
+  mountPanel(switcher, () => {
+    if (layout === "hybrid") setModeResolver(resolve);
+  });
   document.body.append(switcher);
   updateSwitcher();
 }
