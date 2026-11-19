@@ -35,17 +35,17 @@ test("circle 3 items, share the link, and the same 3 open in a new browser", asy
   const context = await browser.newContext({ viewport: { width: 1360, height: 900 } });
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   const page = await context.newPage();
-  await page.goto("/2026/favorites/wes/");
-  const toggles = page.locator('.book-pages > [data-slug="wes"] [data-wish-toggle]');
+  await page.goto("/2026/kitchen/kitchen-picks/");
+  const toggles = page.locator('.book-pages > [data-slug="kitchen-picks"] [data-wish-toggle]');
   await expect(toggles.first()).toBeVisible();
   const ids: number[] = [];
-  for (const i of [0, 1, 3]) {
+  for (const i of [0, 2, 1]) {
     const toggle = toggles.nth(i);
     await toggle.click();
     await expect(toggle).toHaveAttribute("aria-pressed", "true");
     ids.push(Number(await toggle.getAttribute("data-wish-toggle")));
   }
-  await expect(page.locator('.book-pages > [data-slug="wes"] .is-wished')).toHaveCount(3);
+  await expect(page.locator('.book-pages > [data-slug="kitchen-picks"] .is-wished')).toHaveCount(3);
   await expect(page.locator("[data-wish-count]")).toHaveText("3");
   expect(await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), KEY)).toEqual(ids);
 

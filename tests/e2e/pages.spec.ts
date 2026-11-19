@@ -105,7 +105,7 @@ test("the reading mode follows the viewport", async ({ browser }) => {
         els.filter((e) => getComputedStyle(e).display !== "none").map((e) => e.dataset.slug),
       );
     if (mode === "m-scroll") expect(visible.length).toBeGreaterThan(30);
-    else expect(visible).toEqual(mode === "m-book" ? ["favorites", "wes"] : ["wes"]);
+    else expect(visible).toEqual(mode === "m-book" ? ["wes", "wes-more"] : ["wes"]);
     await page.close();
   }
 });
@@ -122,7 +122,14 @@ test("without JavaScript the current page renders and navigation is plain links"
   await expect(page).toHaveURL(/\/2026\/favorites\/randy\/$/);
   await expect(page.locator('[data-slug="randy"]')).toBeVisible();
   await page.locator('.tabs a[data-section="tech"]').click();
-  await expect(page).toHaveURL(/\/2026\/tech\/$/);
+  await expect(page).toHaveURL(/\/2026\/tech\/olight\/$/);
+  // A section's own path is a real file too, opened at its first page.
+  await page.goto("/2026/tech/");
+  await expect(page.locator('[data-slug="olight"]')).toBeVisible();
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    /\/2026\/tech\/olight\/$/,
+  );
   await context.close();
 });
 

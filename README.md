@@ -62,7 +62,7 @@ Every real URL includes the edition year:
 | URL                       | What it is                                                           |
 | ------------------------- | -------------------------------------------------------------------- |
 | `/2026/`                  | Cover                                                                |
-| `/2026/<section>/`        | Section divider                                                      |
+| `/2026/<section>/`        | A section's first page (its divider page, if it has one)             |
 | `/2026/<section>/<slug>/` | Any other page                                                       |
 | `/2026/wishlist/?w=…`     | A shared wish list (`w`: the circled item ids as a base64url bitset) |
 | `/2026/catalog.txt`       | Plain-text catalog                                                   |
@@ -72,7 +72,7 @@ Every real URL includes the edition year:
 
 `/` and `/catalog.txt` are build-time copies of the current edition's cover and catalog. Their canonical URL points at `/2026/`. Year-less section links (`/favorites/…`) and `/wishlist/` redirect (302) to the current edition via `_redirects`, generated at build from the current edition's sections.
 
-Every page file contains the whole book, opened at that page. After the first load, turning pages and jumping (tabs, cross-references, hotspots) happen in the browser with no reloads; the address bar always shows the open page's year-scoped URL, so whatever a visitor copies is permanent. Opening `/` and turning a page moves the address to `/2026/…`. Filler pages (inserted to keep spreads on the right sides) get real URLs too, in the section before them.
+Every page file contains the whole book, opened at that page. After the first load, turning pages and jumping (tabs, cross-references, hotspots) happen in the browser with no reloads; the address bar always shows the open page's year-scoped URL, so whatever a visitor copies is permanent. Opening `/` and turning a page moves the address to `/2026/…`. The 2026 book has no section divider pages, so each section's own path (`/2026/tech/`) is a copy of its first page (`/2026/tech/olight/`, which it names as canonical), and the section tabs link to that first page. Filler pages (inserted to keep spreads on the right sides) get real URLs too, in the section before them.
 
 All URLs are built with the helper in `src/lib/urls.ts`. Never hard-code a path, and don't use Astro's `base` option.
 
@@ -95,7 +95,7 @@ In each edition (`content/<year>/`):
 
 - **Items** (`items/*.yaml`): one file per gift, with id, name, picker, section, prices, buy and maker links, descriptions, variants, and quotes. Item ids are permanent and never reused. Items "mentioned in passing" (the stocking-stuffers page) are marked as mentions and aren't counted as gifts.
 - **Hosts** (`hosts/*.yaml`): the shoppers, with role, bio, and their picks page.
-- **Book order** (`book.yaml`): which pages exist, in what order, which layout each uses, which items they show (optionally with page-specific copy), and their copy. Page numbers, filler pages, and cross-references are all computed from this. Every page is one fixed size, so each layout takes a limited number of items (grid and under-$… 4, holly and price tags 6, brand column 2, single-item layouts 1; the full list is `ITEM_CAPS` in `src/lib/schema.ts`). The build fails with the page's name when a page holds more: split it into two pages instead. A page with two items shows them big, one per row.
+- **Book order** (`book.yaml`): which pages exist, in what order, which layout each uses, which items they show (optionally with page-specific copy), and their copy. Page numbers, filler pages, and cross-references are all computed from this. Every page is one fixed size, so each layout takes a limited number of items (grid and under-$… 4, holly and price tags 6, brand column 2, single-item layouts 1; the full list is `ITEM_CAPS` in `src/lib/schema.ts`). The build fails with the page's name when a page holds more: split it into two pages instead. A page with two items shows them big, one per row (as do price-tag pages with up to three, and stocking-stuffer pages with up to four get a card each). A section's first page can carry the section's opener header (`opener`: its kicker, name, and page range) in place of a divider page.
 - **Sections** (`sections.yaml`): the thumb-index sections, in order.
 - **Timestamps** (`timestamps.yaml`): the one file mapping each item to its moment in the episode. Update it when the final video is published.
 - **Site settings** (`site.yaml`): episode, share description, purchase-link labels and the affiliate disclosure, cover band, welcome page, symbol key, order lines, order form buttons, wish-list and search copy (including the printed form's mail-to box), back cover, and the copy for automatic filler pages. A page shows an order-line banner only when its `orderLine` is set.

@@ -117,7 +117,7 @@ test("the page edges turn: right forward, left back, replacing history", async (
   await prev.click({ position: await clearSpot(page, ".edge-prev") });
   await settled(page);
   // A turn opens the spread at its left page.
-  await expect(page).toHaveURL(/\/2026\/favorites\/$/);
+  await expect(page).toHaveURL(/\/2026\/favorites\/wes\/$/);
   expect(await page.evaluate(() => history.length)).toBe(start);
 });
 
@@ -136,7 +136,7 @@ test("single mode has edges on the page", async ({ page }) => {
   await page.goto("/2026/favorites/wes/");
   await page.locator(".edge-next").click({ position: await clearSpot(page, ".edge-next") });
   await settled(page);
-  await expect(page).toHaveURL(/\/2026\/favorites\/icemag\/$/);
+  await expect(page).toHaveURL(/\/2026\/favorites\/wes-more\/$/);
 });
 
 test("the phone feed has no edges and pages keep their natural height", async ({ page }) => {
@@ -277,11 +277,11 @@ test("a spread taller than the window scrolls; turning snaps to the top", async 
   await page.evaluate(() => scrollTo({ top: 100, behavior: "instant" }));
   await page.keyboard.press("ArrowLeft");
   await settled(page);
-  await expect(page).toHaveURL(/\/2026\/under-30\/$/);
+  await expect(page).toHaveURL(/\/2026\/favorites\/anker-off\/$/);
   expect(await page.evaluate(() => scrollY)).toBeLessThanOrEqual(1);
   await page.evaluate(() => scrollTo({ top: 100, behavior: "instant" }));
   await page.locator('.tabs a[data-section="desk"]').click();
-  await expect(page).toHaveURL(/\/2026\/desk\/$/);
+  await expect(page).toHaveURL(/\/2026\/desk\/desk-picks\/$/);
   expect(await page.evaluate(() => scrollY)).toBeLessThanOrEqual(1);
   expect(await heights(page)).toEqual(before);
 });
@@ -304,7 +304,7 @@ test("a feed wider than a phone has a section rail", async ({ page }) => {
   await expect(page.locator(".tabs")).toBeInViewport({ ratio: 1 });
   expect((await page.locator(".tabs").boundingBox())!.x).toBe(0);
   await page.locator('.tabs a[data-section="tech"]').click();
-  await expect(page).toHaveURL(/\/2026\/tech\/$/);
+  await expect(page).toHaveURL(/\/2026\/tech\/olight\/$/);
   await expect(page.locator('.tabs a[data-section="tech"]')).toHaveClass(/on/);
 });
 

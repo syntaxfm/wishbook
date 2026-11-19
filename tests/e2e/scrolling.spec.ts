@@ -101,7 +101,7 @@ for (const [width, height] of FEEDS) {
     expect(Math.abs(await offset(page, "wes"))).toBeLessThanOrEqual(2);
     await page.keyboard.press("PageDown");
     await scrollSettled(page);
-    expect(Math.abs(await offset(page, "icemag"))).toBeLessThanOrEqual(2);
+    expect(Math.abs(await offset(page, "wes-more"))).toBeLessThanOrEqual(2);
     await page.keyboard.press("PageUp");
     await scrollSettled(page);
     expect(Math.abs(await offset(page, "wes"))).toBeLessThanOrEqual(2);
@@ -127,7 +127,7 @@ test("the feed: a far tab jump is instant and highlights the page", async ({ pag
     () =>
       new Promise<number>((resolve) =>
         requestAnimationFrame(() => {
-          const el = document.querySelector<HTMLElement>('.book-pages > [data-slug="wild-card"]')!;
+          const el = document.querySelector<HTMLElement>('.book-pages > [data-slug="wild-picks"]')!;
           resolve(
             el.getBoundingClientRect().top - parseFloat(getComputedStyle(el).scrollMarginTop),
           );
@@ -135,8 +135,8 @@ test("the feed: a far tab jump is instant and highlights the page", async ({ pag
       ),
   );
   expect(Math.abs(top)).toBeLessThanOrEqual(2);
-  await expect(page.locator('.book-pages > [data-slug="wild-card"]')).toHaveClass(/flash/);
-  await expect(page).toHaveURL(/\/2026\/wild-card\/$/);
+  await expect(page.locator('.book-pages > [data-slug="wild-picks"]')).toHaveClass(/flash/);
+  await expect(page).toHaveURL(/\/2026\/wild-card\/wild-picks\/$/);
   expect(await page.evaluate(() => history.length)).toBe(start + 1);
 });
 
@@ -161,7 +161,7 @@ test("turning a book that fits the window never scrolls the document", async ({ 
     await settled(page);
     expect(await page.evaluate(() => scrollY)).toBe(0);
   }
-  await expect(page).toHaveURL(/\/2026\/favorites\/kaitlin-more\/$/);
+  await expect(page).toHaveURL(/\/2026\/favorites\/cj\/$/);
   await expect(page.locator(".run-head")).toBeHidden();
 });
 

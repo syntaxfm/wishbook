@@ -149,7 +149,7 @@ test("each Circle it toggle sits in its item's purchase row and adds no height",
   const withJs = await heights(true);
   const without = await heights(false);
   expect(withJs.loose).toBe(0);
-  expect(withJs.rows.length).toBe(4);
+  expect(withJs.rows.length).toBe(2);
   expect(withJs.rows).toEqual(without.rows);
 });
 

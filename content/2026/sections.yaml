@@ -16,12 +16,10 @@ sections:
     name: Tech & Smart Home
     code: TEC
     color: "#1d4fb6"
-    kicker: The latest in
   - id: desk
     name: Your Desk
     code: DSK
     color: "#6b4a2b"
-    kicker: We have all the best for
   - id: kitchen
     name: Kitchen & Snacks
     code: KIT

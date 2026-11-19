@@ -58,7 +58,7 @@ for (const [width, mode] of WIDTHS) {
     await expect(page.locator('.book-pages > [data-slug="wes"]')).toBeInViewport();
     if (mode === "m-book") {
       // The whole spread: page 4 (left) with page 5 (right).
-      expect(await onScreen(page)).toEqual(["favorites", "wes"]);
+      expect(await onScreen(page)).toEqual(["wes", "wes-more"]);
     } else if (mode === "m-single") {
       expect(await onScreen(page)).toEqual(["wes"]);
     } else {
@@ -105,7 +105,7 @@ test("four turns and a tab jump change the URL with zero network requests", asyn
     "/2026/favorites/randy/",
     "/2026/favorites/icemag/",
     "/2026/favorites/randy/",
-    "/2026/kitchen/",
+    "/2026/kitchen/kitchen-picks/",
   ]);
   await expect(page.locator('.tabs a[data-section="kitchen"]')).toHaveClass(/on/);
   expect(disallowed(requests, new URL(baseURL!).origin)).toEqual([]);
@@ -125,19 +125,34 @@ test("turns replace history; Back after a jump returns to the page before it", a
   expect(await page.evaluate(() => history.length)).toBe(start);
 
   await page.locator('.tabs a[data-section="tech"]').click();
-  await expect(page).toHaveURL(/\/2026\/tech\/$/);
+  await expect(page).toHaveURL(/\/2026\/tech\/olight\/$/);
   expect(await page.evaluate(() => history.length)).toBe(start + 1);
-  await expect(page.locator('.book-pages > [data-slug="tech"]')).toBeVisible();
+  await expect(page.locator('.book-pages > [data-slug="olight"]')).toBeVisible();
 
   await page.goBack();
   await expect(page).toHaveURL(/\/2026\/favorites\/randy\/$/);
   await expect(page.locator('.book-pages > [data-slug="randy"]')).toBeVisible();
-  await expect(page.locator('.book-pages > [data-slug="tech"]')).toBeHidden();
+  await expect(page.locator('.book-pages > [data-slug="olight"]')).toBeHidden();
   await expect(page).toHaveTitle(/^Randy/);
 
   await page.goForward();
+  await expect(page).toHaveURL(/\/2026\/tech\/olight\/$/);
+  await expect(page.locator('.book-pages > [data-slug="olight"]')).toBeVisible();
+});
+
+test("a section's own path opens its first page, and stays a route", async ({ page }) => {
+  await page.setViewportSize({ width: 1360, height: 900 });
+  await page.goto("/2026/tech/");
+  await expect(page.locator('.book-pages > [data-slug="olight"]')).toHaveClass(/is-current/);
+  await expect(page.locator('.tabs a[data-section="tech"]')).toHaveClass(/on/);
+  await page.evaluate(() => ((window as unknown as { marker: number }).marker = 1));
+  await page.locator('.tabs a[data-section="desk"]').click();
+  await expect(page).toHaveURL(/\/2026\/desk\/desk-picks\/$/);
+  // Back to the section path: the same page, without a reload.
+  await page.goBack();
   await expect(page).toHaveURL(/\/2026\/tech\/$/);
-  await expect(page.locator('.book-pages > [data-slug="tech"]')).toBeVisible();
+  await expect(page.locator('.book-pages > [data-slug="olight"]')).toHaveClass(/is-current/);
+  expect(await page.evaluate(() => (window as unknown as { marker?: number }).marker)).toBe(1);
 });
 
 test("an in-book cross-reference is a jump without a reload", async ({ page }) => {
@@ -161,8 +176,8 @@ test("focus lands on the page heading and the live region announces the page", a
   await expect(live).toHaveText(/ICEMAG 3.*, Our Favorite Things$/);
 
   await page.locator('.tabs a[data-section="desk"]').click();
-  await expect(page.locator("#title-desk")).toBeFocused();
-  await expect(live).toHaveText("Your Desk, Your Desk");
+  await expect(page.locator("#title-desk-picks")).toBeFocused();
+  await expect(live).toHaveText("On Our Desks, Your Desk");
 });
 
 test("single mode turns one page at a time", async ({ page }) => {
@@ -170,9 +185,9 @@ test("single mode turns one page at a time", async ({ page }) => {
   await page.goto("/2026/favorites/wes/");
   await page.locator(".pager a.next").click();
   await settled(page);
-  await expect(page).toHaveURL(/\/2026\/favorites\/icemag\/$/);
-  expect(await onScreen(page)).toEqual(["icemag"]);
-  await expect(page.locator("#title-icemag")).toBeFocused();
+  await expect(page).toHaveURL(/\/2026\/favorites\/wes-more\/$/);
+  expect(await onScreen(page)).toEqual(["wes-more"]);
+  await expect(page.locator("#title-wes-more")).toBeFocused();
   await page.locator(".pager a.prev").click();
   await settled(page);
   await expect(page).toHaveURL(/\/2026\/favorites\/wes\/$/);
@@ -204,9 +219,9 @@ test("with JavaScript disabled the deep-linked page is visible", async ({ browse
     viewport: { width: 1360, height: 900 },
   });
   const page = await context.newPage();
-  await page.goto("/2026/tech/olight/");
-  await expect(page.locator('.book-pages > [data-slug="olight"]')).toBeVisible();
-  await expect(page.locator('.book-pages > [data-slug="tech"]')).toBeHidden();
+  await page.goto("/2026/tech/xteink/");
+  await expect(page.locator('.book-pages > [data-slug="xteink"]')).toBeVisible();
+  await expect(page.locator('.book-pages > [data-slug="olight"]')).toBeHidden();
   await context.close();
 });
 
@@ -229,7 +244,7 @@ test("a jump from / pushes a year-scoped URL", async ({ page }) => {
   await page.setViewportSize({ width: 1360, height: 900 });
   await page.goto("/");
   await page.locator('.tabs a[data-section="favorites"]').click();
-  await expect(page).toHaveURL(/\/2026\/favorites\/$/);
+  await expect(page).toHaveURL(/\/2026\/favorites\/wes\/$/);
   await page.goBack();
   await expect(page).toHaveURL(/\/$/);
   await expect(page.locator('.book-pages > [data-slug="cover"]')).toBeVisible();
@@ -322,5 +337,7 @@ test("every page change emits wishbook:navigate", async ({ page }) => {
     link.click();
     return seen;
   });
-  expect(events).toEqual([{ slug: "tech", path: "/2026/tech/", kind: "jump", mode: "book" }]);
+  expect(events).toEqual([
+    { slug: "olight", path: "/2026/tech/olight/", kind: "jump", mode: "book" },
+  ]);
 });
