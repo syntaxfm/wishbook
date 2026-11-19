@@ -14,6 +14,7 @@ import DesignSystem from "../components/DesignSystem.astro";
 import PrintFilters from "../components/PrintFilters.astro";
 import { getBookContext } from "../lib/book";
 import { MODE_SCRIPT } from "../lib/modes";
+import { PROTO_HEAD_SCRIPT } from "../lib/proto-layout";
 import { absoluteUrl, editionUrl, type Edition } from "../lib/urls";
 
 interface Props {
@@ -33,6 +34,8 @@ const description = isCover
 const canonical = absoluteUrl(ctx.href(slug));
 const image = absoluteUrl(editionUrl(ctx.edition, `og/${slug}.png`));
 const modeScript = MODE_SCRIPT;
+// PROTOTYPE: layout variants (see src/lib/proto-layout.ts).
+const protoScript = PROTO_HEAD_SCRIPT;
 ---
 
 <!doctype html>
@@ -41,6 +44,7 @@ const modeScript = MODE_SCRIPT;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script is:inline set:html={modeScript} />
+    <script is:inline set:html={protoScript} />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />

@@ -1,0 +1,406 @@
+/* =========================================================
+   PROTOTYPE: reading-layout variants (see src/lib/proto-layout.ts).
+   <html data-layout="a|b|c|d|e1|e2" data-chrome="side|viewer|feed">.
+   Phones (< 640px) keep the scroll feed in every variant.
+   ========================================================= */
+
+/* ---------- side frame (a, b, c) ----------
+   The book fills the viewport height. Prev sits in the left gutter; the
+   thumb-index tabs hang off the book's right edge with next beside them.
+   Keep the numbers in step with SIDE_GUTTERS_* in proto-layout.ts. */
+[data-chrome="side"]:is(.m-book, .m-single) .book {
+  --gl: 68px;
+  --gr: 108px;
+  --cx: calc(var(--gl) + (100vw - var(--gl) - var(--gr)) / 2);
+  height: 100dvh;
+  padding: 16px var(--gr) 16px var(--gl);
+  display: grid;
+  place-items: center;
+}
+[data-chrome="side"].m-book .book {
+  --pw: max(
+    240px,
+    min(780px, calc((100vw - 176px) / 2), calc((100dvh - 32px) / var(--page-aspect)))
+  );
+  --sw: calc(var(--pw) * 2);
+}
+[data-chrome="side"].m-single .book {
+  --pw: max(240px, min(780px, calc(100vw - 176px), calc((100dvh - 32px) / var(--page-aspect))));
+  --cfw: min(calc(var(--pw) * 2), calc(100vw - 176px));
+  --sw: var(--pw);
+}
+[data-chrome="side"].m-single .book:has(.cf-page.is-current) {
+  --sw: var(--cfw);
+}
+
+/* prev / next: round arrows beside the book, vertically centred */
+:is([data-chrome="side"], [data-chrome="viewer"]):is(.m-book, .m-single) .pager .where {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+[data-chrome="side"]:is(.m-book, .m-single) .pager {
+  position: fixed;
+  inset: 0;
+  margin: 0;
+  display: block;
+  pointer-events: none;
+}
+[data-chrome="side"]:is(.m-book, .m-single) .pager > :is(.prev, .next) {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0;
+  pointer-events: auto;
+  background: rgba(29, 29, 29, 0.85);
+}
+[data-chrome="side"]:is(.m-book, .m-single) .pager > :is(.prev, .next) > span {
+  font-size: 20px;
+}
+[data-chrome="side"]:is(.m-book, .m-single) .pager > .prev {
+  left: calc(var(--cx) - var(--sw) / 2 - 56px);
+}
+[data-chrome="side"]:is(.m-book, .m-single) .pager > .next {
+  left: calc(var(--cx) + var(--sw) / 2 + 52px);
+}
+
+/* tabs: hanging off the book's right edge, the height of the page */
+[data-chrome="side"]:is(.m-book, .m-single) .tabs {
+  position: fixed;
+  left: calc(var(--cx) + var(--sw) / 2);
+  right: auto;
+  top: calc(50% - var(--ph) / 2);
+  bottom: auto;
+  transform: none;
+  width: 40px;
+  height: var(--ph);
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  padding: 0;
+  background: none;
+  border: 0;
+  overflow: visible;
+}
+[data-chrome="side"]:is(.m-book, .m-single) .tabs a {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  justify-content: center;
+  flex: 0 1 100px;
+  min-height: 0;
+  min-width: 0;
+  width: 40px;
+  padding: 8px 6px;
+  overflow: hidden;
+  border-radius: 6px 0 0 6px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+
+/* c: the magnifiers sit in the gutters at the top of the book */
+.proto-mag {
+  display: none;
+}
+[data-layout="c"]:is(.m-book, .m-single) .proto-mag:not([hidden]) {
+  display: grid;
+  place-items: center;
+  position: fixed;
+  z-index: 31;
+  top: calc(50% - var(--ph) / 2);
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid #444;
+  border-radius: 50%;
+  background: rgba(29, 29, 29, 0.85);
+  color: #ddd;
+  cursor: zoom-in;
+}
+[data-layout="c"] .proto-mag:hover,
+[data-layout="c"] .proto-mag:focus-visible {
+  border-color: var(--syntax);
+}
+[data-layout="c"] .proto-mag svg {
+  width: 20px;
+  height: 20px;
+}
+[data-layout="c"] .proto-mag-left {
+  left: calc(var(--cx) - var(--sw) / 2 - 56px);
+}
+[data-layout="c"] .proto-mag-right {
+  left: calc(var(--cx) + var(--sw) / 2 + 52px);
+}
+[data-layout="c"]:is(.m-book, .m-single) .book-pages > :is(.page, .cf-page).is-shown {
+  cursor: zoom-in;
+}
+
+/* the zoomed page: the page at its design width, CSS-zoomed to fill the
+   window (text re-lays out at the larger size, so it stays crisp) */
+.proto-zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 28px 0 56px;
+  background: rgba(15, 12, 10, 0.94);
+}
+.proto-zoom-frame {
+  container-type: inline-size;
+  width: 620px;
+  margin: 0 auto;
+}
+.proto-zoom-frame > .page {
+  display: flex;
+  min-height: calc(100cqi * 1.303);
+}
+.proto-zoom-frame > .cf-page {
+  display: block;
+}
+.proto-zoom-close {
+  position: fixed;
+  z-index: 61;
+  top: 14px;
+  right: 18px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid #555;
+  border-radius: 22px;
+  background: #1d1d1d;
+  color: #ddd;
+  font:
+    13px system-ui,
+    sans-serif;
+  cursor: pointer;
+}
+.proto-zoom-close:hover,
+.proto-zoom-close:focus-visible {
+  border-color: var(--syntax);
+}
+html.proto-zoomed {
+  overflow: hidden;
+}
+
+/* ---------- viewer frame (d) ----------
+   The spread fills the screen; a compact section bar on top and a page
+   pill at the bottom float over it and fade when the mouse rests. */
+[data-chrome="viewer"]:is(.m-book, .m-single) .book {
+  height: 100dvh;
+  padding: 12px;
+  display: grid;
+  place-items: center;
+}
+[data-chrome="viewer"].m-book .book {
+  --pw: max(
+    240px,
+    min(780px, calc((100vw - 24px) / 2), calc((100dvh - 24px) / var(--page-aspect)))
+  );
+}
+[data-chrome="viewer"].m-single .book {
+  --pw: max(240px, min(780px, calc(100vw - 24px), calc((100dvh - 24px) / var(--page-aspect))));
+  --cfw: min(calc(var(--pw) * 2), calc(100vw - 24px));
+}
+[data-chrome="viewer"]:is(.m-book, .m-single) :is(.pager, .tabs) {
+  transition: opacity 0.35s;
+}
+[data-chrome="viewer"]:is(.m-book, .m-single) .pager {
+  position: fixed;
+  z-index: 40;
+  left: 50%;
+  bottom: 14px;
+  translate: -50% 0;
+  margin: 0;
+  padding: 4px;
+  gap: 6px;
+  border-radius: 999px;
+  background: rgba(17, 17, 17, 0.86);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+}
+[data-chrome="viewer"]:is(.m-book, .m-single) .pager .where {
+  position: static;
+  width: auto;
+  height: auto;
+  clip: auto;
+  min-width: 7em;
+  color: #eee;
+}
+[data-chrome="viewer"]:is(.m-book, .m-single) .pager > :is(.prev, .next) {
+  border-radius: 999px;
+  border-color: transparent;
+  background: #262626;
+}
+[data-chrome="viewer"]:is(.m-book, .m-single) .tabs {
+  top: 10px;
+  bottom: auto;
+  left: 50%;
+  right: auto;
+  translate: -50% 0;
+  transform: none;
+  flex-direction: row;
+  width: max-content;
+  max-width: calc(100vw - 24px);
+  padding: 4px;
+  gap: 4px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(17, 17, 17, 0.86);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  overflow-x: auto;
+}
+[data-chrome="viewer"]:is(.m-book, .m-single) .tabs a {
+  writing-mode: horizontal-tb;
+  transform: none;
+  min-height: 32px;
+  min-width: 0;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 11px;
+}
+.proto-idle[data-chrome="viewer"]:is(.m-book, .m-single)
+  :is(.pager, .tabs):not(:hover, :focus-within) {
+  opacity: 0;
+}
+
+/* ---------- feed frame (e1, e2) ----------
+   No flipping: every page in a vertical feed at a readable size, with the
+   section tabs as a sticky rail on the left. Pages snap gently. */
+@media (min-width: 640px) {
+  [data-chrome="feed"].m-scroll {
+    --rail: 136px;
+    scroll-snap-type: y proximity;
+  }
+  [data-chrome="feed"].m-scroll .book {
+    padding: 28px 28px 80px calc(var(--rail) + 28px);
+  }
+  [data-chrome="feed"].m-scroll .book-pages > :is(.page, .cf-page) {
+    scroll-snap-align: start;
+    scroll-margin-top: 16px;
+  }
+  [data-chrome="feed"].m-scroll .tabs {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: auto;
+    width: var(--rail);
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px;
+    border-top: 0;
+    border-right: 2px solid var(--syntax);
+    background: #1b1916;
+    overflow-y: auto;
+  }
+  [data-chrome="feed"].m-scroll .tabs a {
+    min-height: 40px;
+    justify-content: flex-start;
+    white-space: normal;
+    line-height: 1.15;
+  }
+  [data-chrome="feed"].m-scroll .tabs a.on {
+    translate: 6px 0;
+  }
+  [data-chrome="feed"].m-scroll .book-pages > .cf-page {
+    width: min(1400px, calc(100vw - var(--rail) - 56px));
+  }
+
+  /* e1: one column of pages */
+  [data-layout="e1"].m-scroll .book-pages {
+    max-width: min(700px, calc(100vw - var(--rail) - 56px));
+    gap: 32px;
+  }
+  [data-layout="e1"].m-scroll .book-pages > .page {
+    min-height: calc(100cqi * 1.303);
+  }
+
+  /* e2: spreads stacked, left and right pages side by side; a page alone
+     keeps its side (cover right, back cover left) */
+  [data-layout="e2"].m-scroll .book-pages {
+    max-width: min(1400px, calc(100vw - var(--rail) - 56px));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 0;
+    row-gap: 36px;
+  }
+  [data-layout="e2"].m-scroll .book-pages > .page {
+    min-height: calc(50cqi * 1.303);
+  }
+  [data-layout="e2"].m-scroll .book-pages > .left {
+    grid-column: 1;
+  }
+  [data-layout="e2"].m-scroll .book-pages > .right {
+    grid-column: 2;
+  }
+  [data-layout="e2"].m-scroll .book-pages > .cf-page {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+  [data-layout="e2"].m-scroll .book-pages > .sec-h {
+    display: none;
+  }
+}
+
+/* ---------- the switcher ---------- */
+.proto-switch {
+  position: fixed;
+  z-index: 70;
+  left: 8px;
+  bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 6px;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background: rgba(10, 10, 10, 0.88);
+  color: #bbb;
+  font:
+    11px system-ui,
+    sans-serif;
+}
+.proto-switch b {
+  margin-right: 4px;
+  font-weight: 600;
+}
+.proto-switch button {
+  min-width: 28px;
+  height: 26px;
+  padding: 0 6px;
+  border: 1px solid #555;
+  border-radius: 5px;
+  background: #222;
+  color: #ddd;
+  font: inherit;
+  cursor: pointer;
+}
+.proto-switch button[aria-pressed="true"] {
+  background: var(--syntax);
+  border-color: var(--syntax);
+  color: #111;
+  font-weight: 700;
+}
+.proto-switch .name {
+  margin-left: 4px;
+  color: #eee;
+}
+/* on phones the bottom tab bar is there: sit above it */
+@media (max-width: 639px) {
+  .proto-switch {
+    bottom: 66px;
+  }
+}
+@media print {
+  .proto-switch,
+  .proto-mag,
+  .proto-zoom-close {
+    display: none !important;
+  }
+}

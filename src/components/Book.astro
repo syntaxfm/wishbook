@@ -6,7 +6,7 @@
  * opened at is `.is-current`; it and its spread partner are `.is-shown`.
  *
  * Without JavaScript only the current page shows, and every control is a real
- * link to another static page. The book engine (src/scripts/book.ts) takes
+ * link to another static page (the clickable page edges stay hidden). The book engine (src/scripts/book.ts) takes
  * over from this markup.
  */
 import { getBookContext, type BookPage } from "../lib/book";
@@ -104,6 +104,25 @@ const where = here.end > here.n ? `Pages ${here.label}` : `Page ${here.label}`;
       const T = TEMPLATES[page.template];
       return <T page={page} content={content} ctx={ctx} state={state} />;
     })}
+    {/* Page edges that turn (book and single modes). The engine shows them;
+        keyboard users have the pager and the arrow keys, so they stay out of
+        the tab order. */}
+    <button
+      type="button"
+      class="edge edge-prev"
+      data-turn="-1"
+      aria-label="Previous page"
+      tabindex="-1"
+      hidden
+    ></button>
+    <button
+      type="button"
+      class="edge edge-next"
+      data-turn="1"
+      aria-label="Next page"
+      tabindex="-1"
+      hidden
+    ></button>
   </div>
   <nav class="pager" aria-label="Pages">
     {prev ? (
@@ -154,6 +173,10 @@ const where = here.end > here.n ? `Pages ${here.label}` : `Page ${here.label}`;
 
 <script>
   import { start } from "../scripts/book";
+  // PROTOTYPE: layout variants (see src/lib/proto-layout.ts).
+  import { installLayouts, startLayouts } from "../scripts/proto-layout";
 
+  installLayouts();
   start();
+  startLayouts();
 </script>

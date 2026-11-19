@@ -27,6 +27,7 @@ import { MODE_CLASS, modeFor, type ReadingMode } from "../lib/modes";
 import { RouteTable } from "../lib/routes";
 import { buildSpreads, spreadPages, type Spread } from "../lib/spreads";
 import { linkCenterfolds } from "./centerfold";
+import { watchFit } from "./fit";
 
 /** How a page change happened. */
 export type NavKind = "init" | "turn" | "jump" | "pop" | "scroll" | "mode";
@@ -71,6 +72,10 @@ let settle: (() => void) | null = null;
 let feedObserver: IntersectionObserver | null = null;
 /** While the feed scrolls to a jump target, reading position doesn't move the URL. */
 let feedHoldUntil = 0;
+/** The page edges that turn (book and single modes). */
+let edges: HTMLButtonElement[] = [];
+/** Picks the reading mode for a viewport; replaceable with setModeResolver(). */
+let resolveMode = (width: number, _height: number): ReadingMode => modeFor(width);
 
 const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 const bySlug = (slug: string) => pages.find((p) => p.slug === slug);
@@ -122,6 +127,15 @@ export function pathOf(slug: string): string | null {
   return root ? routes.pathOf(slug) : null;
 }
 
+/**
+ * Replaces how the reading mode is chosen from the viewport (by default, by
+ * width alone: modeFor). Re-evaluates the mode at once if the engine runs.
+ */
+export function setModeResolver(fn: (width: number, height: number) => ReadingMode): void {
+  resolveMode = fn;
+  if (root) setMode(fn(innerWidth, innerHeight));
+}
+
 /* ---------- start ---------- */
 
 export function start(): void {
@@ -160,11 +174,17 @@ export function start(): void {
   history.scrollRestoration = "manual";
   history.replaceState({ slug: current.slug }, "", location.href);
 
-  mode = modeFor(innerWidth);
+  edges = [...stage.querySelectorAll<HTMLButtonElement>(":scope > .edge")];
+  mode = resolveMode(innerWidth, innerHeight);
   applyModeClass();
   render();
   if (mode === "scroll") enterFeed();
 
+  watchFit(
+    stage,
+    pages.map((p) => p.el),
+    () => mode !== "scroll",
+  );
   observeReveals();
   linkCenterfolds(stage);
   bindInput();
@@ -203,6 +223,7 @@ function render(): void {
   document.title = current.docTitle;
   updateTabs();
   updatePager();
+  updateEdges();
   primeImages();
 }
 
@@ -303,6 +324,32 @@ function updatePager(): void {
       a.setAttribute("aria-disabled", "true");
     }
   }
+}
+
+/** An edge shows only when there is a page to turn to that way. */
+function updateEdges(): void {
+  for (const edge of edges) edge.hidden = !neighbour(edge.dataset.turn === "-1" ? -1 : 1);
+}
+
+/**
+ * A click on a page edge turns, like the pager. If a control on the page sits
+ * under the strip, the click goes to it instead.
+ */
+function onEdgeClick(e: MouseEvent): void {
+  const edge = e.currentTarget as HTMLButtonElement;
+  if (e.detail > 0) {
+    const under = document
+      .elementsFromPoint(e.clientX, e.clientY)
+      .find((el) => !edges.includes(el as HTMLButtonElement) && stage.contains(el));
+    const control = under?.closest<HTMLElement>(
+      "a[href], button, input, select, textarea, label, summary",
+    );
+    if (control && stage.contains(control)) {
+      control.click();
+      return;
+    }
+  }
+  turn(edge.dataset.turn === "-1" ? -1 : 1);
 }
 
 /* ---------- book mode: the 3D leaf ---------- */
@@ -615,9 +662,11 @@ function bindInput(): void {
     if (Math.abs(dx) > SWIPE_PX && Math.abs(dx) > Math.abs(dy)) turn(dx < 0 ? 1 : -1);
   });
 
+  for (const edge of edges) edge.addEventListener("click", onEdgeClick);
+
   let resizeTimer = 0;
   addEventListener("resize", () => {
     clearTimeout(resizeTimer);
-    resizeTimer = window.setTimeout(() => setMode(modeFor(innerWidth)), 150);
+    resizeTimer = window.setTimeout(() => setMode(resolveMode(innerWidth, innerHeight)), 150);
   });
 }
