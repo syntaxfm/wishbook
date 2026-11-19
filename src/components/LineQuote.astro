@@ -1,0 +1,33 @@
+---
+/**
+ * A page quote set in the copy: a speech bubble ("bubble") or an italic
+ * one-liner ("oneliner"), with the attribution in red.
+ */
+import type { BookContext } from "../lib/book";
+import type { Quote } from "../lib/content";
+
+interface Props {
+  quote: Quote;
+  ctx: BookContext;
+  as?: "bubble" | "oneliner";
+  class?: string;
+}
+
+const {
+  quote,
+  ctx,
+  as = quote.placement === "oneliner" ? "oneliner" : "bubble",
+  class: className,
+} = Astro.props;
+const quoted = /^["“]/.test(quote.text) ? quote.text : `"${quote.text}"`;
+const flagged = import.meta.env.DEV && quote.verify;
+const Tag = as === "oneliner" ? "p" : "div";
+---
+
+<Tag
+  class:list={[as, "quote", className]}
+  data-verify={flagged ? "" : undefined}
+  title={flagged ? "Quote needs checking against the transcript" : undefined}
+>
+  {quoted} <span class="attr">— {ctx.quoteBy(quote)}</span>
+</Tag>

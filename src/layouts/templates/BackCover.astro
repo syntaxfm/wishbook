@@ -1,0 +1,74 @@
+---
+/**
+ * Back cover: a mailing panel. Return address with the logo, a postage
+ * indicia, an address label with a barcode, the headline, the phone line, the
+ * page's order line, and the mascot.
+ */
+import Copy from "../../components/Copy.astro";
+import Img from "../../components/Img.astro";
+import PageShell from "../../components/PageShell.astro";
+import type { TemplateProps } from "./types";
+
+type Props = TemplateProps;
+const { page, content, ctx, state } = Astro.props;
+const { backCover } = ctx.content.site;
+const logo = await ctx.art("brand:syntax-logo-wide-stacked");
+const mascot = content.inset.art ? await ctx.art(content.inset.art) : null;
+const [brand = ""] = ctx.global.name.split(" ");
+const phone = ctx.phoneLine;
+const line = ctx.orderLine(content.orderLine);
+---
+
+<PageShell page={page} ctx={ctx} state={state} class="back">
+  <div class="returnaddr">
+    <Img asset={logo} alt={brand} class="logo" widths={[240, 480]} sizes="220px" />
+    {backCover.returnAddress.map((l) => (
+      <>
+        {l}
+        <br />
+      </>
+    ))}
+  </div>
+  {backCover.indicia.length > 0 && (
+    <div class="indicia">
+      {backCover.indicia.map((l, i) => (
+        <>
+          {i > 0 && <br />}
+          {l}
+        </>
+      ))}
+    </div>
+  )}
+  {backCover.mailingLabel.length > 0 && (
+    <div class="label">
+      {backCover.mailingLabel.map((l, i) => (
+        <>
+          {i > 0 && <br />}
+          {l}
+        </>
+      ))}
+      <div class="bar" aria-hidden="true"></div>
+    </div>
+  )}
+  <div class="backline">
+    <div>
+      {backCover.headline && (
+        <h2 class="display">
+          <Copy text={backCover.headline} ctx={ctx} />
+        </h2>
+      )}
+      {phone && (
+        <div class="phone">
+          {phone.kicker && <span class="kicker">{ctx.plain(phone.kicker)}</span>}
+          <Copy text={phone.text} ctx={ctx} />
+        </div>
+      )}
+      {line && line !== phone && (
+        <div class="listen kicker">
+          {ctx.plain([line.kicker, line.text].filter(Boolean).join(" · "))}
+        </div>
+      )}
+    </div>
+    {mascot && <Img asset={mascot} alt="" class="mascot" round widths={[160, 320]} sizes="150px" />}
+  </div>
+</PageShell>

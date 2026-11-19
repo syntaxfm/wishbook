@@ -1,0 +1,75 @@
+---
+/**
+ * "Under $…" page: holly border, the stacked "UNDER gifts $30" headline, a
+ * two-by-two list with big corner letters and friendly headlines, and an order
+ * line block (e.g. "Order by terminal"). Each item shows its quote below the
+ * photo when it has one, otherwise its description.
+ */
+import Copy from "../../components/Copy.astro";
+import Frame from "../../components/Frame.astro";
+import Img from "../../components/Img.astro";
+import ItemCopy from "../../components/ItemCopy.astro";
+import ItemLetter from "../../components/ItemLetter.astro";
+import ItemOrder from "../../components/ItemOrder.astro";
+import ItemQuote from "../../components/ItemQuote.astro";
+import PageShell from "../../components/PageShell.astro";
+import { letterFor } from "./letters";
+import type { TemplateProps } from "./types";
+
+type Props = TemplateProps;
+const { page, content, ctx, state } = Astro.props;
+const items = await Promise.all(
+  content.items.map(async (pi, i) => ({
+    ...pi,
+    letter: letterFor(i),
+    photo: await ctx.itemImage(pi.item, pi.photo),
+    quote: !pi.text && !ctx.quotedElsewhere(pi.item, content) ? (pi.item.quotes[0] ?? null) : null,
+  })),
+);
+const line = ctx.orderLine(content.orderLine);
+const { headline, script, subhead } = content.copy;
+---
+
+<PageShell page={page} ctx={ctx} state={state} class="holly">
+  <div class="under">
+    <h2 class="stack" aria-label={ctx.plain([headline, script, subhead].filter(Boolean).join(" "))}>
+      {headline && <span class="U">{headline}</span>}
+      {script && <span class="g script">{script}</span>}
+      {subhead && <span class="amt">{subhead}</span>}
+    </h2>
+    <div class="ulist">
+      {items.map((it) => (
+        <div data-item-id={it.item.id}>
+          <Frame tone={it.item.image.background === "dark" ? "dark" : "light"}>
+            <Img
+              asset={it.photo}
+              alt={it.item.image.alt}
+              widths={[240, 320, 480]}
+              sizes="(min-width: 1000px) 260px, (min-width: 640px) 45vw, 90vw"
+            />
+            <ItemLetter letter={it.letter} variant="big" />
+          </Frame>
+          {it.quote && <ItemQuote quote={it.quote} ctx={ctx} />}
+          <div class="friendly">
+            <ItemLetter letter={it.letter} />
+            {it.item.headline ? <Copy text={it.item.headline} ctx={ctx} /> : it.item.shortName}
+          </div>
+          {!it.quote && (
+            <div class="desc">
+              <ItemCopy item={it.item} ctx={ctx} text={it.text} named="auto" />
+            </div>
+          )}
+          <ItemOrder item={it.item} ctx={ctx} page={content} unit={false} />
+        </div>
+      ))}
+    </div>
+    {line && (
+      <div class="tollfree">
+        {line.kicker && <span class="a">{ctx.plain(line.kicker)}</span>}
+        <div class="b mono-order">
+          <span class="mono">{ctx.plain(line.text)}</span>
+        </div>
+      </div>
+    )}
+  </div>
+</PageShell>

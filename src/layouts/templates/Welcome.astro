@@ -1,0 +1,137 @@
+---
+/**
+ * Welcome page: big red headline with a green ribbon, "How to Shop" steps,
+ * FREE Ship-A-Link®, "Watch the Whole Thing", the symbol key, and the
+ * guarantee.
+ */
+import CatalogNumber from "../../components/CatalogNumber.astro";
+import Copy from "../../components/Copy.astro";
+import ItemLetter from "../../components/ItemLetter.astro";
+import NewBanner from "../../components/NewBanner.astro";
+import PageShell from "../../components/PageShell.astro";
+import Placeholder from "../../components/Placeholder.astro";
+import Price from "../../components/Price.astro";
+import Img from "../../components/Img.astro";
+import type { TemplateProps } from "./types";
+
+type Props = TemplateProps;
+const { page, content, ctx, state } = Astro.props;
+const { welcome, key, guarantee, episode } = ctx.content.site;
+const keyEntries = await Promise.all(
+  key.entries.map(async (e) => {
+    const host = e.item?.pickedBy[0];
+    return { ...e, avatar: host ? await ctx.avatar(host) : null, host };
+  }),
+);
+---
+
+<PageShell
+  page={page}
+  ctx={ctx}
+  state={state}
+  class="welcome"
+  orderLine={ctx.orderLine(content.orderLine)}
+>
+  <h2 class="display">
+    <Copy text={content.copy.headline ?? content.title} ctx={ctx} />
+  </h2>
+  <svg class="ribbon" viewBox="0 0 600 28" preserveAspectRatio="none" aria-hidden="true">
+    <path
+      d="M0 18 C 60 0, 120 30, 180 14 S 300 4, 360 16 S 480 26, 600 10"
+      stroke="#2A6E3B"
+      stroke-width="7"
+      fill="none"
+    ></path>
+  </svg>
+  <div class="two">
+    <div>
+      {welcome.title && (
+        <h3 class="display">
+          <Copy text={welcome.title} ctx={ctx} />
+        </h3>
+      )}
+      <ol class="howto">
+        {welcome.steps.map((step, i) => (
+          <li>
+            <span class="n" aria-hidden="true">
+              {i + 1}
+            </span>
+            <div>
+              <b class="lead">{step.lead}</b> <Copy text={step.text} ctx={ctx} />
+            </div>
+          </li>
+        ))}
+      </ol>
+      {welcome.shipLink.badge && <div class="free">{welcome.shipLink.badge}</div>}
+      {welcome.shipLink.title && (
+        <div class="shiplink display">
+          <Copy text={welcome.shipLink.title} ctx={ctx} />
+        </div>
+      )}
+      {welcome.shipLink.text && (
+        <p>
+          <Copy text={welcome.shipLink.text} ctx={ctx} />
+        </p>
+      )}
+    </div>
+    <div>
+      {welcome.watch.title && (
+        <h3 class="display">
+          <Copy text={welcome.watch.title} ctx={ctx} />
+        </h3>
+      )}
+      {welcome.watch.text && (
+        <p>
+          <Copy text={welcome.watch.text} ctx={ctx} />
+        </p>
+      )}
+      {episode.videoUrl ? (
+        <a
+          class="video gen"
+          href={episode.videoUrl}
+          target="_blank"
+          rel="noopener"
+          data-gen={episode.title ?? ""}
+          aria-label={ctx.plain(welcome.watch.title) || (episode.title ?? "")}
+        ></a>
+      ) : (
+        <Placeholder label={episode.title ?? ""} class="video" alt="" />
+      )}
+    </div>
+  </div>
+  {keyEntries.length > 0 && (
+    <div class="key">
+      {key.title && <span class="key-title kicker">{key.title}</span>}
+      {keyEntries.map((e) => (
+        <span class="key-item">
+          {e.symbol === "letter" && <ItemLetter letter="A" />}
+          {e.symbol === "catalog" &&
+            (e.item?.timestamp ? (
+              <CatalogNumber timestamp={e.item.timestamp} />
+            ) : (
+              <span class="mono">SYN ---:--</span>
+            ))}
+          {e.symbol === "new" && <NewBanner class="key-new" />}
+          {e.symbol === "picked" && e.host && (
+            <span class="picked">
+              {e.avatar && <Img asset={e.avatar} alt="" widths={[64]} sizes="20px" round />}
+              {e.host.shortName}
+            </span>
+          )}
+          {e.symbol === "estimate" && e.item && (
+            <Price
+              estimate={e.item.price.estimate ?? e.item.price.confirmed}
+              text={e.item.price.label ?? undefined}
+            />
+          )}
+          <Copy text={e.text} ctx={ctx} />
+        </span>
+      ))}
+    </div>
+  )}
+  {guarantee.text && (
+    <div class="guarantee">
+      {guarantee.lead && <b>{guarantee.lead}</b>} <span class="quote">{guarantee.text}</span>
+    </div>
+  )}
+</PageShell>

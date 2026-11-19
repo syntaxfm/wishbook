@@ -1,0 +1,92 @@
+---
+/**
+ * Meet Your Shoppers: host portraits with role, bio, and a link to their
+ * picks page, then the table of contents with dot leaders. The page's order
+ * line (e.g. "Press ⌘K to search") sits beside the contents heading.
+ */
+import Copy from "../../components/Copy.astro";
+import Img from "../../components/Img.astro";
+import Kbd from "../../components/Kbd.astro";
+import PageShell from "../../components/PageShell.astro";
+import type { TemplateProps } from "./types";
+
+type Props = TemplateProps;
+const { page, content, ctx, state } = Astro.props;
+const hosts = await Promise.all(
+  ctx.content.hosts.map(async (h) => ({ host: h, photo: await ctx.avatar(h) })),
+);
+
+// Contents: every section that opens with a divider or a centerfold, then the
+// index & order form.
+const toc = [
+  ...ctx.content.sections.flatMap((s) => {
+    const first = ctx.book.firstOf(s.id);
+    return first && (first.kind === "divider" || first.kind === "centerfold")
+      ? [{ name: s.name, slug: first.slug }]
+      : [];
+  }),
+  ...ctx.content.pages
+    .filter((p) => p.template === "order-form")
+    .map((p) => ({ name: p.title, slug: p.slug })),
+];
+
+const line = ctx.orderLine(content.orderLine);
+// Keyboard shortcuts in the order line render as keys: "Press ⌘K to search".
+const hint = line ? ctx.plain([line.kicker, line.text].filter(Boolean).join(" ")) : null;
+const hintParts = hint ? hint.split(/(⌘\S)/) : [];
+---
+
+<PageShell page={page} ctx={ctx} state={state} class="meet">
+  <h2 class="display">{content.title}</h2>
+  {content.copy.kicker && (
+    <div class="sub kicker">
+      <Copy text={content.copy.kicker} ctx={ctx} />
+    </div>
+  )}
+  <div class="hosts">
+    {hosts.map(({ host, photo }) => (
+      <div class="host">
+        <div class="ph">
+          <Img
+            asset={photo}
+            alt={host.name}
+            widths={[160, 240, 320]}
+            sizes="(min-width: 1000px) 170px, 30vw"
+          />
+        </div>
+        <span class="itemname">{host.name}</span>
+        <div class="role">{host.role}</div>
+        <div class="bio">
+          <Copy text={host.bio} ctx={ctx} />
+          {host.picksPage && (
+            <>
+              {" "}
+              <a class="pref" href={ctx.href(host.picksPage)}>
+                {ctx.book.label(host.picksPage)}
+              </a>
+            </>
+          )}
+        </div>
+      </div>
+    ))}
+  </div>
+  <div class="toc">
+    <h3 class="display">
+      <Copy text={content.copy.subhead} ctx={ctx} />
+      {hint && (
+        <span class="kbd-hint">
+          {hintParts.map((part) => (/^⌘\S$/.test(part) ? <Kbd>{part}</Kbd> : part))}
+        </span>
+      )}
+    </h3>
+    <ul class="dotlist">
+      {toc.map((entry) => (
+        <li>
+          <a href={ctx.href(entry.slug)}>{entry.name}</a>
+          <span class="dots"></span>
+          <b>{ctx.book.label(entry.slug)}</b>
+        </li>
+      ))}
+    </ul>
+  </div>
+</PageShell>

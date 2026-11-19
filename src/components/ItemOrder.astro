@@ -1,0 +1,70 @@
+---
+/**
+ * An item's order lines ("SYN 001:04 – Each ........ 67.90") followed by its
+ * purchase links. Variants get their own lines unless the item has a page of
+ * its own elsewhere (where they are shown). A variant sold in a different unit
+ * is introduced by its name ("AN01 Bluetooth ANC kit, sold separately:");
+ * otherwise its name stands in for the unit ("– With charging dock").
+ */
+import ItemLinks from "./ItemLinks.astro";
+import Price from "./Price.astro";
+import type { BookContext } from "../lib/book";
+import type { Item, Page } from "../lib/content";
+
+interface Props {
+  item: Item;
+  ctx: BookContext;
+  page: Page;
+  /** Print the unit ("– Each"). */
+  unit?: boolean;
+  /** Variant lines: "auto" shows them unless the item is featured on another page. */
+  variants?: "auto" | "none";
+  links?: boolean;
+}
+
+const { item, ctx, page, unit = true, variants = "auto", links = true } = Astro.props;
+const videoUrl = ctx.content.site.episode.videoUrl;
+const { confirmed, estimate, label } = item.price;
+const priced = confirmed !== null || estimate !== null || label !== null;
+const showVariants = variants === "auto" && !ctx.featuredElsewhere(item, page);
+const variantRows = showVariants
+  ? item.variants.filter((v) => v.price !== null || v.priceLabel !== null)
+  : [];
+---
+
+{priced && (
+  <Price
+    variant="line"
+    confirmed={confirmed}
+    estimate={estimate}
+    text={label ?? undefined}
+    timestamp={item.timestamp}
+    videoUrl={videoUrl}
+    unit={unit ? item.price.unit : null}
+  />
+)}
+{variantRows.map((v) =>
+  v.unit !== item.price.unit ? (
+    <>
+      <p>{v.name}:</p>
+      <Price
+        variant="line"
+        confirmed={v.price}
+        text={v.priceLabel ?? undefined}
+        timestamp={v.timestamp}
+        videoUrl={videoUrl}
+        unit={unit ? v.unit : null}
+      />
+    </>
+  ) : (
+    <Price
+      variant="line"
+      confirmed={v.price}
+      text={v.priceLabel ?? undefined}
+      timestamp={v.timestamp}
+      videoUrl={videoUrl}
+      unit={v.name}
+    />
+  ),
+)}
+{links && <ItemLinks item={item} ctx={ctx} />}

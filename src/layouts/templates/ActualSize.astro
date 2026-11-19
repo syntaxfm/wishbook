@@ -1,0 +1,140 @@
+---
+/**
+ * "Shown at actual size": torn paper on kraft, products shot at true relative
+ * scale with captions, speech-bubble quotes, a dot-leader list of the items
+ * (or, for a single item, running copy with bold lead-ins), small print, and
+ * the guarantee.
+ */
+import Copy from "../../components/Copy.astro";
+import Img from "../../components/Img.astro";
+import ItemLinks from "../../components/ItemLinks.astro";
+import ItemOrder from "../../components/ItemOrder.astro";
+import LineQuote from "../../components/LineQuote.astro";
+import PageShell from "../../components/PageShell.astro";
+import Price from "../../components/Price.astro";
+import { letterFor } from "./letters";
+import type { TemplateProps } from "./types";
+
+type Props = TemplateProps;
+const { page, content, ctx, state } = Astro.props;
+const single = content.items.length === 1;
+const art = content.art ? await ctx.art(content.art) : null;
+const figures = art
+  ? []
+  : await Promise.all(
+      content.items.map(async (pi) => ({ ...pi, photo: await ctx.itemImage(pi.item, pi.photo) })),
+    );
+// Page quotes as bubbles; a single-item page falls back to its item's first quote.
+const bubbles =
+  content.quotes.length > 0
+    ? content.quotes
+    : single
+      ? content.items[0]!.item.quotes.slice(0, 1)
+      : [];
+const { guarantee } = ctx.content.site;
+const only = content.items[0];
+---
+
+<PageShell
+  page={page}
+  ctx={ctx}
+  state={state}
+  class="kraft"
+  orderLine={ctx.orderLine(content.orderLine)}
+>
+  <div slot="before" class="paper" aria-hidden="true"></div>
+  <div class="pagehead" style="margin-bottom:0">
+    <h2 class="display">
+      <Copy text={content.copy.headline ?? content.title} ctx={ctx} />
+    </h2>
+  </div>
+  {content.copy.subhead && (
+    <p class="subhead display">
+      <Copy text={content.copy.subhead} ctx={ctx} />
+    </p>
+  )}
+  <div class:list={["actual", { one: art || figures.length === 1 }]}>
+    {art && (
+      <figure class="large">
+        <Img
+          asset={art}
+          alt={ctx.artAlt(content.art!)}
+          widths={[320, 480, 640]}
+          sizes="(min-width: 1000px) 420px, 80vw"
+        />
+      </figure>
+    )}
+    {figures.map((f, i) => (
+      <figure class={i === 0 && figures.length > 1 ? "small" : "large"}>
+        <Img
+          asset={f.photo}
+          alt={f.item.image.alt}
+          widths={[240, 320, 480]}
+          sizes="(min-width: 1000px) 300px, 60vw"
+        />
+        {f.caption && (
+          <figcaption>
+            <Copy text={f.caption} ctx={ctx} />
+          </figcaption>
+        )}
+      </figure>
+    ))}
+  </div>
+  {bubbles.length > 0 && (
+    <div class="faceoff">
+      {bubbles.map((q) => (
+        <LineQuote quote={q} ctx={ctx} as="bubble" />
+      ))}
+    </div>
+  )}
+  <div class="variants">
+    {single && only ? (
+      <div data-item-id={only.item.id}>
+        <p class="feat-lede">
+          <span class="itemname">{only.item.shortName}</span>{" "}
+          {only.item.features.length > 0 ? (
+            only.item.features.map((f) => (
+              <>
+                <b>{f.lead}</b> <Copy text={f.text} ctx={ctx} />{" "}
+              </>
+            ))
+          ) : (
+            <Copy text={only.item.description} ctx={ctx} />
+          )}
+        </p>
+        <ItemOrder item={only.item} ctx={ctx} page={content} />
+      </div>
+    ) : (
+      <ul class="dotlist">
+        {content.items.map((pi, i) => (
+          <li data-item-id={pi.item.id}>
+            <div class="vline">
+              <span>({letterFor(i)})</span>
+              <span>
+                <span class="itemname">{pi.item.shortName}</span>
+                {pi.item.specs && ` · ${pi.item.specs}`}
+              </span>
+              <span class="dots"></span>
+              <Price
+                confirmed={pi.item.price.confirmed}
+                estimate={pi.item.price.estimate}
+                text={pi.item.price.label ?? undefined}
+              />
+            </div>
+            <ItemLinks item={pi.item} ctx={ctx} />
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+  {content.copy.smallprint && (
+    <p class="atsize">
+      <Copy text={content.copy.smallprint} ctx={ctx} />
+    </p>
+  )}
+  {guarantee.text && (
+    <div class="guarantee">
+      {guarantee.lead && <b>{guarantee.lead}</b>} <span class="quote">{guarantee.text}</span>
+    </div>
+  )}
+</PageShell>

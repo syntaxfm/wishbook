@@ -1,0 +1,103 @@
+---
+/**
+ * Lineup bands: one green band per item with the product, big numerals, a
+ * NEW ribbon or badge, and a quote on the band; a side column with the
+ * shopper's wordmark, the picked-by sticker, and the item copy.
+ */
+import Copy from "../../components/Copy.astro";
+import Img from "../../components/Img.astro";
+import ItemCopy from "../../components/ItemCopy.astro";
+import ItemLetter from "../../components/ItemLetter.astro";
+import ItemOrder from "../../components/ItemOrder.astro";
+import ItemQuote from "../../components/ItemQuote.astro";
+import NewBanner from "../../components/NewBanner.astro";
+import PageShell from "../../components/PageShell.astro";
+import PickedBy from "../../components/PickedBy.astro";
+import Price from "../../components/Price.astro";
+import { letterFor } from "./letters";
+import type { TemplateProps } from "./types";
+
+type Props = TemplateProps;
+const { page, content, ctx, state } = Astro.props;
+const host = content.hosts[0];
+const pickers = await Promise.all(
+  content.hosts.map(async (h) => ({ name: h.shortName, avatar: await ctx.avatar(h) })),
+);
+const items = await Promise.all(
+  content.items.map(async (pi, i) => {
+    const [badgeLead = "", ...badgeRest] = (pi.badge ?? "").split(" ");
+    return {
+      ...pi,
+      letter: letterFor(i),
+      photo: await ctx.itemImage(pi.item, pi.photo),
+      quote:
+        !pi.text && !ctx.quotedElsewhere(pi.item, content) ? (pi.item.quotes[0] ?? null) : null,
+      badgeLead,
+      badgeRest: badgeRest.join(" "),
+    };
+  }),
+);
+---
+
+<PageShell
+  page={page}
+  ctx={ctx}
+  state={state}
+  class="lineup"
+  orderLine={ctx.orderLine(content.orderLine)}
+>
+  <div class="bands">
+    {items.map((it) => {
+      const { confirmed, estimate, label, note } = it.item.price;
+      return (
+        <div class="band">
+          {it.item.isNew && (
+            <div class="new">
+              <NewBanner />
+            </div>
+          )}
+          {it.badge && (
+            <div class="shipgift">
+              <b>{it.badgeLead}</b>
+              {it.badgeRest}
+            </div>
+          )}
+          <Img
+            asset={it.photo}
+            alt={it.item.image.alt}
+            widths={[240, 320, 480]}
+            sizes="(min-width: 1000px) 240px, 60vw"
+          />
+          <div class="bandprice">
+            {note && (confirmed !== null || estimate !== null) && (
+              <span class="only-word bignum">only</span>
+            )}
+            {confirmed !== null || estimate !== null ? (
+              <Price variant="big" confirmed={confirmed} estimate={estimate} />
+            ) : (
+              label && <span class="bignum label">{label}</span>
+            )}
+          </div>
+          <ItemLetter letter={it.letter} variant="photo" />
+          {it.quote && <ItemQuote quote={it.quote} ctx={ctx} placement="on" />}
+        </div>
+      );
+    })}
+  </div>
+  <div class="col">
+    <div class="wordmark">{host?.shortName ?? content.title}</div>
+    {pickers.length > 0 && <PickedBy hosts={pickers} />}
+    {items.map((it) => (
+      <div class="item" data-item-id={it.item.id}>
+        <ItemLetter letter={it.letter} />
+        <ItemCopy item={it.item} ctx={ctx} text={it.text} short />
+        <ItemOrder item={it.item} ctx={ctx} page={content} />
+      </div>
+    ))}
+    {content.copy.sticker && (
+      <div class="sticker">
+        <Copy text={content.copy.sticker} ctx={ctx} />
+      </div>
+    )}
+  </div>
+</PageShell>

@@ -1,36 +1,64 @@
 ---
+/**
+ * One static HTML file: the whole book opened at `slug`, with that page's
+ * title, description, canonical URL, and Open Graph tags. Every meta URL is
+ * absolute and year-scoped, including on the root copy ("/"), whose canonical
+ * is the edition's cover.
+ *
+ * A tiny inline script picks the reading mode before first paint (book ≥ 1000px,
+ * single ≥ 640px, scroll below) so there is no flash; without JavaScript the
+ * current page renders on its own.
+ */
+import Book from "../components/Book.astro";
 import DesignSystem from "../components/DesignSystem.astro";
 import PrintFilters from "../components/PrintFilters.astro";
-import { getEdition, getGlobal } from "../lib/content";
+import { getBookContext } from "../lib/book";
 import { absoluteUrl, editionUrl, type Edition } from "../lib/urls";
 
 interface Props {
   edition: Edition;
+  slug: string;
 }
 
-const { edition } = Astro.props;
-// Reading the edition validates all of its content; bad content fails the build.
-const [global] = await Promise.all([getGlobal(), getEdition(edition)]);
-// Root copies point their canonical at the edition URL, so every share is year-scoped.
-const canonical = absoluteUrl(editionUrl(edition));
-const title = global.name;
+const { edition, slug } = Astro.props;
+const ctx = await getBookContext(edition);
+const page = ctx.book.page(slug);
+const name = ctx.global.name;
+const section = ctx.content.sections.find((s) => s.id === page.section);
+const isCover = page.kind === "cover";
+const title = isCover ? name : `${page.title} · ${name}`;
+const description = isCover
+  ? ctx.plain(ctx.content.site.meta.description) || name
+  : `${page.title}, from “${section?.name ?? ""}” in the ${name}.`;
+const canonical = absoluteUrl(ctx.href(slug));
+const image = absoluteUrl(editionUrl(ctx.edition, `og/${slug}.png`));
+const modeScript =
+  "(function(){var w=innerWidth,c=document.documentElement.classList;c.add('js',w>=1000?'m-book':w>=640?'m-single':'m-scroll')})()";
 ---
 
 <!doctype html>
-<html lang="en" data-edition={edition}>
+<html lang="en" data-edition={ctx.edition}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline set:html={modeScript} />
     <title>{title}</title>
+    <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={name} />
     <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={image} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
     <DesignSystem />
   </head>
   <body>
     <PrintFilters />
-    <main>
-      <h1>{title}</h1>
-    </main>
+    <h1 class="sr-only">{name}</h1>
+    <Book edition={ctx.edition} current={slug} />
   </body>
 </html>

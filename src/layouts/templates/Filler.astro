@@ -1,0 +1,44 @@
+---
+/**
+ * Filler page, inserted automatically to keep spreads on the right sides: a
+ * running head, the filler's title and optional art and text from the site
+ * settings, and ruled lines to write on ("Notes for Santa").
+ */
+import CopyParas from "../../components/CopyParas.astro";
+import Img from "../../components/Img.astro";
+import PageShell from "../../components/PageShell.astro";
+import type { BookContext, BookPage } from "../../lib/book";
+import type { PageState } from "./types";
+
+interface Props {
+  page: BookPage;
+  ctx: BookContext;
+  state: PageState;
+}
+
+const { page, ctx, state } = Astro.props;
+const copy = page.fillerCopy;
+if (!copy) throw new Error(`Filler page "${page.slug}" has no copy`);
+const art = copy.art ? await ctx.art(copy.art) : null;
+const section = ctx.content.sections.find((s) => s.id === page.section);
+---
+
+<PageShell page={page} ctx={ctx} state={state} class="filler">
+  <div class="runhead kicker">
+    <span>{section?.name}</span>
+    <span>{ctx.global.name}</span>
+  </div>
+  <h2 class="display">{copy.title}</h2>
+  {art && (
+    <Img
+      asset={art}
+      alt={ctx.artAlt(copy.art!)}
+      class="mascot"
+      round
+      widths={[200, 320]}
+      sizes="190px"
+    />
+  )}
+  <CopyParas text={copy.text} ctx={ctx} />
+  <div class="lines" aria-hidden="true"></div>
+</PageShell>

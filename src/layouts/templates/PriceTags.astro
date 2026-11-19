@@ -1,0 +1,65 @@
+---
+/**
+ * Price-tag page, toy-store style: kicker and red header tab, cut-out product
+ * shots with the brand in green, a red serif name with an arrow, an age or
+ * caption line, and yellow price boxes. Grouped items share a green box
+ * ("Home Assistant Corner"); a green band runs across the foot. Two loose
+ * items get a big top row with descriptions; more go in a three-column grid.
+ */
+import Copy from "../../components/Copy.astro";
+import PageShell from "../../components/PageShell.astro";
+import PriceTag from "./PriceTag.astro";
+import type { TemplateProps } from "./types";
+
+type Props = TemplateProps;
+const { page, content, ctx, state } = Astro.props;
+const loose = content.items.filter((e) => !e.group);
+const groupNames = [...new Set(content.items.flatMap((e) => (e.group ? [e.group] : [])))];
+const groups = groupNames.map((name) => ({
+  name,
+  entries: content.items.filter((e) => e.group === name),
+}));
+const top = loose.length <= 2;
+const kicker = content.copy.kicker ?? content.section.kicker;
+---
+
+<PageShell
+  page={page}
+  ctx={ctx}
+  state={state}
+  class="trupage"
+  orderLine={ctx.orderLine(content.orderLine)}
+>
+  <div class="truhead">
+    {kicker && (
+      <span class="k kicker">
+        <Copy text={kicker} ctx={ctx} />
+      </span>
+    )}
+    <h2 class="tab">
+      <Copy text={content.copy.headline ?? content.title} ctx={ctx} />
+    </h2>
+  </div>
+  {loose.length > 0 && (
+    <div class={top ? "tru-top" : "tru-grid"}>
+      {loose.map((entry) => (
+        <PriceTag entry={entry} ctx={ctx} describe={top} />
+      ))}
+    </div>
+  )}
+  {groups.map((group) => (
+    <div class="habox">
+      <h3 class="kicker">{group.name}</h3>
+      <div class="row">
+        {group.entries.map((entry) => (
+          <PriceTag entry={entry} ctx={ctx} />
+        ))}
+      </div>
+    </div>
+  ))}
+  {content.copy.footer && (
+    <div class="greenband">
+      <Copy text={content.copy.footer} ctx={ctx} />
+    </div>
+  )}
+</PageShell>

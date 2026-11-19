@@ -32,6 +32,10 @@ export interface LogicalPage {
 
 export interface FillerCopy {
   title: string;
+  /** Copy markup, if any. */
+  text?: string | null;
+  /** Asset key for the filler's art, if any. */
+  art?: string | null;
 }
 
 export interface BookPage {
@@ -52,6 +56,8 @@ export interface BookPage {
   template: Template | "filler";
   /** Fillers only: index into the edition's filler copy. */
   filler?: number;
+  /** Fillers only: the filler's copy (title, text, art). */
+  fillerCopy?: { title: string; text: string | null; art: string | null };
   /** Position in book order (0-based). */
   index: number;
 }
@@ -134,7 +140,8 @@ export function paginateBook(
       );
     }
     const copyIndex = fillers % fillerCopy.length;
-    const base = slugify(fillerCopy[copyIndex]!.title);
+    const copy = fillerCopy[copyIndex]!;
+    const base = slugify(copy.title);
     let slug = base;
     for (let i = 2; used.has(slug); i++) slug = `${base}-${i}`;
     used.add(slug);
@@ -146,10 +153,11 @@ export function paginateBook(
       label: folioLabel(n),
       side: side(n),
       section,
-      title: fillerCopy[copyIndex]!.title,
+      title: copy.title,
       kind: "filler",
       template: "filler",
       filler: copyIndex,
+      fillerCopy: { title: copy.title, text: copy.text ?? null, art: copy.art ?? null },
       index: pages.length,
     });
     n++;

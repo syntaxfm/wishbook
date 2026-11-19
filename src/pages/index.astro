@@ -1,8 +1,12 @@
 ---
-// Root copy: the current edition's cover, rendered again at "/".
-// Its canonical points at the edition URL (/2026/).
+// Root copy: the current edition's cover, rendered again at "/". Its canonical,
+// og:url, and every link inside point at the edition (/2026/…).
 import BookPage from "../layouts/BookPage.astro";
 import { getCurrentEdition } from "../lib/content";
+import { paginate } from "../lib/paginate";
+
+const edition = getCurrentEdition();
+const cover = (await paginate(edition)).pages[0]!;
 ---
 
-<BookPage edition={getCurrentEdition()} />
+<BookPage edition={edition} slug={cover.slug} />

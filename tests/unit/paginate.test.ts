@@ -70,6 +70,7 @@ describe("paginateBook", () => {
       "The Grouse Says Hi",
       0,
     ]);
+    expect(filler.fillerCopy).toEqual({ title: "The Grouse Says Hi", text: null, art: null });
     expect(book.ref("k2")).toBe("page 6 A");
     expect(book.fillers).toBe(1);
   });

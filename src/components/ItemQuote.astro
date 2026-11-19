@@ -1,0 +1,27 @@
+---
+/** A host quote from content, placed with its photo (below it, or on it). */
+import PhotoQuote from "./PhotoQuote.astro";
+import type { BookContext } from "../lib/book";
+import type { Quote } from "../lib/content";
+
+interface Props {
+  quote: Quote;
+  ctx: BookContext;
+  placement?: "below" | "on";
+  big?: boolean;
+  class?: string;
+}
+
+const { quote, ctx, placement = "below", big = false, class: className } = Astro.props;
+const avatar = quote.by ? await ctx.avatar(quote.by) : undefined;
+---
+
+<PhotoQuote
+  text={quote.text}
+  by={ctx.quoteBy(quote)}
+  avatar={avatar}
+  placement={placement}
+  big={big}
+  verify={quote.verify}
+  class={className}
+/>

@@ -1,0 +1,39 @@
+---
+/**
+ * An item's running copy, catalog style: the name in caps, then the
+ * description. Descriptions written to follow the name ("never tangle…",
+ * ", a Casio F-91W…") continue the sentence; others get a full stop after the
+ * name ("STAMEN ST-01 BEARD TRIMMER. One attachment…"). Extra paragraphs
+ * follow as <p>. Pass `named={false}` for copy without the name.
+ */
+import Copy from "./Copy.astro";
+import CopyParas from "./CopyParas.astro";
+import type { BookContext } from "../lib/book";
+import type { Item } from "../lib/content";
+import { copyParagraphs } from "../lib/copy";
+
+interface Props {
+  item: Item;
+  ctx: BookContext;
+  /** Page-specific copy that replaces the description. */
+  text?: string | null;
+  /** Use the short name ("KZ ZS10 Pro IEMs"). */
+  short?: boolean;
+  /** Lead with the name: always, never, or "auto" (only when the copy continues the name). */
+  named?: boolean | "auto";
+}
+
+const { item, ctx, text, short = false } = Astro.props;
+const desc = text ?? item.description;
+const [first = "", ...rest] = desc ? copyParagraphs(desc) : [];
+const name = short ? item.shortName : item.name;
+const continues = /^[a-z,.;:)]/.test(first);
+const named = Astro.props.named === "auto" ? continues : (Astro.props.named ?? true);
+const stop = !first || continues || /[.!?]$/.test(name) ? "" : ".";
+const space = first && !/^[,.;:)]/.test(first) ? " " : "";
+---
+
+{named && <span class="itemname">{name + stop}</span>}
+{named && space}
+<Copy text={first} ctx={ctx} />
+<CopyParas text={rest.join("\n\n")} ctx={ctx} />

@@ -1,0 +1,76 @@
+---
+/**
+ * Front cover: painted art under a navy sky, the gold "WishBook" masthead
+ * under the Syntax logo, the cover price, and a green band with the tagline,
+ * the gift count and index reference, and the phone line. Type is printed
+ * "into" the paper with worn-ink masks.
+ */
+import Copy from "../../components/Copy.astro";
+import Img from "../../components/Img.astro";
+import PageShell from "../../components/PageShell.astro";
+import type { TemplateProps } from "./types";
+
+type Props = TemplateProps;
+const { page, content, ctx, state } = Astro.props;
+const { cover } = ctx.content.site;
+const art = content.art ? await ctx.art(content.art) : null;
+const logo = await ctx.art("brand:syntax-logo-wide-stacked");
+// "Syntax WishBook": the logo carries the first word, the masthead the rest.
+const [brand = "", ...rest] = ctx.global.name.split(" ");
+const masthead = rest.join(" ");
+const line = ctx.orderLine(content.orderLine) ?? ctx.phoneLine;
+// The cover band sets the number with middle dots: 1·555·SYNTAXFM.
+const lineText = line ? ctx.plain(line.text).replaceAll("-", "·") : null;
+---
+
+<PageShell page={page} ctx={ctx} state={state} class="cover" folio={false}>
+  {art && (
+    <Img
+      asset={art}
+      alt={ctx.artAlt(content.art!)}
+      class="art-img"
+      widths={[480, 720, 960, 1280]}
+      sizes="(min-width: 1000px) 620px, 100vw"
+      priority={state.current}
+      lazy={!state.current}
+    />
+  )}
+  <div class="scrim" aria-hidden="true"></div>
+  {cover.price && <div class="coverprice price worn">{cover.price}</div>}
+  <div class="top">
+    <Img
+      asset={logo}
+      alt={brand}
+      class="logo worn"
+      widths={[320, 640]}
+      sizes="(min-width: 1000px) 290px, 46vw"
+      lazy={!state.current}
+    />
+    <div class="wb masthead gold worn">
+      {masthead}
+      <span class="star" aria-hidden="true">
+        ★
+      </span>
+    </div>
+  </div>
+  <div class="coverband">
+    <div class="cb-l">
+      {cover.tagline && (
+        <span class="display worn">
+          <Copy text={cover.tagline} ctx={ctx} />
+        </span>
+      )}
+      {cover.note && (
+        <span class="kicker">
+          <Copy text={cover.note} ctx={ctx} />
+        </span>
+      )}
+    </div>
+    {line && (
+      <div class="cb-r">
+        {line.kicker && <span class="kicker">{ctx.plain(line.kicker)}</span>}
+        <span class="price worn">{lineText}</span>
+      </div>
+    )}
+  </div>
+</PageShell>

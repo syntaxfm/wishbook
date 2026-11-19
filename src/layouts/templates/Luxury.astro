@@ -1,0 +1,69 @@
+---
+/**
+ * Luxury feature: a deadpan "fantasy gift" page. Spotlit photo on black with
+ * a thin gold rule, an elegant headline, a provenance line, the price in
+ * script ("Price upon request"), a one-line quote, and the photo credit.
+ */
+import Copy from "../../components/Copy.astro";
+import Img from "../../components/Img.astro";
+import ItemLinks from "../../components/ItemLinks.astro";
+import LineQuote from "../../components/LineQuote.astro";
+import PageShell from "../../components/PageShell.astro";
+import { formatPrice, resolvePrice } from "../../lib/catalog";
+import type { TemplateProps } from "./types";
+
+type Props = TemplateProps;
+const { page, content, ctx, state } = Astro.props;
+const pi = content.items[0];
+if (!pi) throw new Error(`Page "${content.slug}": a luxury page needs an item`);
+const { item } = pi;
+const photo = content.art ? await ctx.art(content.art) : await ctx.itemImage(item, pi.photo);
+const price = resolvePrice(item.price);
+---
+
+<PageShell
+  page={page}
+  ctx={ctx}
+  state={state}
+  class="lux"
+  orderLine={ctx.orderLine(content.orderLine)}
+>
+  <div slot="before" class="rule" aria-hidden="true"></div>
+  {content.copy.badge && (
+    <div class="only1">
+      <Copy text={content.copy.badge} ctx={ctx} />
+    </div>
+  )}
+  <div class="spot" data-item-id={item.id}>
+    <Img
+      asset={photo}
+      alt={item.image.alt}
+      class="bird"
+      widths={[320, 480, 640, 960]}
+      sizes="(min-width: 1000px) 520px, 84vw"
+    />
+  </div>
+  <h2 class="display">
+    <Copy text={content.copy.headline ?? content.title} ctx={ctx} />
+  </h2>
+  {content.copy.meta && (
+    <div class="meta">
+      <Copy text={content.copy.meta} ctx={ctx} />
+    </div>
+  )}
+  <div class="ask">
+    {price ? (
+      <>
+        {formatPrice(price.amount)}
+        {price.estimated && <span class="est">est.</span>}
+      </>
+    ) : (
+      item.price.label
+    )}
+  </div>
+  {content.quotes.map((q) => (
+    <LineQuote quote={q} ctx={ctx} as="oneliner" />
+  ))}
+  <ItemLinks item={item} ctx={ctx} />
+  {item.image.credit && <div class="credit">{item.image.credit}</div>}
+</PageShell>

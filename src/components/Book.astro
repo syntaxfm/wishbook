@@ -1,0 +1,148 @@
+---
+/**
+ * The whole book, opened at one page. Renders every physical page in order
+ * (each with data-slug, data-n, data-side, data-path), the section thumb-index
+ * tabs, prev/next controls, and a polite live region. The page this file is
+ * opened at is `.is-current`; it and its spread partner are `.is-shown`.
+ *
+ * Without JavaScript only the current page shows, and every control is a real
+ * link to another static page. The book engine takes over from this markup.
+ */
+import { getBookContext, type BookPage } from "../lib/book";
+import type { Edition } from "../lib/urls";
+import ActualSize from "../layouts/templates/ActualSize.astro";
+import BackCover from "../layouts/templates/BackCover.astro";
+import BrandColumn from "../layouts/templates/BrandColumn.astro";
+import BrandFeature from "../layouts/templates/BrandFeature.astro";
+import Centerfold from "../layouts/templates/Centerfold.astro";
+import Cover from "../layouts/templates/Cover.astro";
+import Divider from "../layouts/templates/Divider.astro";
+import Feature from "../layouts/templates/Feature.astro";
+import Filler from "../layouts/templates/Filler.astro";
+import Grid from "../layouts/templates/Grid.astro";
+import Holly from "../layouts/templates/Holly.astro";
+import HouseBrand from "../layouts/templates/HouseBrand.astro";
+import Lineup from "../layouts/templates/Lineup.astro";
+import Luxury from "../layouts/templates/Luxury.astro";
+import OddsEnds from "../layouts/templates/OddsEnds.astro";
+import OrderForm from "../layouts/templates/OrderForm.astro";
+import PriceTags from "../layouts/templates/PriceTags.astro";
+import Shoppers from "../layouts/templates/Shoppers.astro";
+import Under from "../layouts/templates/Under.astro";
+import Welcome from "../layouts/templates/Welcome.astro";
+import Wild from "../layouts/templates/Wild.astro";
+import type { Template } from "../lib/schema";
+
+interface Props {
+  edition: Edition;
+  /** Slug of the page this file opens at. */
+  current: string;
+}
+
+const { edition, current } = Astro.props;
+const ctx = await getBookContext(edition);
+const { book } = ctx;
+const here = book.page(current);
+const spread = book.spreadOf(current);
+const shown = new Set([spread.left, spread.right].filter(Boolean) as BookPage[]);
+
+const TEMPLATES = {
+  cover: Cover,
+  welcome: Welcome,
+  shoppers: Shoppers,
+  divider: Divider,
+  grid: Grid,
+  feature: Feature,
+  holly: Holly,
+  under: Under,
+  "brand-column": BrandColumn,
+  lineup: Lineup,
+  "brand-feature": BrandFeature,
+  "actual-size": ActualSize,
+  "price-tags": PriceTags,
+  "house-brand": HouseBrand,
+  centerfold: Centerfold,
+  wild: Wild,
+  luxury: Luxury,
+  "odds-ends": OddsEnds,
+  "order-form": OrderForm,
+  "back-cover": BackCover,
+} satisfies Record<Template, unknown>;
+
+// Thumb-index tabs: every section that opens with a divider or a centerfold.
+const tabs = ctx.content.sections.flatMap((s) => {
+  const first = book.firstOf(s.id);
+  return first && (first.kind === "divider" || first.kind === "centerfold")
+    ? [{ section: s, first }]
+    : [];
+});
+
+// Prev/next: the neighbouring page (data-spread-href: the neighbouring spread).
+const prev = book.pages[here.index - 1] ?? null;
+const next = book.pages[here.index + 1] ?? null;
+const spreadIndex = book.spreads.indexOf(spread);
+const firstOfSpread = (i: number) => {
+  const s = book.spreads[i];
+  return s ? (s.left ?? s.right) : null;
+};
+const prevSpread = firstOfSpread(spreadIndex - 1);
+const nextSpread = firstOfSpread(spreadIndex + 1);
+const where = here.end > here.n ? `Pages ${here.label}` : `Page ${here.label}`;
+---
+
+<div class="book" data-current={current} data-edition={ctx.edition}>
+  <div class="book-pages">
+    {book.pages.map((page) => {
+      const state = { current: page === here, shown: shown.has(page) };
+      if (page.template === "filler") return <Filler page={page} ctx={ctx} state={state} />;
+      const content = ctx.pageContent(page.slug)!;
+      const T = TEMPLATES[page.template];
+      return <T page={page} content={content} ctx={ctx} state={state} />;
+    })}
+  </div>
+  <nav class="pager" aria-label="Pages">
+    {prev ? (
+      <a
+        class="prev"
+        href={ctx.href(prev.slug)}
+        rel="prev"
+        data-spread-href={prevSpread ? ctx.href(prevSpread.slug) : undefined}
+      >
+        <span aria-hidden="true">←</span> Prev
+      </a>
+    ) : (
+      <span class="prev" aria-disabled="true">
+        <span aria-hidden="true">←</span> Prev
+      </span>
+    )}
+    <span class="where">{where}</span>
+    {next ? (
+      <a
+        class="next"
+        href={ctx.href(next.slug)}
+        rel="next"
+        data-spread-href={nextSpread ? ctx.href(nextSpread.slug) : undefined}
+      >
+        Next <span aria-hidden="true">→</span>
+      </a>
+    ) : (
+      <span class="next" aria-disabled="true">
+        Next <span aria-hidden="true">→</span>
+      </span>
+    )}
+  </nav>
+  <nav class="tabs" aria-label="Sections">
+    {tabs.map(({ section, first }) => (
+      <a
+        href={ctx.href(first.slug)}
+        style={`--tab:${section.color}`}
+        data-section={section.id}
+        class:list={{ on: section.id === here.section }}
+        aria-current={section.id === here.section ? "true" : undefined}
+      >
+        {section.tabLabel}
+      </a>
+    ))}
+  </nav>
+  <div class="sr-only" role="status" aria-live="polite" data-live></div>
+</div>

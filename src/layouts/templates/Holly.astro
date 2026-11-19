@@ -1,0 +1,98 @@
+---
+/**
+ * Holly two-up: a holly border around a cream page, large square photos with
+ * big corner letters, quotes below the photos, a friendly red headline per
+ * item, and page quotes as speech bubbles. Three or more items switch to a
+ * denser three-column grid. Optional page art runs across the bottom.
+ */
+import Copy from "../../components/Copy.astro";
+import Frame from "../../components/Frame.astro";
+import Img from "../../components/Img.astro";
+import ItemCopy from "../../components/ItemCopy.astro";
+import ItemLetter from "../../components/ItemLetter.astro";
+import ItemOrder from "../../components/ItemOrder.astro";
+import ItemQuote from "../../components/ItemQuote.astro";
+import LineQuote from "../../components/LineQuote.astro";
+import PageShell from "../../components/PageShell.astro";
+import PickedBy from "../../components/PickedBy.astro";
+import { letterFor } from "./letters";
+import type { TemplateProps } from "./types";
+
+type Props = TemplateProps;
+const { page, content, ctx, state } = Astro.props;
+const dense = content.items.length > 2;
+const pickers = await Promise.all(
+  content.hosts.map(async (h) => ({ name: h.shortName, avatar: await ctx.avatar(h) })),
+);
+const items = await Promise.all(
+  content.items.map(async (pi, i) => ({
+    ...pi,
+    letter: letterFor(i),
+    photo: await ctx.itemImage(pi.item, pi.photo),
+    quote:
+      !dense && !pi.text && !ctx.quotedElsewhere(pi.item, content)
+        ? (pi.item.quotes[0] ?? null)
+        : null,
+  })),
+);
+const art = content.art ? await ctx.art(content.art) : null;
+---
+
+<PageShell
+  page={page}
+  ctx={ctx}
+  state={state}
+  class="holly"
+  orderLine={ctx.orderLine(content.orderLine)}
+>
+  <div class="pagehead">
+    <h2 class="display">{content.copy.headline ?? content.title}</h2>
+    {pickers.length > 0 && <PickedBy hosts={pickers} />}
+  </div>
+  <div class={dense ? "hollygrid" : "twoup"}>
+    {items.map((it) => (
+      <div data-item-id={it.item.id}>
+        <Frame tone={it.item.image.background === "dark" ? "dark" : "light"}>
+          <Img
+            asset={it.photo}
+            alt={it.item.image.alt}
+            widths={dense ? [200, 320, 480] : [320, 480, 640]}
+            sizes={
+              dense
+                ? "(min-width: 1000px) 170px, (min-width: 640px) 30vw, 90vw"
+                : "(min-width: 1000px) 270px, (min-width: 640px) 45vw, 90vw"
+            }
+          />
+          <ItemLetter letter={it.letter} variant="big" />
+        </Frame>
+        {it.quote && <ItemQuote quote={it.quote} ctx={ctx} />}
+        <div class="friendly">
+          <ItemLetter letter={it.letter} />
+          {it.item.headline ? <Copy text={it.item.headline} ctx={ctx} /> : it.item.shortName}
+        </div>
+        <div class="desc">
+          <ItemCopy item={it.item} ctx={ctx} text={it.text} named="auto" />
+        </div>
+        <ItemOrder item={it.item} ctx={ctx} page={content} />
+      </div>
+    ))}
+  </div>
+  {content.quotes.map((q) => (
+    <LineQuote quote={q} ctx={ctx} />
+  ))}
+  {art && (
+    <div class="hollyart">
+      <Img
+        asset={art}
+        alt={ctx.artAlt(content.art!)}
+        widths={[480, 720, 960]}
+        sizes="(min-width: 1000px) 540px, 90vw"
+      />
+    </div>
+  )}
+  {content.copy.smallprint && (
+    <p class="smallprint">
+      <Copy text={content.copy.smallprint} ctx={ctx} />
+    </p>
+  )}
+</PageShell>
