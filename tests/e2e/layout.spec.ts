@@ -18,7 +18,10 @@ async function frame(page: Page) {
       const r = el.getBoundingClientRect();
       return [r.left, r.top, r.width, r.height].map(Math.round);
     };
-    const shown = [...document.querySelectorAll<HTMLElement>(".book-pages > .is-shown")];
+    // On screen: single mode marks the spread partner shown but doesn't display it.
+    const shown = [...document.querySelectorAll<HTMLElement>(".book-pages > .is-shown")].filter(
+      (p) => p.getClientRects().length > 0,
+    );
     const problems: string[] = [];
     for (const p of shown) {
       const pr = p.getBoundingClientRect();
