@@ -101,11 +101,12 @@
   padding: 8px 6px;
   overflow: hidden;
   border-radius: 6px 0 0 6px;
-  font-size: 11px;
+  /* shorter books get smaller tab labels so they still fit */
+  font-size: clamp(9px, calc(var(--ph) / 62), 11px);
   letter-spacing: 0.06em;
 }
 
-/* c: the magnifiers sit in the gutters at the top of the book */
+/* c: the magnifiers sit in the gutters at the foot of the book */
 .proto-mag {
   display: none;
 }
@@ -114,7 +115,7 @@
   place-items: center;
   position: fixed;
   z-index: 31;
-  top: calc(50% - var(--ph) / 2);
+  top: calc(50% + var(--ph) / 2 - 44px);
   width: 44px;
   height: 44px;
   padding: 0;
@@ -241,12 +242,12 @@ html.proto-zoomed {
 [data-chrome="viewer"]:is(.m-book, .m-single) .tabs {
   top: 10px;
   bottom: auto;
-  left: 50%;
-  right: auto;
-  translate: -50% 0;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
   transform: none;
   flex-direction: row;
-  width: max-content;
+  width: fit-content;
   max-width: calc(100vw - 24px);
   padding: 4px;
   gap: 4px;

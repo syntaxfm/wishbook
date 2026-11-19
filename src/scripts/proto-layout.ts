@@ -28,6 +28,31 @@ export function startLayouts(): void {
   renderSwitcher();
   startZoom();
   startIdle();
+  holdFeedPosition();
+}
+
+/**
+ * e1/e2: on a wide feed, pages above the deep-linked one settle their sizes
+ * (fonts, images, content-visibility) after the engine scrolls to it, and
+ * scroll snapping can then pull the feed elsewhere. Until the reader scrolls
+ * themselves, keep the opened page at the top.
+ */
+function holdFeedPosition(): void {
+  let touched = false;
+  for (const type of ["wheel", "touchstart", "keydown", "pointerdown"]) {
+    addEventListener(type, () => (touched = true), { once: true, passive: true });
+  }
+  const hold = () => {
+    if (touched || currentMode() !== "scroll" || LAYOUT_CHROME[layout] !== "feed") return;
+    const slug = currentPage()?.slug;
+    const el = document.querySelector<HTMLElement>(`.book-pages > [data-slug="${slug}"]`);
+    if (el && Math.abs(el.getBoundingClientRect().top - 16) > 4) {
+      scrollTo({ top: el.getBoundingClientRect().top + scrollY - 16, behavior: "instant" });
+    }
+  };
+  void document.fonts.ready.then(hold);
+  addEventListener("load", hold);
+  setTimeout(hold, 800);
 }
 
 function setLayout(next: Layout): void {

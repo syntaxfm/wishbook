@@ -22,41 +22,58 @@ function contentOf(box: HTMLElement): HTMLElement | null {
   return box.querySelector<HTMLElement>(":scope > .pg, :scope > .cf");
 }
 
+interface Fit {
+  scale: number;
+  /** How far the unscaled content runs past the box, in px. */
+  over: number;
+}
+
 /** The scale that fits a page's content in its box (1 when it already fits). */
-function measure(box: HTMLElement, content: HTMLElement): number | null {
+function measure(box: HTMLElement, content: HTMLElement): Fit | null {
   if (!box.getClientRects().length) return null; // not shown
   const cs = getComputedStyle(box);
   const room = box.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
   // offsetHeight is the layout height, untouched by the scale or a turn's
   // rotation; it rounds, so allow a pixel.
   const natural = content.offsetHeight + 1;
-  if (room <= 0 || natural <= room + 1) return 1;
-  return Math.floor((room / natural) * 1000) / 1000;
+  if (room <= 0 || natural <= room + 1) return { scale: 1, over: 0 };
+  return { scale: Math.floor((room / natural) * 1000) / 1000, over: natural - room };
 }
 
-function apply(box: HTMLElement, fit: number): void {
-  box.classList.toggle(FIT, fit < 1);
-  if (fit < 1) box.style.setProperty("--fit", String(fit));
-  else box.style.removeProperty("--fit");
+/**
+ * The scale is a transform, which leaves the content's layout box full
+ * height; `--fit-over` pulls it back (a negative bottom margin) so the box
+ * has no hidden overflow to scroll to.
+ */
+function apply(box: HTMLElement, fit: Fit): void {
+  box.classList.toggle(FIT, fit.scale < 1);
+  if (fit.scale < 1) {
+    box.style.setProperty("--fit", String(fit.scale));
+    box.style.setProperty("--fit-over", `${fit.over}px`);
+  } else {
+    box.style.removeProperty("--fit");
+    box.style.removeProperty("--fit-over");
+  }
 }
 
 /** Fits these pages now (reads all, then writes all). */
 export function fitPages(boxes: Iterable<HTMLElement>): void {
-  const plan: [HTMLElement, number][] = [];
+  const plan: [HTMLElement, Fit][] = [];
   for (const box of boxes) {
     const content = contentOf(box);
     const fit = content ? measure(box, content) : null;
-    if (fit !== null) plan.push([box, fit]);
+    if (fit) plan.push([box, fit]);
   }
   for (const [box, fit] of plan) apply(box, fit);
 }
 
 /**
  * Pages narrower than this would switch to the phone reflow (container
- * queries at 520px), which is far taller. A smaller box lays its page out at
+ * queries at 520px of content box; a framed page like the holly border has
+ * about 7% less), which is far taller. A smaller box lays its page out at
  * this width instead and zooms it down (`--dw`, `--pz` on the stage).
  */
-const DESIGN_MIN = 540;
+const DESIGN_MIN = 560;
 
 function sizeDesign(stage: HTMLElement, on: boolean): void {
   const pw = parseFloat(getComputedStyle(stage).gridTemplateColumns);

@@ -337,19 +337,25 @@ function updateEdges(): void {
  */
 function onEdgeClick(e: MouseEvent): void {
   const edge = e.currentTarget as HTMLButtonElement;
-  if (e.detail > 0) {
-    const under = document
-      .elementsFromPoint(e.clientX, e.clientY)
-      .find((el) => !edges.includes(el as HTMLButtonElement) && stage.contains(el));
-    const control = under?.closest<HTMLElement>(
-      "a[href], button, input, select, textarea, label, summary",
-    );
-    if (control && stage.contains(control)) {
-      control.click();
-      return;
-    }
-  }
-  turn(edge.dataset.turn === "-1" ? -1 : 1);
+  const control = e.detail > 0 ? controlUnder(e) : null;
+  if (control) control.click();
+  else turn(edge.dataset.turn === "-1" ? -1 : 1);
+}
+
+/** A link or control on a page under the edge strip at the pointer, if any. */
+function controlUnder(e: MouseEvent): HTMLElement | null {
+  const under = document
+    .elementsFromPoint(e.clientX, e.clientY)
+    .find((el) => !edges.includes(el as HTMLButtonElement) && stage.contains(el));
+  const control = under?.closest<HTMLElement>(
+    "a[href], button, input, select, textarea, label, summary",
+  );
+  return control && stage.contains(control) ? control : null;
+}
+
+/** Over a control under the strip, the edge drops its hint and acts as that control. */
+function onEdgeMove(e: PointerEvent): void {
+  (e.currentTarget as HTMLElement).classList.toggle("over-control", !!controlUnder(e));
 }
 
 /* ---------- book mode: the 3D leaf ---------- */
@@ -662,7 +668,10 @@ function bindInput(): void {
     if (Math.abs(dx) > SWIPE_PX && Math.abs(dx) > Math.abs(dy)) turn(dx < 0 ? 1 : -1);
   });
 
-  for (const edge of edges) edge.addEventListener("click", onEdgeClick);
+  for (const edge of edges) {
+    edge.addEventListener("click", onEdgeClick);
+    edge.addEventListener("pointermove", onEdgeMove);
+  }
 
   let resizeTimer = 0;
   addEventListener("resize", () => {

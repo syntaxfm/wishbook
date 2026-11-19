@@ -100,6 +100,8 @@
 :is(.m-book, .m-single) .book-pages > .cf-page.is-fit > .cf {
   transform: scale(var(--fit, 1));
   transform-origin: top center;
+  /* the layout box stays full height: pull it back inside the page */
+  margin-bottom: calc(-1 * var(--fit-over, 0px));
 }
 
 /* Book mode: the current spread side by side, even page left. A page alone in
@@ -408,11 +410,11 @@
   background: linear-gradient(to top right, #2a2622 50%, #e6d2ac 50%, #f4e7cc 78%, #d9c29a);
   box-shadow: 3px -3px 6px rgba(0, 0, 0, 0.22);
 }
-.edge:hover::before,
-.edge:hover::after {
+.edge:hover:not(.over-control)::before,
+.edge:hover:not(.over-control)::after {
   opacity: 1;
 }
-.edge:hover::after {
+.edge:hover:not(.over-control)::after {
   width: 44px;
   height: 44px;
 }

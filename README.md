@@ -3,7 +3,7 @@
 The Syntax Holiday Gift Guide as an interactive 90s Christmas catalog: a "wish book" you can flip through, circle gifts in, and share. It lives at **wishbook.syntax.fm**.
 
 - The Syntax crew's gift picks, laid out like a vintage department store catalog: lettered photo callouts, dot-leader prices, catalog numbers, section tabs, and a centerfold.
-- A flippable book on desktop, single pages on tablets, and a scrolling feed on phones.
+- A flippable book on desktop, single pages on tablets, and a scrolling feed on phones. Pages are one fixed size that fits the window, and their outer edges turn the page.
 - A new WishBook every year. Each edition lives under its year (`/2026/…`), so every shared link is permanent.
 - Every page has its own URL and its own share card.
 - Every catalog number is a timestamp into the gift guide episode.
