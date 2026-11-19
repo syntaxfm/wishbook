@@ -318,10 +318,11 @@
 .form .row .price {
   white-space: normal;
 }
-/* A long list scrolls inside the form so the page keeps its size. */
+/* The form is six lines tall in the page box; a longer list scrolls inside it
+   so the page keeps its size. */
 .m-book .form .rows,
 .m-single .form .rows {
-  max-height: 11.5em;
+  height: calc(6 * (2.3em + 1px));
   overflow-y: auto;
   overscroll-behavior: contain;
 }

@@ -88,7 +88,15 @@ img {
   flex: 1;
   font-size: clamp(11.5px, 2.15cqi, 15px);
   line-height: 1.32;
-  padding: 5.5cqi 5.5cqi 9cqi;
+  --pad-top: 5.5cqi;
+  --pad-bottom: 9cqi;
+  padding: var(--pad-top) 5.5cqi var(--pad-bottom);
+  /* The room left for content in the page box: its height (1.303 × its width,
+     less the 2% every page keeps spare) less this padding. Templates size a
+     photo from it (`height: calc(var(--room) - <the rest of that column>)`) so
+     the page fits by construction. cqi resolves where the variable is used,
+     against the page (a page without padding of its own). */
+  --room: calc(100cqi * 1.303 * 0.975 - var(--pad-top) - var(--pad-bottom));
 }
 
 /* phone-width pages reflow */

@@ -215,10 +215,47 @@
   height: var(--ph);
   justify-self: center;
 }
+/* The centerfold fills that box: the legend runs below the art in two
+   columns, and the art takes the rest at its own aspect (contained in the
+   room, letterboxed on ink), so the whole spread always fits. */
 .m-single .book-pages > .cf-page > .cf {
-  /* auto margins centre it, and drop to 0 when it is taller than the box */
-  margin-block: auto;
-  flex: none;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.m-single .book-pages > .cf-page .cf-scroll {
+  flex: 1 1 0;
+  min-height: 0;
+  container-type: size;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--ink);
+}
+.m-single .book-pages > .cf-page .cf-art {
+  aspect-ratio: auto;
+  width: min(100cqw, 150cqh);
+  height: min(100cqh, calc(100cqw / 1.5));
+}
+.m-single .book-pages > .cf-page .cf-legend {
+  position: static;
+  width: auto;
+  max-height: none;
+  overflow: visible;
+  border-width: 3px 0 0;
+  box-shadow: none;
+  padding: 10px 16px 38px;
+}
+.m-single .book-pages > .cf-page .cf-legend h3 {
+  font-size: 22px;
+}
+.m-single .book-pages > .cf-page .cf-legend ol {
+  columns: 2;
+  column-gap: 28px;
+}
+.m-single .book-pages > .cf-page .cf-legend li {
+  break-inside: avoid;
 }
 .lift {
   position: relative;
@@ -626,6 +663,27 @@
 }
 .links .sep {
   opacity: 0.5;
+}
+/* In the book the row is the whole purchase row: links on the left, the
+   wish-list toggle on the right, in a slot reserved at build time. The toggle
+   overhangs the 16px line instead of growing it, so the row is one line tall
+   with or without JavaScript. */
+.links.has-wish {
+  justify-content: flex-start;
+}
+.links .wish-slot {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  padding-left: 0.6em;
+}
+.links .wish-toggle {
+  margin: -0.55em 0;
+  font-size: 1.25em;
+  font-weight: 400;
+  line-height: 1.15;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 /* ---------- small template additions ---------- */

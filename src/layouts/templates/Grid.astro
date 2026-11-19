@@ -2,7 +2,9 @@
 /**
  * Grid page: photo cards in two columns, each with its letter, a host quote
  * below the photo, then the item copy and order line. A picked-by sticker
- * sits beside the headline.
+ * sits beside the headline. Two items or fewer make a "duo" page: one big
+ * photo per row (alternating sides, quote on the photo) beside its copy, the
+ * photos growing into whatever room the page box has left.
  */
 import Copy from "../../components/Copy.astro";
 import Frame from "../../components/Frame.astro";
@@ -30,44 +32,61 @@ const cards = await Promise.all(
     quote: !pi.text && !ctx.quotedElsewhere(pi.item, content) ? (pi.item.quotes[0] ?? null) : null,
   })),
 );
+// Two items or fewer: big photos in rows, quotes on the photos.
+const duo = cards.length <= 2;
 ---
 
-<PageShell page={page} ctx={ctx} state={state} orderLine={ctx.orderLine(content.orderLine)}>
-  <div class="pagehead">
-    <h2 class="display">{content.copy.headline ?? content.title}</h2>
+<PageShell
+  page={page}
+  ctx={ctx}
+  state={state}
+  class:list={[{ "duo-page": duo }]}
+  orderLine={ctx.orderLine(content.orderLine)}
+>
+  <div class:list={["pagehead", { "with-sticker": pickers.length > 0 }]}>
+    <div class="pagehead-titles">
+      <h2 class="display">{content.copy.headline ?? content.title}</h2>
+      {content.copy.kicker && (
+        <div class="pagekicker kicker">
+          <Copy text={content.copy.kicker} ctx={ctx} />
+        </div>
+      )}
+    </div>
     {pickers.length > 0 && <PickedBy hosts={pickers} />}
   </div>
-  {content.copy.kicker && (
-    <div class="pagekicker kicker">
-      <Copy text={content.copy.kicker} ctx={ctx} />
-    </div>
-  )}
-  <div class="cards">
+  <div class:list={["cards", { duo }]}>
     {cards.map((card) => (
       <div class="card" data-item-id={card.item.id}>
         <Frame tone={card.item.image.background === "dark" ? "dark" : "light"}>
           <Img
             asset={card.photo}
             alt={card.item.image.alt}
-            widths={[240, 320, 480, 640]}
-            sizes="(min-width: 1000px) 260px, (min-width: 640px) 45vw, 90vw"
+            widths={duo ? [320, 480, 640, 800] : [240, 320, 480, 640]}
+            sizes={
+              duo
+                ? "(min-width: 1000px) 340px, (min-width: 640px) 55vw, 90vw"
+                : "(min-width: 1000px) 260px, (min-width: 640px) 45vw, 90vw"
+            }
           />
           <ItemLetter letter={card.letter} variant="photo" />
           {card.item.isNew && !ctx.featuredElsewhere(card.item, content) && (
             <NewBanner variant="oval" />
           )}
           {card.badge && <span class="badge">{card.badge}</span>}
+          {duo && card.quote && <ItemQuote quote={card.quote} ctx={ctx} placement="on" />}
         </Frame>
-        {card.quote && <ItemQuote quote={card.quote} ctx={ctx} />}
-        {card.caption && (
-          <p class="caption">
-            <Copy text={card.caption} ctx={ctx} />
-          </p>
-        )}
-        <div class="item">
-          <ItemLetter letter={card.letter} />
-          <ItemCopy item={card.item} ctx={ctx} text={card.text} />
-          <ItemOrder item={card.item} ctx={ctx} page={content} />
+        <div class="copyblock">
+          {!duo && card.quote && <ItemQuote quote={card.quote} ctx={ctx} />}
+          {card.caption && (
+            <p class="caption">
+              <Copy text={card.caption} ctx={ctx} />
+            </p>
+          )}
+          <div class="item">
+            <ItemLetter letter={card.letter} />
+            <ItemCopy item={card.item} ctx={ctx} text={card.text} />
+            <ItemOrder item={card.item} ctx={ctx} page={content} />
+          </div>
         </div>
       </div>
     ))}

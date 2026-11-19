@@ -64,6 +64,6 @@ const price = resolvePrice(item.price);
   {content.quotes.map((q) => (
     <LineQuote quote={q} ctx={ctx} as="oneliner" />
   ))}
-  <ItemLinks item={item} ctx={ctx} />
+  <ItemLinks item={item} ctx={ctx} wish />
   {item.image.credit && <div class="credit">{item.image.credit}</div>}
 </PageShell>

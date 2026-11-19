@@ -23,6 +23,11 @@ interface Props {
   /** Placeholder only: render it as a circle. */
   round?: boolean;
   class?: string;
+  /**
+   * Runs past the page edge on purpose (a full-bleed cover photo): marked
+   * `data-bleed`, so the page-fit test doesn't count it as overflow.
+   */
+  bleed?: boolean;
 }
 
 const {
@@ -34,6 +39,7 @@ const {
   priority = false,
   round = false,
   class: className,
+  bleed = false,
 } = Astro.props;
 
 let usable: number[] = [];
@@ -54,6 +60,7 @@ if (asset.kind === "image") {
     decoding="async"
     priority={priority}
     class={className}
+    data-bleed={bleed ? "" : undefined}
   />
 ) : (
   <Placeholder
@@ -62,5 +69,6 @@ if (asset.kind === "image") {
     alt={alt === "" ? "" : alt || asset.label}
     round={round}
     class={className}
+    bleed={bleed}
   />
 )}

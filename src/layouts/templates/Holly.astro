@@ -3,7 +3,9 @@
  * Holly two-up: a holly border around a cream page, large square photos with
  * big corner letters, quotes below the photos, a friendly red headline per
  * item, and page quotes as speech bubbles. Three or more items switch to a
- * denser three-column grid. Optional page art runs across the bottom.
+ * denser three-column grid. Optional page art runs across the bottom. Two
+ * items with nothing else on the page make a "duo" page: big photos in rows
+ * (quotes on them) that grow into the room the page box has left.
  */
 import Copy from "../../components/Copy.astro";
 import Frame from "../../components/Frame.astro";
@@ -36,44 +38,49 @@ const items = await Promise.all(
   })),
 );
 const art = content.art ? await ctx.art(content.art) : null;
+// Two items and nothing else on the page: big photos in rows, quotes on them.
+const duo = !dense && !art && content.quotes.length === 0 && !content.copy.smallprint;
 ---
 
 <PageShell
   page={page}
   ctx={ctx}
   state={state}
-  class="holly"
+  class:list={["holly", { "duo-page": duo }]}
   orderLine={ctx.orderLine(content.orderLine)}
 >
-  <div class="pagehead">
+  <div class:list={["pagehead", { "with-sticker": pickers.length > 0 }]}>
     <h2 class="display">{content.copy.headline ?? content.title}</h2>
     {pickers.length > 0 && <PickedBy hosts={pickers} />}
   </div>
-  <div class={dense ? "hollygrid" : "twoup"}>
+  <div class:list={[dense ? "hollygrid" : "twoup", { duo }]}>
     {items.map((it) => (
       <div data-item-id={it.item.id}>
         <Frame tone={it.item.image.background === "dark" ? "dark" : "light"}>
           <Img
             asset={it.photo}
             alt={it.item.image.alt}
-            widths={dense ? [200, 320, 480] : [320, 480, 640]}
+            widths={dense ? [200, 320, 480] : [320, 480, 640, 800]}
             sizes={
               dense
                 ? "(min-width: 1000px) 170px, (min-width: 640px) 30vw, 90vw"
-                : "(min-width: 1000px) 270px, (min-width: 640px) 45vw, 90vw"
+                : "(min-width: 1000px) 320px, (min-width: 640px) 50vw, 90vw"
             }
           />
           <ItemLetter letter={it.letter} variant="big" />
+          {duo && it.quote && <ItemQuote quote={it.quote} ctx={ctx} placement="on" />}
         </Frame>
-        {it.quote && <ItemQuote quote={it.quote} ctx={ctx} />}
-        <div class="friendly">
-          <ItemLetter letter={it.letter} />
-          {it.item.headline ? <Copy text={it.item.headline} ctx={ctx} /> : it.item.shortName}
+        <div class="copyblock">
+          {!duo && it.quote && <ItemQuote quote={it.quote} ctx={ctx} />}
+          <div class="friendly">
+            <ItemLetter letter={it.letter} />
+            {it.item.headline ? <Copy text={it.item.headline} ctx={ctx} /> : it.item.shortName}
+          </div>
+          <div class="desc">
+            <ItemCopy item={it.item} ctx={ctx} text={it.text} named="auto" />
+          </div>
+          <ItemOrder item={it.item} ctx={ctx} page={content} />
         </div>
-        <div class="desc">
-          <ItemCopy item={it.item} ctx={ctx} text={it.text} named="auto" />
-        </div>
-        <ItemOrder item={it.item} ctx={ctx} page={content} />
       </div>
     ))}
   </div>

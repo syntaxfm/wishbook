@@ -11,6 +11,11 @@
  *
  * Placement and styling are provisional: every template renders links through
  * this one component, so they can move or change in one place.
+ *
+ * In the book (`wish`), the row is the item's whole purchase row: links on the
+ * left and, on the right, an empty slot (`data-wish-slot`) where the wish list
+ * puts the "Circle it" toggle. The slot holds the row's height at build time,
+ * so the page is the same height with or without JavaScript.
  */
 import type { BookContext } from "../lib/book";
 import type { Item } from "../lib/content";
@@ -19,15 +24,17 @@ interface Props {
   item: Item;
   ctx: BookContext;
   class?: string;
+  /** Reserve the wish-list toggle's place at the end of the row. */
+  wish?: boolean;
 }
 
-const { item, ctx, class: className } = Astro.props;
+const { item, ctx, class: className, wish = false } = Astro.props;
 const labels = ctx.content.site.links;
 const dev = import.meta.env.DEV;
 const showMaker = item.makerLink || (dev && labels.missingMaker);
 ---
 
-<div class:list={["links", className]} data-links={item.id}>
+<div class:list={["links", className, { "has-wish": wish }]} data-links={item.id}>
   {item.buyLink ? (
     <a
       class="buy"
@@ -70,4 +77,5 @@ const showMaker = item.makerLink || (dev && labels.missingMaker);
       </span>
     )
   )}
+  {wish && <span class="wish-slot" data-wish-slot={item.id}></span>}
 </div>

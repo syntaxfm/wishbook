@@ -1,8 +1,8 @@
 ---
 /**
- * Welcome page: big red headline with a green ribbon, "How to Shop" steps,
- * FREE Ship-A-Link®, "Watch the Whole Thing", the symbol key, and the
- * guarantee.
+ * Welcome page: big red headline with a green ribbon, "How to Shop" steps on
+ * the left, "Watch the Whole Thing" with FREE Ship-A-Link® under the video on
+ * the right, the symbol key, and the guarantee.
  */
 import CatalogNumber from "../../components/CatalogNumber.astro";
 import Copy from "../../components/Copy.astro";
@@ -62,17 +62,6 @@ const keyEntries = await Promise.all(
           </li>
         ))}
       </ol>
-      {welcome.shipLink.badge && <div class="free">{welcome.shipLink.badge}</div>}
-      {welcome.shipLink.title && (
-        <div class="shiplink display">
-          <Copy text={welcome.shipLink.title} ctx={ctx} />
-        </div>
-      )}
-      {welcome.shipLink.text && (
-        <p>
-          <Copy text={welcome.shipLink.text} ctx={ctx} />
-        </p>
-      )}
     </div>
     <div>
       {welcome.watch.title && (
@@ -96,6 +85,17 @@ const keyEntries = await Promise.all(
         ></a>
       ) : (
         <Placeholder label={episode.title ?? ""} class="video" alt="" />
+      )}
+      {welcome.shipLink.badge && <div class="free">{welcome.shipLink.badge}</div>}
+      {welcome.shipLink.title && (
+        <div class="shiplink display">
+          <Copy text={welcome.shipLink.title} ctx={ctx} />
+        </div>
+      )}
+      {welcome.shipLink.text && (
+        <p>
+          <Copy text={welcome.shipLink.text} ctx={ctx} />
+        </p>
       )}
     </div>
   </div>

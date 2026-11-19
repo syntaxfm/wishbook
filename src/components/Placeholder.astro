@@ -11,9 +11,11 @@ interface Props {
   alt?: string;
   round?: boolean;
   class?: string;
+  /** Runs past the page edge on purpose (data-bleed; see Img). */
+  bleed?: boolean;
 }
 
-const { label, color, alt, round = false, class: className } = Astro.props;
+const { label, color, alt, round = false, class: className, bleed = false } = Astro.props;
 const decorative = alt === "";
 ---
 
@@ -24,4 +26,5 @@ const decorative = alt === "";
   role={decorative ? undefined : "img"}
   aria-label={decorative ? undefined : (alt ?? label)}
   aria-hidden={decorative ? "true" : undefined}
+  data-bleed={bleed ? "" : undefined}
 ></div>
