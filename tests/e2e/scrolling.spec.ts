@@ -164,12 +164,12 @@ test("layout a: turning the book never scrolls the document", async ({ page }) =
     await settled(page);
     expect(await page.evaluate(() => scrollY)).toBe(0);
   }
-  await expect(page).toHaveURL(/\/2026\/favorites\/cj\/$/);
+  await expect(page).toHaveURL(/\/2026\/favorites\/kaitlin-more\/$/);
   await expect(page.locator(".run-head")).toBeHidden();
 });
 
 for (const path of ["/2026/favorites/wes/", "/2026/under-30/under-30-picks/"]) {
-  test(`layout a: the fit scale on ${path} settles and stays`, async ({ page }) => {
+  test(`layout a: ${path} stays at full scale`, async ({ page }) => {
     await page.setViewportSize({ width: 1360, height: 900 });
     await page.goto(`${path}?layout=a`);
     const fits = () =>
@@ -180,6 +180,10 @@ for (const path of ["/2026/favorites/wes/", "/2026/under-30/under-30-picks/"]) {
       );
     await page.waitForTimeout(500);
     const early = await fits();
+    expect(
+      early.every((f) => f.endsWith("=1")),
+      early.join(" "),
+    ).toBe(true);
     await page.waitForTimeout(2000);
     expect(await fits()).toEqual(early);
   });

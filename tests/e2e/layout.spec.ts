@@ -279,14 +279,15 @@ test("hybrid: a spread taller than the window scrolls; turning snaps to the top"
 
   await page.locator(".pager .next").click();
   await settled(page);
-  await expect(page).toHaveURL(/\/2026\/tech\/$/);
+  await expect(page).toHaveURL(/\/2026\/under-30\/under-30-more\/$/);
   expect(await page.evaluate(() => scrollY)).toBeLessThanOrEqual(1);
   expect(await heights(page)).toEqual(before);
-  // back with the keyboard, and a jump: each opens at the top
+  // back with the keyboard (a turn opens the spread at its left page), and a
+  // jump: each opens at the top
   await page.evaluate(() => scrollTo({ top: 100, behavior: "instant" }));
   await page.keyboard.press("ArrowLeft");
   await settled(page);
-  await expect(page).toHaveURL(/\/2026\/under-30\/under-30-picks\/$/);
+  await expect(page).toHaveURL(/\/2026\/under-30\/$/);
   expect(await page.evaluate(() => scrollY)).toBeLessThanOrEqual(1);
   await page.evaluate(() => scrollTo({ top: 100, behavior: "instant" }));
   await page.locator('.tabs a[data-section="desk"]').click();
