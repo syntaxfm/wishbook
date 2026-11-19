@@ -74,11 +74,14 @@ for (const width of WIDTHS) {
         const current = page.locator(`.book-pages > [data-slug="${slug}"]`);
         await expect(current).toBeVisible();
         await expect(current).toHaveClass(/is-current/);
-        // Only the open page (and its spread partner in book mode) shows.
-        const shown = await page
-          .locator(".book-pages > *")
-          .evaluateAll((els) => els.filter((e) => getComputedStyle(e).display !== "none").length);
-        expect(shown).toBeLessThanOrEqual(2);
+        // Only the open page (and its spread partner in book mode) shows; the
+        // phone feed shows every page.
+        if (width >= 640) {
+          const shown = await page
+            .locator(".book-pages > [data-slug]")
+            .evaluateAll((els) => els.filter((e) => getComputedStyle(e).display !== "none").length);
+          expect(shown).toBeLessThanOrEqual(2);
+        }
         expect(await overflowing(page)).toEqual([]);
       });
     }
@@ -94,13 +97,15 @@ test("the reading mode follows the viewport", async ({ browser }) => {
     const page = await browser.newPage({ viewport: { width, height: 900 } });
     await page.goto("/2026/favorites/wes/");
     await expect(page.locator("html")).toHaveClass(new RegExp(mode));
-    // Book mode opens the whole spread: page 4 (left) with page 5 (right).
+    // Book mode opens the whole spread: page 4 (left) with page 5 (right);
+    // single mode the page; the phone feed shows every page.
     const visible = await page
       .locator(".book-pages > .page")
       .evaluateAll((els) =>
         els.filter((e) => getComputedStyle(e).display !== "none").map((e) => e.dataset.slug),
       );
-    expect(visible).toEqual(mode === "m-book" ? ["favorites", "wes"] : ["wes"]);
+    if (mode === "m-scroll") expect(visible.length).toBeGreaterThan(30);
+    else expect(visible).toEqual(mode === "m-book" ? ["favorites", "wes"] : ["wes"]);
     await page.close();
   }
 });

@@ -58,36 +58,170 @@
 .book-pages > .is-shown {
   content-visibility: visible;
 }
-
-/* Book mode: the current spread side by side, even page left. */
+/* Book mode: the current spread side by side, even page left. A page alone in
+   its spread keeps its side, like a real book: the cover on the right, the
+   back cover on the left. Every shown page shares one row, so a turning leaf
+   lies over the spread underneath it. */
 .m-book .book-pages {
   max-width: 1240px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0;
+  perspective: 2600px;
 }
-.m-book .book-pages > .page.is-shown {
+.m-book .book-pages > .page.is-shown,
+.m-book .book-pages > .page.leaf {
   display: flex;
+  grid-row: 1;
   min-height: calc(50cqi * 1.303);
 }
-.m-book .book-pages > .page.is-shown.left {
+.m-book .book-pages > .left {
   grid-column: 1;
 }
-.m-book .book-pages > .page.is-shown.right {
+.m-book .book-pages > .right {
   grid-column: 2;
-}
-/* A page alone in its spread (the cover, the back cover) sits centered. */
-.m-book .book-pages > .page.is-shown:only-of-type,
-.m-book .book-pages:not(:has(.is-shown.left)) > .page.is-shown,
-.m-book .book-pages:not(:has(.is-shown.right)) > .page.is-shown {
-  grid-column: 1 / -1;
-  justify-self: center;
-  width: min(100%, 620px);
-  min-height: calc(min(100cqi, 620px) * 1.303);
 }
 .m-book .book-pages > .cf-page.is-shown {
   display: block;
+  grid-row: 1;
   grid-column: 1 / -1;
   width: 100%;
+}
+
+/* The turning leaf: the page being turned (front) and the page on its back
+   (rear) rotate about the spine together, each hiding its back face. */
+.leaf {
+  position: relative;
+  z-index: 20;
+  backface-visibility: hidden;
+  content-visibility: visible;
+}
+.leaf.left {
+  transform-origin: right center;
+}
+.leaf.right {
+  transform-origin: left center;
+}
+.leaf.turning {
+  transition: transform 0.75s cubic-bezier(0.4, 0.1, 0.25, 1);
+}
+.leaf-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.25));
+  opacity: 0;
+  transition: opacity 0.75s;
+}
+.leaf-rear .leaf-shade {
+  background: linear-gradient(270deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.25));
+}
+.leaf.turning .leaf-shade {
+  opacity: 1;
+}
+
+/* Single mode: one page; on a turn the old page lifts away over the new one. */
+.m-single .book-pages {
+  perspective: 2200px;
+}
+.m-single .book-pages > .is-current,
+.m-single .book-pages > .under,
+.m-single .book-pages > .lift {
+  grid-area: 1 / 1;
+}
+.m-single .book-pages > .page.under,
+.m-single .book-pages > .page.lift {
+  display: flex;
+  min-height: calc(min(100cqi, 620px) * 1.303);
+}
+.m-single .book-pages > .cf-page.under,
+.m-single .book-pages > .cf-page.lift {
+  display: block;
+  width: min(1240px, calc(100vw - 28px));
+  justify-self: center;
+}
+.lift {
+  position: relative;
+  z-index: 20;
+  transform-origin: left center;
+  backface-visibility: hidden;
+  content-visibility: visible;
+}
+.lift.lifted {
+  transform: rotateY(-100deg);
+  opacity: 0;
+}
+.lift.turning {
+  transition:
+    transform 0.6s cubic-bezier(0.4, 0.1, 0.25, 1),
+    opacity 0.6s;
+}
+.under {
+  content-visibility: visible;
+}
+
+/* Into or out of the centerfold: a quick fade instead of a leaf. */
+.fade-in {
+  animation: fade-in 0.45s ease both;
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Scroll mode: every page in one vertical feed, with a small head before each
+   section. The pager gives way to scrolling. */
+.sec-h {
+  display: none;
+}
+.m-scroll .book-pages > .page {
+  display: flex;
+  min-height: calc(min(100cqi, 620px) * 1.303);
+}
+.m-scroll .book-pages > .cf-page {
+  display: block;
+  width: min(1240px, calc(100vw - 28px));
+  justify-self: center;
+}
+.m-scroll .book-pages > .sec-h {
+  display: block;
+  margin: 10px 0 -12px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #6a5a44;
+  color: #f3e3b0;
+  font-family: var(--f-kicker);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 13px;
+}
+.m-scroll .pager {
+  display: none;
+}
+/* A jump in the feed flashes the page it lands on. */
+.flash {
+  animation: flash 1.2s ease-out;
+}
+@keyframes flash {
+  0% {
+    box-shadow: 0 0 0 6px var(--syntax);
+  }
+  100% {
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .leaf.turning,
+  .leaf-shade,
+  .lift.turning {
+    transition: none;
+  }
+  .fade-in,
+  .flash {
+    animation: none;
+  }
 }
 
 /* ---------- prev / next ---------- */
@@ -103,7 +237,7 @@
   color: #ddd;
 }
 .pager a,
-.pager span[aria-disabled] {
+.pager [aria-disabled] {
   display: inline-flex;
   align-items: center;
   gap: 0.3em;
@@ -115,8 +249,9 @@
   border-radius: 5px;
   text-decoration: none;
 }
-.pager span[aria-disabled] {
+.pager [aria-disabled] {
   opacity: 0.35;
+  pointer-events: none;
 }
 .pager a:hover,
 .pager a:focus-visible {
