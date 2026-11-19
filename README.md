@@ -3,7 +3,7 @@
 The Syntax Holiday Gift Guide as an interactive 90s Christmas catalog: a "wish book" you can flip through, circle gifts in, and share. It lives at **wishbook.syntax.fm**.
 
 - The Syntax crew's gift picks, laid out like a vintage department store catalog: lettered photo callouts, dot-leader prices, catalog numbers, section tabs, and a centerfold.
-- A flippable book on desktop, single pages on tablets, and a scrolling feed on phones. Pages are one fixed size that fits the window, and their outer edges turn the page.
+- A flippable book when two readable pages fit side by side, a single page when one does, and a scrolling feed below that (always on phones). Pages are one fixed size that fits the window but never gets smaller than readable (body text at least 11px); in a short window the spread scrolls and each turn starts back at the top. The outer page edges turn the page.
 - The feed scrolls freely (no snapping), with a running head naming the section and page. Page Down / Page Up, Space / Shift+Space, and ← / → step one page at a time.
 - A new WishBook every year. Each edition lives under its year (`/2026/…`), so every shared link is permanent.
 - Every page has its own URL and its own share card.
@@ -38,8 +38,6 @@ pnpm dev          # local dev server; content admin at /keystatic
 pnpm build        # static site in dist/
 pnpm preview      # serve the built site
 ```
-
-Prototype layouts (this branch only): add `?layout=a|b|c|d|e1|e2|hybrid` to any page URL, or use the switcher at the bottom left. **Hybrid** is layout A, but pages never get smaller than a readable size (body text at least 11px by default). When the window is too short, every spread keeps that size and the window scrolls down it, and turning a page snaps back to the top. It shows two pages whenever two readable pages fit side by side, one page when only one fits, and the scrolling feed below that. Hover the switcher to see the tier, the page size, the pages on screen, the floor knob, and any page that overflows the page box (there should be none: every page fits at full size).
 
 ## Scripts
 
