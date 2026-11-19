@@ -61,6 +61,8 @@ interface PageInfo {
   end: number;
   index: number;
   path: string;
+  /** The section path this page also opens (no divider), if any. */
+  alias?: string;
   section: string;
   sectionName: string;
   title: string;
@@ -167,6 +169,7 @@ export function start(): void {
       end: Number(d.end ?? n),
       index,
       path: d.path!,
+      ...(d.alias ? { alias: d.alias } : {}),
       section: d.section ?? "",
       sectionName: d.sectionName ?? "",
       title: d.title ?? "",

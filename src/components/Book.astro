@@ -78,13 +78,8 @@ const TEMPLATES = {
   "back-cover": BackCover,
 } satisfies Record<Template, unknown>;
 
-// Thumb-index tabs: every section that opens with a divider or a centerfold.
-const tabs = ctx.content.sections.flatMap((s) => {
-  const first = book.firstOf(s.id);
-  return first && (first.kind === "divider" || first.kind === "centerfold")
-    ? [{ section: s, first }]
-    : [];
-});
+// Thumb-index tabs: every section between the front and back matter.
+const { tabs } = ctx;
 
 // Prev/next: the neighbouring page (data-spread-href: the neighbouring spread).
 const prev = book.pages[here.index - 1] ?? null;

@@ -113,6 +113,8 @@ export interface PageItem {
   text: string | null;
   badge: string | null;
   group: string | null;
+  /** Full-page feature: how many of the item's quotes it shows (null: the layout's two). */
+  maxQuotes: number | null;
 }
 
 export interface Hotspot {
@@ -144,6 +146,8 @@ export interface Page {
   template: Template;
   variant: PageVariant;
   title: string;
+  /** A section opener: the section's kicker, name, and page range across the top. */
+  opener: boolean;
   hosts: Host[];
   items: PageItem[];
   art: string | null;
@@ -631,6 +635,7 @@ async function loadEdition(root: string, edition: number): Promise<EditionConten
       template: p.template,
       variant: p.variant,
       title: p.title,
+      opener: p.opener,
       hosts: p.hosts.flatMap((h) => host(where, h, "picked by") ?? []),
       items: p.items.flatMap((pi) => {
         const found = pi.item ? item(where, pi.item, "item") : null;
@@ -643,6 +648,7 @@ async function loadEdition(root: string, edition: number): Promise<EditionConten
                 text: opt(pi.text),
                 badge: opt(pi.badge),
                 group: opt(pi.group),
+                maxQuotes: pi.maxQuotes ?? null,
               },
             ]
           : [];

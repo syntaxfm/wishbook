@@ -140,6 +140,23 @@ describe("paginateBook", () => {
     expect(book.rangeOf("nope")).toBeNull();
   });
 
+  it("opens a section without a divider at its own path with its first page", () => {
+    const book = paginateBook(
+      [COVER, P("fav", "fav", "divider"), P("fav", "wes"), P("tech", "t1"), P("tech", "t2")],
+      FILLERS,
+    );
+    expect(book.pages.map((p) => [p.slug, p.path, p.alias ?? null])).toEqual([
+      ["cover", "", "front"],
+      ["fav", "fav", null],
+      ["wes", "fav/wes", null],
+      ["t1", "tech/t1", "tech"],
+      ["t2", "tech/t2", null],
+    ]);
+    expect(book.firstOf("tech")?.slug).toBe("t1");
+    const range = book.rangeOf("tech");
+    expect([range?.first.label, range?.last.label]).toEqual(["4 A", "5 A"]);
+  });
+
   it("labels and refs pages, and throws on unknown slugs", () => {
     const book = paginateBook([COVER, P("front", "welcome")], FILLERS);
     expect(book.label("welcome")).toBe("2 A");

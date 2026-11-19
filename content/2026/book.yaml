@@ -20,22 +20,23 @@ pages:
       subhead: In This Book
     orderLine: search
 
-  - slug: favorites
-    section: favorites
-    template: divider
-    title: Our Favorite Things
-    art: IMG-S1
-    inset:
-      art: IMG-M1-peeking
   - slug: wes
     section: favorites
     template: grid
+    opener: true
     title: Wes's Favorite Things
     hosts:
       - wes
     items:
       - item: silicone-usb-c-cables
       - item: sharge-icemag-3
+  - slug: wes-more
+    section: favorites
+    template: grid
+    title: Wes's Favorite Things
+    hosts:
+      - wes
+    items:
       - item: usb-power-meter
       - item: anker-735
     orderLine: call
@@ -57,7 +58,7 @@ pages:
       xref: "More of Wes's favorites on {page:wes}."
   - slug: niki
     section: favorites
-    template: holly
+    template: brand-column
     title: Niki's Favorite Things
     hosts:
       - niki
@@ -93,20 +94,6 @@ pages:
       - item: wolfbox-megaflow
       - item: anker-140w
         badge: FREE Ship-A-Link®
-  - slug: wolfbox
-    section: favorites
-    template: brand-feature
-    title: Wolfbox MegaFlow
-    hosts:
-      - scott
-    items:
-      - item: wolfbox-megaflow
-    inset:
-      art: IMG-F3
-    quotes:
-      - text: "I tend to eat lunch at my desk and, you know, you get crumbs here, there."
-        by: scott
-        placement: oneliner
   - slug: kaitlin
     section: favorites
     template: brand-column
@@ -179,11 +166,6 @@ pages:
         by: wes
         placement: bubble
 
-  - slug: under-30
-    section: under-30
-    template: divider
-    title: Gifts Under $30
-    art: IMG-S2
   - slug: under-30-picks
     section: under-30
     template: under
@@ -202,7 +184,7 @@ pages:
     items:
       - item: bovicas-charger
       - item: usb-power-meter
-        text: "The power meter again, because it's under $30. As seen on {page:wes}."
+        text: "The power meter again, because it's under $30. As seen on {page:wes-more}."
       - item: alpine-flyfit
       - item: slate-mini-flosser
     orderLine: terminal
@@ -219,11 +201,6 @@ pages:
         by: wes
         placement: oneliner
 
-  - slug: tech
-    section: tech
-    template: divider
-    title: Tech & Smart Home
-    art: IMG-S3
   - slug: olight
     section: tech
     template: feature
@@ -240,23 +217,33 @@ pages:
       headline: "'Oclip 2 Ultra' Flashlight"
       body: clips anywhere and is insanely bright.
       note: "Read the manual. There's a whole table of secret modes."
+  - slug: xteink
+    section: tech
+    template: feature
+    variant: bench
+    title: "'Xteink X4'"
+    hosts:
+      - cj
+    items:
+      - item: xteink-x4
+    inset:
+      art: IMG-F8
+    copy:
+      headline: "'X4' E-Reader"
+      body: is a tiny MagSafe e-reader that sticks to your phone.
   - slug: tech-picks
     section: tech
     template: price-tags
-    title: The Latest In Tech
+    title: Smart Home
     items:
-      - item: xteink-x4
       - item: apollo-air-1
       - item: govee-monitors
         group: Home Assistant Corner
       - item: meross-garage-opener
         badge: No monthly fee
         group: Home Assistant Corner
-      - item: wifi-picture-frame
-        group: Home Assistant Corner
     copy:
       kicker: The latest in
-      headline: Tech & Smart Home
       footer: No garage door subscriptions. Ever.
   - slug: picture-frame
     section: tech
@@ -273,11 +260,6 @@ pages:
       body: 'is a 10.1" touchscreen Android frame that you can make your own.'
       note: "We raised the price on Amazon. Sorry."
 
-  - slug: desk
-    section: desk
-    template: divider
-    title: Your Desk
-    art: IMG-S4
   - slug: desk-picks
     section: desk
     template: grid
@@ -323,19 +305,26 @@ pages:
       badge: Coming soon to the store
       footer: The brands you want.
 
-  - slug: kitchen
-    section: kitchen
-    template: divider
-    title: Kitchen & Snacks
-    art: IMG-S5
   - slug: kitchen-picks
     section: kitchen
-    template: holly
-    title: Kitchen & Snacks
+    template: lineup
+    title: In the Kitchen
+    hosts:
+      - scott
+      - cj
+      - wes
     items:
       - item: dish-brush
       - item: mini-tongs
       - item: oxo-fish-turner
+  - slug: snacks
+    section: kitchen
+    template: grid
+    title: Snacks
+    hosts:
+      - cj
+      - wes
+    items:
       - item: agro-jerky
       - item: lao-gan-ma
 
@@ -393,11 +382,6 @@ pages:
           y: 82
           label: Lao Gan Ma chili crisp
 
-  - slug: kids-pets
-    section: kids-pets
-    template: divider
-    title: Kids & Pets
-    art: IMG-S6
   - slug: kids-picks
     section: kids-pets
     template: price-tags
@@ -408,6 +392,11 @@ pages:
       - item: kindle-colorsoft-kids
       - item: first-cat-in-space
         caption: Illustrated by a former punk frontman.
+  - slug: game-night
+    section: kids-pets
+    template: price-tags
+    title: Game Night
+    items:
       - item: cascadia
         caption: "Age 10 years + (Scott's kids: 5 years +)."
       - item: stack-nabbit
@@ -421,6 +410,7 @@ pages:
       - wes
     items:
       - item: power-wheels
+        maxQuotes: 1
     inset:
       art: IMG-F12
     copy:
@@ -442,11 +432,6 @@ pages:
     copy:
       smallprint: "Nylon repair patches sold separately (Wes's tip)."
 
-  - slug: wild-card
-    section: wild-card
-    template: divider
-    title: Wild Card
-    art: IMG-S7
   - slug: wild-picks
     section: wild-card
     template: wild
@@ -483,12 +468,19 @@ pages:
       - item: ratgdo
       - item: xteink-x4-pro
       - item: clip-on-reading-light
+    copy:
+      headline: "Stocking Stuffers & Odds 'n' Ends"
+      subhead: Also mentioned in passing
+  - slug: stuffers-2
+    section: back
+    template: odds-ends
+    title: Stocking Stuffers, Part 2
+    items:
       - item: kz-an01
       - item: tonies-box
       - item: nylon-repair-patches
       - item: snakes-of-wrath-fruit-boss
     copy:
-      headline: "Stocking Stuffers & Odds 'n' Ends"
       subhead: Also mentioned in passing
   - slug: index
     section: back

@@ -13,12 +13,7 @@ const { page, content, ctx, state } = Astro.props;
 const section = content.section;
 const art = content.art ? await ctx.art(content.art) : null;
 const peek = content.inset.art ? await ctx.art(content.inset.art) : null;
-const range = ctx.book.rangeOf(section.id);
-const rangeText = range
-  ? range.first === range.last
-    ? `Page ${range.first.label}`
-    : `Pages ${range.first.label} – ${range.last.label}`
-  : null;
+const rangeText = ctx.sectionRange(section.id);
 ---
 
 <PageShell

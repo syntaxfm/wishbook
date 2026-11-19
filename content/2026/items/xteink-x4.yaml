@@ -17,6 +17,13 @@ altDescriptions:
   - "A tiny MagSafe e-reader that sticks to your phone. Flip your phone over and read instead of doom scrolling."
   - "Install custom firmware, pipe in your RSS feeds as e-books, and read the internet offline over morning coffee."
   - "About $80, very responsive, and very hackable. Add a clip-on light like a Game Boy reading lamp for extra nostalgia."
+features:
+  - lead: Flip your phone over
+    text: and read instead of doomscrolling.
+  - lead: Very hackable.
+    text: "Install custom firmware, pipe in your RSS feeds as e-books, and read the internet offline over morning coffee."
+  - lead: Add a clip-on light
+    text: like a Game Boy reading lamp for extra nostalgia.
 quotes:
   - text: "Instead of like reaching for my phone first thing in the morning, I reach for this."
     by: cj

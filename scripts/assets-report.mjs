@@ -117,12 +117,13 @@ function itemSource(item) {
 if (!linksOnly) {
   console.log(`\nWishBook ${edition}: assets\n`);
 
-  // Item photos: every pick's main photo, every suffix a page or variant uses,
-  // and any extra photo already in the folder.
+  // Item photos: every item's main photo (items mentioned in passing too: a
+  // stocking-stuffer page of four or fewer shows each as a card), every suffix
+  // a page or variant uses, and any extra photo already in the folder.
   console.log(`Item photos (${dir}/items/<id>-<name>.<ext>, extras -2…-9)`);
   const itemKeys = new Map();
   for (const item of content.items) {
-    if (!item.mention) itemKeys.set(`item:${item.id}`, item);
+    itemKeys.set(`item:${item.id}`, item);
     for (const v of item.variants) {
       if (v.imageSuffix) itemKeys.set(`item:${item.id}-${v.imageSuffix}`, item);
     }

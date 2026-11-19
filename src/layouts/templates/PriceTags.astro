@@ -3,8 +3,11 @@
  * Price-tag page, toy-store style: kicker and red header tab, cut-out product
  * shots with the brand in green, a red serif name with an arrow, an age or
  * caption line, and yellow price boxes. Grouped items share a green box
- * ("Home Assistant Corner"); a green band runs across the foot. Two loose
- * items get a big top row with descriptions; more go in a three-column grid.
+ * ("Home Assistant Corner"); a green band runs across the foot. Up to three
+ * loose items get a row each (a big photo with its quote on it, alternating
+ * sides, beside the tag and its description), the rows sharing the room the
+ * page box has left; more go in a three-column grid. A box of one or two
+ * items shows their descriptions.
  */
 import Copy from "../../components/Copy.astro";
 import PageShell from "../../components/PageShell.astro";
@@ -19,7 +22,8 @@ const groups = groupNames.map((name) => ({
   name,
   entries: content.items.filter((e) => e.group === name),
 }));
-const top = loose.length <= 2;
+// Up to three loose items: one row each, sharing the page's height.
+const rows = loose.length <= 3;
 const kicker = content.copy.kicker ?? content.section.kicker;
 ---
 
@@ -27,7 +31,7 @@ const kicker = content.copy.kicker ?? content.section.kicker;
   page={page}
   ctx={ctx}
   state={state}
-  class:list={["trupage", { banded: !!content.copy.footer }]}
+  class:list={["trupage", { banded: !!content.copy.footer, "tru-roomy": rows }]}
   orderLine={ctx.orderLine(content.orderLine)}
 >
   <div class="truhead">
@@ -41,18 +45,18 @@ const kicker = content.copy.kicker ?? content.section.kicker;
     </h2>
   </div>
   {loose.length > 0 && (
-    <div class={top ? "tru-top" : "tru-grid"}>
+    <div class={rows ? "tru-rows" : "tru-grid"}>
       {loose.map((entry) => (
-        <PriceTag entry={entry} ctx={ctx} describe={top} />
+        <PriceTag entry={entry} ctx={ctx} page={content} row={rows} />
       ))}
     </div>
   )}
   {groups.map((group) => (
     <div class="habox">
       <h3 class="kicker">{group.name}</h3>
-      <div class="row">
+      <div class="row" style={`--cols:${Math.min(3, group.entries.length)}`}>
         {group.entries.map((entry) => (
-          <PriceTag entry={entry} ctx={ctx} />
+          <PriceTag entry={entry} ctx={ctx} page={content} describe={group.entries.length <= 2} />
         ))}
       </div>
     </div>

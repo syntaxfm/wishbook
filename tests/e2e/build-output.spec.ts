@@ -57,6 +57,31 @@ test("every page has its own static file with year-scoped meta", () => {
   }
 });
 
+test("every section path opens the section's first page, canonical at that page", () => {
+  const pages = bookPages();
+  const sectionOf = new Map(
+    [...read("2026/index.html").matchAll(/data-slug="([^"]+)"[^>]*?data-section="([^"]+)"/g)].map(
+      (m) => [m[1]!, m[2]!],
+    ),
+  );
+  const sections = [...new Set(pages.map((p) => sectionOf.get(p.slug)!))];
+  expect(sections.length).toBeGreaterThan(5);
+  for (const section of sections) {
+    const file = join("2026", section, "index.html");
+    expect(existsSync(join(DIST, file)), file).toBe(true);
+    const first = pages.find((p) => sectionOf.get(p.slug) === section)!;
+    const html = read(file);
+    expect(canonical(html), file).toBe(`${SITE}${first.path}`);
+    expect(meta(html, "og:url"), file).toBe(`${SITE}${first.path}`);
+    expect(html).toMatch(new RegExp(`class="[^"]*is-current[^"]*"[^>]*data-slug="${first.slug}"`));
+    // Unless it is that page's own path (a divider, the centerfold), the
+    // section path is the page's alias, so the engine routes it.
+    if (first.path !== `/2026/${section}/`) {
+      expect(html).toContain(`data-path="${first.path}" data-alias="/2026/${section}/"`);
+    }
+  }
+});
+
 test("page numbers are consecutive, with the cover on 1", () => {
   const pages = bookPages();
   expect(pages[0]).toMatchObject({ slug: "cover", n: 1, path: "/2026/" });

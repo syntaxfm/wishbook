@@ -12,6 +12,11 @@ export interface Route {
   slug: string;
   /** Root-relative, year-scoped path: "/2026/favorites/wes/". */
   path: string;
+  /**
+   * Another path that opens the page ("/2026/favorites/" for the first page of
+   * a section without a divider). The page's own path stays its address.
+   */
+  alias?: string;
 }
 
 const FILE_RE = /\.[a-z0-9]+$/i;
@@ -45,6 +50,10 @@ export class RouteTable {
     for (const r of routes) {
       this.#bySlug.set(r.slug, normalizePath(r.path));
       this.#byPath.set(normalizePath(r.path), r.slug);
+    }
+    for (const r of routes) {
+      const alias = r.alias && normalizePath(r.alias);
+      if (alias && !this.#byPath.has(alias)) this.#byPath.set(alias, r.slug);
     }
   }
 
