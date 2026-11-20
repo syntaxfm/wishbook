@@ -1,9 +1,10 @@
-name: Tonies Box
+name: Toniebox
 id: 55
-indexName: Tonies Box
+indexName: Toniebox
 brand: Tonies
 section: back
 pickedBy:
   - scott
 mention: true
+buyLink: https://link.amazon/B0e8FVbWy
 description: "A Yoto alternative Scott's family uses."

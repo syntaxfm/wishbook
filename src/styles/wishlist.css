@@ -316,8 +316,22 @@
   white-space: nowrap;
 }
 .search-none {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   margin: 4px 0;
   font-style: italic;
+}
+.search-none[hidden] {
+  display: none;
+}
+.search-none p {
+  margin: 0;
+}
+/* the puzzled grouse beside the no-results line */
+.search-mascot {
+  flex: none;
+  height: 84px;
 }
 .search-keys {
   display: flex;
@@ -403,6 +417,18 @@
   line-height: 1;
   color: var(--red);
   text-decoration: none;
+}
+/* the masthead and title, the marker grouse beside them */
+.wl-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+.wl-mascot {
+  flex: none;
+  height: clamp(84px, 22cqi, 170px);
+  margin-bottom: 0.3em;
 }
 .wl-title {
   margin: 0.2em 0 0.1em;

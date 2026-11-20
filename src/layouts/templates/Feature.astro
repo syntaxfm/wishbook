@@ -3,16 +3,19 @@
  * Full-page feature: a big product shot on a holiday stage (green with
  * ornament glow, or a workbench with a spotlight for products shot on white),
  * a NEW ribbon, an inset photo with an italic caption, and big numerals on the
- * photo. Below: a letterspaced brand line, an italic headline, running copy
+ * photo. A page item's `collage` swaps the one shot for several whole photos
+ * scattered across the stage (book covers). Below: a letterspaced brand line, an italic headline, running copy
  * with bold lead-ins, order lines, and a side column with the host quotes.
  */
 import Copy from "../../components/Copy.astro";
 import Img from "../../components/Img.astro";
 import ItemOrder from "../../components/ItemOrder.astro";
 import ItemQuote from "../../components/ItemQuote.astro";
+import Mascot from "../../components/Mascot.astro";
 import NewBanner from "../../components/NewBanner.astro";
 import PageShell from "../../components/PageShell.astro";
 import Price from "../../components/Price.astro";
+import SectionOpener from "../../components/SectionOpener.astro";
 import type { TemplateProps } from "./types";
 
 type Props = TemplateProps;
@@ -22,10 +25,15 @@ if (!pi) throw new Error(`Page "${content.slug}": a feature page needs an item`)
 const { item } = pi;
 const bench = content.variant === "bench";
 const shot = await ctx.itemImage(item, pi.photo);
+// a collage: several whole photos (book covers) scattered across the stage
+const collage = await Promise.all(pi.collage.map((s) => ctx.itemImage(item, s || null)));
+const fill = pi.fill && shot.kind === "image" && collage.length === 0;
 const inset = content.inset.art ? await ctx.art(content.inset.art) : null;
 const { confirmed, estimate, label, note, unit } = item.price;
 const numeric = confirmed !== null || estimate !== null;
-const quotes = item.quotes.slice(0, Math.min(2, pi.maxQuotes ?? 2));
+const quotes = item.quotes.slice(0, pi.maxQuotes ?? 2);
+// The page's grouse stands at the headline's right end, a sticker by the title.
+const mascot = content.mascot ? await ctx.art(content.mascot) : null;
 const notes = [note, content.copy.note].filter(Boolean).map((n) => n!.replace(/\.?$/, "."));
 ---
 
@@ -33,23 +41,59 @@ const notes = [note, content.copy.note].filter(Boolean).map((n) => n!.replace(/\
   page={page}
   ctx={ctx}
   state={state}
-  class="feat"
+  class:list={["feat", { "opener-page": content.opener }]}
   orderLine={ctx.orderLine(content.orderLine)}
 >
-  <div class:list={["stage", bench ? "bench" : "green"]}>
+  {content.opener && <SectionOpener section={content.section} ctx={ctx} class="feat-opener" />}
+  <div
+    class:list={[
+      "stage",
+      bench ? "bench" : "green",
+      { filled: fill, "has-collage": collage.length > 0 },
+    ]}
+  >
     {bench && <div class="beam" aria-hidden="true"></div>}
     {(content.copy.badge || item.isNew) && (
       <NewBanner class="stage-new" text={content.copy.badge ?? undefined} />
     )}
-    <Img
-      asset={shot}
-      alt={item.image.alt}
-      class:list={["hero-shot", { blend: bench }]}
-      widths={[320, 480, 640, 960]}
-      sizes="(min-width: 1000px) 400px, 66vw"
-      priority={state.current}
-      lazy={!state.current}
-    />
+    {collage.length > 0 ? (
+      <div class="collage" role="img" aria-label={item.image.alt} data-n={collage.length}>
+        {collage.map((asset, i) => (
+          <div
+            class="cover"
+            style={`--ar: ${asset.kind === "image" ? `${asset.meta.width} / ${asset.meta.height}` : "2 / 3"}`}
+          >
+            <Img
+              asset={asset}
+              alt=""
+              class="item-photo"
+              widths={[160, 240, 320, 480]}
+              sizes="(min-width: 1000px) 180px, 30vw"
+              priority={state.current && i === 0}
+              lazy={!state.current}
+            />
+          </div>
+        ))}
+      </div>
+    ) : (
+      <Img
+        asset={shot}
+        alt={item.image.alt}
+        class:list={[
+          "hero-shot",
+          "item-photo",
+          // a photo on white melts into the spotlight; a cut-out stands on top
+          { blend: bench && !fill && item.image.background !== "dark" },
+          // a photo on its own background, edge to edge
+          { fill },
+        ]}
+        widths={fill ? [480, 640, 960, 1280] : [320, 480, 640, 960]}
+        sizes={fill ? "(min-width: 1000px) 780px, 100vw" : "(min-width: 1000px) 400px, 66vw"}
+        bleed={fill}
+        priority={state.current}
+        lazy={!state.current}
+      />
+    )}
     {inset && (
       <figure class="inset-shot">
         <Img
@@ -66,7 +110,16 @@ const notes = [note, content.copy.note].filter(Boolean).map((n) => n!.replace(/\
         )}
       </figure>
     )}
-    <div class:list={["stage-price", { dark: bench }]}>
+    {/* red numerals over a light photo or the bench; white over a cut-out on green, a filled
+        photo, or beside a collage */}
+    <div
+      class:list={[
+        "stage-price",
+        {
+          dark: bench || (!fill && collage.length === 0 && item.image.background !== "dark"),
+        },
+      ]}
+    >
       {numeric ? (
         <>
           <span class="only-word">only</span>
@@ -84,6 +137,9 @@ const notes = [note, content.copy.note].filter(Boolean).map((n) => n!.replace(/\
       <h2 class="feat-head display">
         <Copy text={content.copy.headline ?? content.title} ctx={ctx} />
       </h2>
+      {mascot && (
+        <Mascot asset={mascot} class="head-grouse" sizes="120px" flip={content.mascotFlip} />
+      )}
       <p>
         <span class="itemname">{item.shortName}</span>{" "}
         <Copy text={content.copy.body ?? item.description} ctx={ctx} />

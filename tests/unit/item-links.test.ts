@@ -7,7 +7,7 @@ import { createContentReader } from "../../src/lib/content";
 import { paginateContent } from "../../src/lib/paginate";
 
 // Renders the one purchase-links component against the fixture edition:
-// cables has only a buy link, the power bank only a maker link, the grouse none.
+// cables has a buy link, the grouse none.
 const fixtures = createContentReader(resolve(import.meta.dirname, "../fixtures"));
 const content = await fixtures.getEdition(2026);
 const ctx = createBookContext(content, await fixtures.getGlobal(), paginateContent(content));
@@ -50,25 +50,50 @@ describe("ItemLinks", () => {
     expect(tags(html, (a) => a["data-links"] === "1")).toHaveLength(1);
   });
 
-  it("renders the buy placeholder when the buy link is missing", async () => {
+  it("renders nothing when the buy link is missing", async () => {
     const html = await render("grouse");
     expect(tags(html, (a) => a.tag === "a")).toEqual([]);
-    expect(missing(html, "buy")).toHaveLength(1);
-    expect(html).toContain("Buy link TBA");
-    // No maker link and no maker placeholder outside dev.
-    expect(missing(html, "maker")).toEqual([]);
+    expect(missing(html, "buy")).toEqual([]);
+    expect(tags(html, (a) => a["data-links"] !== undefined)).toEqual([]);
+    expect(html).not.toContain("Buy link");
   });
 
-  it("renders a maker link (not sponsored) alongside the buy placeholder", async () => {
-    const html = await render("power-bank");
-    expect(link(html, "maker")).toEqual([
+  it("keeps only the wish slot in the book when the buy link is missing", async () => {
+    const item = content.items.find((i) => i.slug === "grouse")!;
+    const html = await container.renderToString(ItemLinks, { props: { item, ctx, wish: true } });
+    expect(tags(html, (a) => a.tag === "a")).toEqual([]);
+    expect(tags(html, (a) => a["data-wish-slot"] === "3")).toHaveLength(1);
+  });
+
+  it("renders only the buy link and the wish slot", async () => {
+    const item = content.items.find((i) => i.slug === "cables")!;
+    const html = await container.renderToString(ItemLinks, { props: { item, ctx, wish: true } });
+    expect(tags(html, (a) => a.tag === "a")).toHaveLength(1);
+    expect(tags(html, (a) => a["data-wish-slot"] === "1")).toHaveLength(1);
+    expect(html).not.toContain('class="sep"');
+  });
+
+  it("uses the item's own label, without sponsored for a non-affiliate link", async () => {
+    const cables = content.items.find((i) => i.slug === "cables")!;
+    const item = { ...cables, linkLabel: "View", affiliate: false };
+    const html = await container.renderToString(ItemLinks, { props: { item, ctx } });
+    expect(link(html, "buy")).toEqual([
       expect.objectContaining({
-        href: "https://example.com/power-bank",
         rel: "noopener",
-        target: "_blank",
+        "aria-label": "View Fixture Cables (opens in a new tab)",
       }),
     ]);
-    expect(link(html, "buy")).toEqual([]);
-    expect(missing(html, "buy")).toHaveLength(1);
+    expect(html).toContain("View");
+  });
+
+  it("renders no link and no placeholder for an item never sold online", async () => {
+    const grouse = content.items.find((i) => i.slug === "grouse")!;
+    const item = { ...grouse, noLink: true };
+    const inBook = await container.renderToString(ItemLinks, { props: { item, ctx, wish: true } });
+    expect(tags(inBook, (a) => a.tag === "a")).toEqual([]);
+    expect(missing(inBook, "buy")).toEqual([]);
+    expect(tags(inBook, (a) => a["data-wish-slot"] === "3")).toHaveLength(1);
+    const elsewhere = await container.renderToString(ItemLinks, { props: { item, ctx } });
+    expect(tags(elsewhere, (a) => a["data-links"] !== undefined)).toEqual([]);
   });
 });

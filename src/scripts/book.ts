@@ -439,30 +439,53 @@ function turnBook(dir: 1 | -1): void {
   const faces = [
     { page: front, cls: "leaf-front", from: 0, to: dir > 0 ? -180 : 180 },
     { page: rear, cls: "leaf-rear", from: dir > 0 ? 180 : -180, to: 0 },
-  ];
-  for (const f of faces) {
+  ].map((f) => {
     f.page.el.classList.add("leaf", f.cls);
     f.page.el.style.transform = `rotateY(${f.from}deg)`;
     const shade = document.createElement("div");
     shade.className = "leaf-shade";
     shade.setAttribute("aria-hidden", "true");
     f.page.el.append(shade);
-  }
+    return { ...f, shade };
+  });
+  stage.classList.add("is-turning");
   animate(
     faces.map((f) => f.page.el),
     () => {
-      for (const f of faces) f.page.el.style.transform = `rotateY(${f.to}deg)`;
+      for (const f of faces) {
+        f.page.el.style.transform = `rotateY(${f.to}deg)`;
+        shadeLeaf(f.shade, f.page.el);
+      }
     },
     BOOK_TURN_MS,
     () => {
+      stage.classList.remove("is-turning");
       for (const f of faces) {
         f.page.el.classList.remove("leaf", f.cls);
         f.page.el.style.transform = "";
-        f.page.el.querySelector(":scope > .leaf-shade")?.remove();
+        f.shade.remove();
       }
       finish();
     },
   );
+}
+
+/**
+ * The leaf's shading follows its angle: none while it lies flat, darkest
+ * edge-on (90°), and none again as it lands, so the landed page has nothing
+ * left to drop. Opacity is sin² of the angle, sampled over the turn's
+ * progress; the animation runs with the leaf's own duration and easing (read
+ * from its transition), so the two stay in step.
+ */
+const SHADE_STEPS = 12;
+const SHADE_FRAMES: Keyframe[] = Array.from({ length: SHADE_STEPS + 1 }, (_, i) => ({
+  opacity: Math.round(Math.sin((i / SHADE_STEPS) * Math.PI) ** 2 * 1000) / 1000,
+}));
+
+function shadeLeaf(shade: HTMLElement, leaf: HTMLElement): void {
+  const cs = getComputedStyle(leaf);
+  const duration = (parseFloat(cs.transitionDuration) || BOOK_TURN_MS / 1000) * 1000;
+  shade.animate(SHADE_FRAMES, { duration, easing: cs.transitionTimingFunction, fill: "both" });
 }
 
 /* ---------- single mode: the page lifts away ---------- */
@@ -482,11 +505,13 @@ function turnSingle(dir: 1 | -1): void {
   under.el.classList.add("under");
   leaf.el.classList.add("lift");
   if (dir < 0) leaf.el.classList.add("lifted");
+  stage.classList.add("is-turning");
   animate(
     [leaf.el],
     () => leaf.el.classList.toggle("lifted", dir > 0),
     SINGLE_TURN_MS,
     () => {
+      stage.classList.remove("is-turning");
       under.el.classList.remove("under");
       leaf.el.classList.remove("lift", "lifted");
       finish();

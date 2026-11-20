@@ -18,9 +18,11 @@ const OPTIONAL_TIMESTAMP = /^(?:\d+:[0-5]\d:[0-5]\d|\d{1,3}:[0-5]\d)?$/;
 /** Photo suffixes for item images: main photo (empty), extras, and item art. */
 export const PHOTO_SUFFIX_RE = /^(?:[2-9]|hero)$/;
 const OPTIONAL_PHOTO_SUFFIX = /^(?:[2-9]|hero)?$/;
+/** Most photos a full-page feature's collage lays out on its stage. */
+export const MAX_COLLAGE = 6;
 
 const COPY_HINT =
-  "Copy markup: **bold**, *italic*, {page:slug} for a page reference, {syn:item-slug} for a catalog number, {count}, {phone}, {catalog}.";
+  "Copy markup: **bold**, *italic*, {page:slug} for a page reference, {syn:item-slug} for a catalog number, {count}, {catalog}.";
 
 export const TEMPLATES = [
   { value: "cover", label: "Front cover" },
@@ -112,6 +114,13 @@ export const PHOTO_BACKGROUNDS = [
 ] as const;
 
 export type PhotoBackground = (typeof PHOTO_BACKGROUNDS)[number]["value"];
+
+export const ORDER_LINE_LINKS = [
+  { value: "", label: "No link" },
+  { value: "video", label: "The episode video (falls back while its URL is empty)" },
+] as const;
+
+export type OrderLineLink = (typeof ORDER_LINE_LINKS)[number]["value"];
 
 const optionalText = (label: string, description?: string) => fields.text({ label, description });
 
@@ -241,11 +250,23 @@ export function createKeystaticConfig(edition: number) {
       }),
       buyLink: fields.url({
         label: "Buy link",
-        description: "Where to buy. Prefer the Amazon affiliate link when one exists.",
+        description:
+          "Where to buy: the item's link from the episode description. The only link the site shows for it.",
       }),
-      makerLink: fields.url({
-        label: "Maker link",
-        description: "The manufacturer's product page.",
+      linkLabel: optionalText(
+        "Link label",
+        "Replaces the site's buy label for this item's link (\"View\" for a link that isn't a store). Empty: the buy label.",
+      ),
+      affiliate: fields.checkbox({
+        label: "Affiliate or store link",
+        description:
+          'Marks the link rel="sponsored". Untick for a link that isn\'t a store or an affiliate link (a post, a video).',
+        defaultValue: true,
+      }),
+      noLink: fields.checkbox({
+        label: "No purchase link: this item is never sold online",
+        description:
+          "No link is coming, so `pnpm links` doesn't list it as missing. Renders like any item without a buy link: no link anywhere. Leave the buy link empty.",
       }),
       sources: fields.array(fields.url({ label: "Source" }), {
         label: "Sources",
@@ -390,16 +411,7 @@ export function createKeystaticConfig(edition: number) {
       ),
       links: fields.object(
         {
-          buy: optionalText("Buy link label", '"Buy". Every item\'s primary (affiliate) link.'),
-          maker: optionalText("Maker link label", '"Maker". The manufacturer\'s page.'),
-          missingBuy: optionalText(
-            "Missing buy link",
-            'Shown in place of the buy link until there is one: "Buy link TBA".',
-          ),
-          missingMaker: optionalText(
-            "Missing maker link",
-            'Shown in dev builds in place of a missing maker link: "Maker link TBA".',
-          ),
+          buy: optionalText("Buy link label", '"Buy". Every item\'s purchase link.'),
           disclosure: copyText(
             "Affiliate disclosure",
             "One line on the order form page about affiliate links.",
@@ -474,12 +486,24 @@ export function createKeystaticConfig(edition: number) {
             validation: { isRequired: true, pattern: { regex: SLUG, message: "Use a-z, 0-9, -" } },
           }),
           kicker: copyText("Kicker", 'Small caps before the line, e.g. "Order by terminal".'),
-          text: copyText("Line", 'e.g. "Call any time {phone}".'),
+          text: copyText("Line", 'e.g. "$ curl {catalog}".'),
+          link: fields.select({
+            label: "Link",
+            description: "Where the line links to, if anywhere.",
+            options: ORDER_LINE_LINKS,
+            defaultValue: "",
+          }),
+          fallback: fields.text({
+            label: "Fallback",
+            description:
+              "Id of the order line pages show instead while the link has no URL yet (the episode video URL is empty).",
+            validation: { pattern: { regex: OPTIONAL_SLUG, message: "Use a-z, 0-9, -" } },
+          }),
         }),
         {
           label: "Order lines",
           description:
-            "Pages pick one by id, like a real catalog's rotating footers. The one with {phone} is also the cover band and back cover phone line.",
+            "Pages pick one by id, like a real catalog's rotating footers. The cover band and the back cover show their page's line.",
           itemLabel: (props) => props.fields.id.value || "Order line",
         },
       ),
@@ -521,6 +545,37 @@ export function createKeystaticConfig(edition: number) {
         },
         { label: "Search (⌘K)" },
       ),
+      notFound: fields.object(
+        {
+          title: optionalText("Headline", '"Page Not Found". Also the tab title.'),
+          text: copyArea("Text", "Under the headline."),
+          cta: optionalText("Cover link", "The big link back to the cover."),
+          contents: optionalText("Contents heading", "Above the links to each section."),
+        },
+        {
+          label: "Page not found (404)",
+          description: "The page shown for any address that isn't in the WishBook.",
+        },
+      ),
+      mascots: fields.object(
+        {
+          search: assetKey(
+            "Search: no results",
+            "Grouse pose beside the search's no-results line.",
+          ),
+          emptyList: assetKey(
+            "Order form: empty list",
+            "Grouse pose on the order form while nothing is circled, beside the empty-list line.",
+          ),
+          wishList: assetKey("Wish-list page", "Grouse pose beside the shared wish list's title."),
+          notFound: assetKey("Page not found", "Grouse pose on the 404 page."),
+        },
+        {
+          label: "Mascots",
+          description:
+            "Asset keys (IMG-M1-…) for the grouse outside the book's pages. Empty for none.",
+        },
+      ),
       backCover: fields.object(
         {
           headline: copyText("Headline"),
@@ -528,6 +583,10 @@ export function createKeystaticConfig(edition: number) {
             label: "Return address",
             itemLabel: (props) => props.value || "Line",
           }),
+          mailTo: copyText(
+            "Mail line",
+            'Lead-in for the mail line under the headline, followed by the return address: "Mail your wish list to:".',
+          ),
           indicia: fields.array(fields.text({ label: "Line" }), {
             label: "Postage indicia",
             itemLabel: (props) => props.value || "Line",
@@ -624,7 +683,7 @@ export function createKeystaticConfig(edition: number) {
           opener: fields.checkbox({
             label: "Section opener",
             description:
-              "Grid layout: a header across the top with the section's kicker, name, and page range.",
+              "Grid and feature layouts: a header across the top with the section's kicker, name, and page range. Use it on a section's first page.",
           }),
           hosts: fields.multiRelationship({
             label: "Picked by",
@@ -658,9 +717,29 @@ export function createKeystaticConfig(edition: number) {
               maxQuotes: fields.integer({
                 label: "Quotes shown",
                 description:
-                  "Full-page feature: how many of the item's quotes it shows, in order (at most 2). Empty for 2.",
-                validation: { min: 0 },
+                  "Full-page feature: how many of the item's quotes it shows, in order. Empty for 2; more only if the page still fits.",
+                validation: { min: 0, max: 4 },
               }),
+              fill: fields.checkbox({
+                label: "Photo fills the stage",
+                description:
+                  "Full-page feature: a photo on its own background (not a cut-out) fills the stage edge to edge, cropped around its middle, a little below centre.",
+              }),
+              collage: fields.array(
+                fields.text({
+                  label: "Photo",
+                  description: "Empty for the main photo, 2–9, or hero.",
+                  validation: {
+                    pattern: { regex: OPTIONAL_PHOTO_SUFFIX, message: "Use 2–9 or hero" },
+                  },
+                }),
+                {
+                  label: "Collage",
+                  description:
+                    "Full-page feature: several of the item's photos (book covers, say) scattered across the stage in this order, each whole, in place of the one photo. Up to 6.",
+                  itemLabel: (props) => (props.value ? `Photo ${props.value}` : "Main photo"),
+                },
+              ),
             }),
             {
               label: "Items",
@@ -679,6 +758,15 @@ export function createKeystaticConfig(edition: number) {
             },
             { label: "Inset photo" },
           ),
+          mascot: assetKey(
+            "Mascot",
+            "Asset key of a grouse mascot pose (IMG-M1-…) on this page. Welcome, holly, index, and order form place it in their own spot (on the order form once the wish list has items); grid, under, feature, lineup, price-tag, wild, and odds 'n' ends stand it at the head's right end, a small sticker by the title (a section's first page). Empty for none.",
+          ),
+          mascotFlip: fields.checkbox({
+            label: "Mirror the mascot",
+            description:
+              "Flip the pose to face into the page. Never for a pose with lettering on it (the $ tag, the joker card).",
+          }),
           copy: fields.object(
             {
               kicker: copyText("Kicker", "Small caps above the headline."),
@@ -831,21 +919,6 @@ export function createKeystaticConfig(edition: number) {
     format: { data: "yaml" },
     schema: {
       name: fields.text({ label: "Site name", validation: { isRequired: true } }),
-      phone: fields.object(
-        {
-          display: fields.text({
-            label: "Display",
-            description: "The one place the phone number lives.",
-            validation: { isRequired: true },
-          }),
-          tel: fields.text({
-            label: "Dialable",
-            description: "For tel: links, digits only with a leading +. Empty to skip the link.",
-            validation: { pattern: { regex: /^(?:\+\d{7,15})?$/, message: "Use +digits" } },
-          }),
-        },
-        { label: "Phone" },
-      ),
       podcastUrl: fields.url({ label: "Podcast URL" }),
       youtubeUrl: fields.url({ label: "YouTube channel URL" }),
     },

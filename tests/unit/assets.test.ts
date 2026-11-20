@@ -139,4 +139,14 @@ describe("resolveFrom with any extension", () => {
     });
     expect(() => resolveFrom(index, 2026, "item:7", c)).toThrow(/More than one file/);
   });
+
+  it("ignores the archive folder (old photos kept for reference)", () => {
+    const index = indexAssets({
+      "/assets/2026/items/007-seven.webp": "current",
+      "/assets/2026/archive/007-seven-old.webp": "old",
+      "/assets/2026/archive/007-seven-2.webp": "old extra",
+    });
+    expect(resolveFrom(index, 2026, "item:7", c)).toMatchObject({ kind: "image", meta: "current" });
+    expect(resolveFrom(index, 2026, "item:7-2", c)).toMatchObject({ kind: "placeholder" });
+  });
 });

@@ -1,38 +1,20 @@
-name: Ollee Watch One
+name: Ollee Watch One DIY Kit
 id: 16
-indexName: Ollee Watch
+indexName: Ollee Watch DIY Kit
 brand: Ollee
 section: favorites
 pickedBy:
   - cj
-isNew: true
-priceEstimate: 99.99
-makerLink: https://www.olleewatch.com/shop/p/ollee-watch-pre-installed
+priceEstimate: 54.99
+unit: Kit
+buyLink: https://www.olleewatch.com/
 sources:
-  - https://www.olleewatch.com/shop/p/ollee-watch-pre-installed
   - https://www.olleewatch.com/shop/p/ollee-watch-one-kit
-description: ", a Casio F-91W with a smart brain. **See {page:ollee}.**"
+  - https://www.olleewatch.com/shop/p/ollee-watch-pre-installed
+description: ", the smart brain for a Casio F-91W. Open your own watch, pop in the chip, close it up: step counting within about 2% of an Apple Watch, plus temperature and weather."
 altDescriptions:
-  - "A classic Casio F-91W with a smart brain inside. Step counting within about 2% of an Apple Watch, plus temperature and weather."
-  - "A dumb watch made smart and hackable. Buy it ready to go, or open up your own Casio and install the chip."
+  - "A dumb watch made smart and hackable. Open up your own Casio and install the chip."
   - "Retro outside, smart inside, and it runs custom firmware (once CJ finishes writing it). Celsius only, apparently."
-variants:
-  - key: pre-installed
-    name: The Pre-Installed Smartwatch
-    features: "step counting within ~2% of an Apple Watch, ambient temperature, weather, backlight."
-    price: 99.99
-  - key: diy-kit
-    name: The DIY Kit
-    features: "open your own F-91W, pop in the chip, close it up."
-    price: 54.99
-    unit: Kit
-    imageSuffix: "2"
-  - key: firmware
-    name: Custom Firmware Edition
-    features: "coming soon, once CJ finishes writing it."
-    priceLabel: TBA
-    unit: Someday
-    imageSuffix: "3"
 quotes:
   - text: '"Why do you gotta set the Celsius?" "Because I haven''t figured out how to change it."'
     by: cj
@@ -41,4 +23,5 @@ quotes:
     by: cj
     placement: "on"
 image:
-  alt: Ollee Watch One, a Casio F-91W with a smart module
+  alt: The Ollee Watch One DIY kit, a smart module that fits inside a Casio F-91W
+internalNote: "The DIY kit only (54.99 when last checked). Ollee also sells the watch with the chip pre-installed (~99.99); the episode mentions both. Photo -4 is the assembled watch."

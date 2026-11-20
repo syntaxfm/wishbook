@@ -7,7 +7,6 @@
  *   {page:<slug>}   cross-reference, rendered as a linked "page 6 A"
  *   {syn:<item>}    that item's catalog number ("SYN 036:41"), linked to the video
  *   {count}         number of gifts in the edition (items not marked as mentions; pickCount)
- *   {phone}         the phone number from content/global.yaml
  *   {catalog}       the plain-text catalog address, for the "curl" order line
  *
  * Anything else in braces is a content error, caught by the reader at build.
@@ -17,7 +16,6 @@ export type CopyToken =
   | { kind: "page"; slug: string }
   | { kind: "syn"; slug: string }
   | { kind: "count" }
-  | { kind: "phone" }
   | { kind: "catalog" };
 
 export type CopySegment =
@@ -28,7 +26,7 @@ export type CopySegment =
 
 const TOKEN_RE = /\{([a-z]+)(?::([a-z0-9-]+))?\}/g;
 const SLUG_TOKENS = new Set(["page", "syn"]);
-const BARE_TOKENS = new Set(["count", "phone", "catalog"]);
+const BARE_TOKENS = new Set(["count", "catalog"]);
 
 export class CopyTokenError extends Error {}
 
@@ -39,7 +37,7 @@ function toToken(name: string, arg: string | undefined, raw: string): CopyToken 
   }
   if (BARE_TOKENS.has(name)) {
     if (arg) throw new CopyTokenError(`${raw} doesn't take a slug`);
-    return { kind: name as "count" | "phone" | "catalog" };
+    return { kind: name as "count" | "catalog" };
   }
   throw new CopyTokenError(`unknown token ${raw}`);
 }

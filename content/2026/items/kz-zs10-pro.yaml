@@ -8,6 +8,7 @@ pickedBy:
   - cj
 priceEstimate: 49.99
 unit: Pair
+buyLink: https://link.amazon/B0htCQa0Z
 sources:
   - https://linsoul.com/products/kz-zs10-pro
   - https://www.linsoul.com/products/kz-an01
@@ -16,11 +17,6 @@ altDescriptions:
   - "Five drivers, swappable cables, and an add-on Bluetooth ANC kit. Wired for making music, wireless for the plane."
   - "Convertible headphones. Use them wired, plug in the Bluetooth kit, and they're wireless."
   - "Four years of daily use and still CJ's go-to. They're the only earbuds that block out a flight for him."
-variants:
-  - key: an01
-    name: AN01 Bluetooth ANC kit, sold separately
-    price: 35.99
-    unit: Kit
 quotes:
   - text: "These are some of the only in-ear headphones that work really well on a flight for me."
     by: cj
@@ -28,4 +24,4 @@ quotes:
   - text: "I raw dog it with music, I guess."
     by: cj
     placement: "on"
-internalNote: The Bluetooth ANC add-on is the KZ AN01 (~$36).
+internalNote: The Bluetooth ANC add-on is the KZ AN01 (~$36), its own pick beside these.

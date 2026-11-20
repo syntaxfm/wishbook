@@ -7,7 +7,6 @@ pickedBy:
   - scott
 priceEstimate: 269.99
 buyLink: https://link.amazon/B06Zq0YiT
-makerLink: https://www.amazon.com/Amazon-Kindle-Colorsoft-Kids/dp/B0DZ9G3BHP
 sources:
   - https://www.amazon.com/Amazon-Kindle-Colorsoft-Kids/dp/B0DZ9G3BHP
 description: "A color e-ink screen for comics, books, and audiobooks. Scott's kids won't put it down."
@@ -17,4 +16,4 @@ altDescriptions:
 quotes:
   - text: "My son checks out comic books on this thing 24/7… my kids will not put them down."
     by: scott
-internalNote: "Seen at $209.99 on sale. Amazon makes the Kindle, so its Amazon page is also the maker page."
+internalNote: "Seen at $209.99 on sale."

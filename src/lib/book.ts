@@ -4,17 +4,19 @@
  * lines, and quotes. Templates take this as `ctx`.
  */
 import { resolveAsset, type ResolvedAsset } from "./assets";
-import { copyTokens, parseCopyRuns } from "./copy";
+import { parseCopyRuns } from "./copy";
 import {
   getEdition,
   getGlobal,
   pickCount,
+  resolveOrderLine,
   type EditionContent,
   type Global,
   type Host,
   type Item,
   type Page,
   type Quote,
+  type ResolvedOrderLine,
   type Section,
 } from "./content";
 import { formatCatalogNumber } from "./catalog";
@@ -38,11 +40,7 @@ const FEATURE_TEMPLATES: ReadonlySet<Template> = new Set([
  */
 const QUOTE_TEMPLATES: ReadonlySet<Template> = new Set(["feature", "house-brand", "actual-size"]);
 
-export interface OrderLine {
-  id: string;
-  kicker: string | null;
-  text: string;
-}
+export type OrderLine = ResolvedOrderLine;
 
 export interface BookContext {
   edition: number;
@@ -58,10 +56,11 @@ export interface BookContext {
   item(slug: string): Item;
   /** Root-relative URL of a page in this edition. */
   href(slug: string): string;
-  /** An order line by id. */
+  /**
+   * An order line by id, as pages print it: a line linked to the episode video
+   * carries its `href`, or is replaced by its fallback line until the video URL is set.
+   */
   orderLine(id: string | null): OrderLine | null;
-  /** The order line that prints the phone number. */
-  phoneLine: OrderLine | null;
   /** The page that gives an item a page of its own, if any. */
   featurePageOf(item: Item): Page | null;
   /** Where the index sends an item: its feature page, else its first appearance. */
@@ -170,11 +169,7 @@ export function createBookContext(
         ? `Page ${range.first.label}`
         : `Pages ${range.first.label} – ${range.last.label}`;
     },
-    orderLine: (id) => (id ? (content.site.orderLines.find((l) => l.id === id) ?? null) : null),
-    phoneLine:
-      content.site.orderLines.find((l) =>
-        copyTokens(l.text).tokens.some((t) => t.kind === "phone"),
-      ) ?? null,
+    orderLine: (id) => resolveOrderLine(content.site, id),
     featurePageOf: (i) => featurePage.get(i.slug) ?? null,
     indexPageOf: (i) => featurePage.get(i.slug) ?? firstPage.get(i.slug) ?? null,
     featuredElsewhere: (i, page) => {
@@ -222,8 +217,6 @@ export function createBookContext(
             }
             case "count":
               return String(count);
-            case "phone":
-              return global.phone.display;
             case "catalog":
               return catalogAddress;
           }

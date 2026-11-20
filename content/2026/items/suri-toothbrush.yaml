@@ -5,9 +5,9 @@ brand: SURI
 section: favorites
 pickedBy:
   - kaitlin
-priceEstimate: 135
+priceEstimate: 134.99
 priceNote: With the UV travel case
-makerLink: https://www.trysuri.com/products/suri-pro-2-sonic-toothbrush-uv-c-led-case
+buyLink: https://link.amazon/B0do3cp3k
 sources:
   - https://store.goop.com/products/suri-20-electric-toothbrush-and-uv-travel-case
   - https://www.trysuri.com/products/suri-pro-2-sonic-toothbrush-uv-c-led-case
@@ -22,5 +22,4 @@ quotes:
     by: kaitlin
   - text: "If you have one of those stupid little chargers in your bathroom that you put it on every night, get rid of it."
     byLabel: the crew
-    verify: true
 internalNote: "~$135 with UV case (~$105 brush only)."

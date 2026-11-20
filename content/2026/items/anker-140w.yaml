@@ -7,7 +7,7 @@ section: favorites
 pickedBy:
   - scott
 priceEstimate: 89.99
-makerLink: https://www.anker.com/products/a2697-anker-charger-140w-4-port
+buyLink: https://link.amazon/B06dispDs
 sources:
   - https://www.anker.com/products/a2697-anker-charger-140w-4-port
 description: "3× USB-C, 1× USB-A, smart display. Powers two laptops."
@@ -23,6 +23,4 @@ quotes:
   - text: "I actually just bought one for Courtney and she was like, is this supposed to be a gift? I'm like, you're gonna love it."
     by: scott
     placement: "on"
-image:
-  background: dark
 internalNote: "Model A2697: 3× USB-C, 1× USB-A, smart display. Often $60–80 on sale."

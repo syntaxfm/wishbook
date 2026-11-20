@@ -1,6 +1,8 @@
 ---
 /**
- * A catalog image: <picture> with AVIF and WebP sources at several widths, or
+ * A catalog image: <picture> with an AVIF source and a WebP <img> (the fallback,
+ * which every current browser reads, so no PNG or JPEG copies ship), each at
+ * several widths, or
  * the placeholder block when the asset doesn't exist yet. Takes the asset
  * resolver's result as is.
  */
@@ -53,7 +55,8 @@ if (asset.kind === "image") {
   <Picture
     src={asset.meta}
     alt={alt}
-    formats={["avif", "webp"]}
+    formats={["avif"]}
+    fallbackFormat="webp"
     widths={usable}
     sizes={sizes}
     loading={lazy && !priority ? "lazy" : "eager"}

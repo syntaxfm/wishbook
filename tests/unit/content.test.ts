@@ -7,6 +7,7 @@ import {
   createContentReader,
   itemPrice,
   pickCount,
+  resolveOrderLine,
   timestampSeconds,
 } from "../../src/lib/content";
 
@@ -63,8 +64,8 @@ describe("reading an edition", () => {
     expect(bank.pickedBy.map((h) => h.shortName)).toEqual(["One", "Two"]);
     expect(bank.shortName).toBe("The Bank");
     expect(bank.quotes[0]).toMatchObject({ by: { slug: "scott" }, verify: true, placement: "on" });
-    expect(bank.makerLink).toBe("https://example.com/power-bank");
     expect(bank.buyLink).toBeNull();
+    expect(bank).not.toHaveProperty("makerLink");
   });
 
   it("fills defaults for optional fields", async () => {
@@ -73,7 +74,6 @@ describe("reading an edition", () => {
     expect(cables.indexName).toBe("Cables, fixture");
     expect(cables.price.unit).toBe("Each");
     expect(cables.image).toEqual({ alt: "Fixture Cables", background: "light", credit: null });
-    expect(cables.makerLink).toBeNull();
     expect(await content.getItem(2026, 3)).toMatchObject({ slug: "grouse" });
   });
 
@@ -125,18 +125,29 @@ describe("reading an edition", () => {
     const site = await content.getSite(2026);
     expect(site.episode.number).toBe(999);
     expect(site.key.entries[0]!.item?.slug).toBe("cables");
-    expect(site.orderLines).toEqual([{ id: "phone", kicker: "Call any time", text: "{phone}" }]);
+    expect(site.orderLines).toEqual([
+      {
+        id: "terminal",
+        kicker: "Order by terminal",
+        text: "$ curl {catalog}",
+        link: null,
+        fallback: null,
+      },
+      {
+        id: "watch",
+        kicker: "Watch the whole thing",
+        text: "on YouTube",
+        link: "video",
+        fallback: "terminal",
+      },
+    ]);
     expect(site.meta.description).toBe("{count} gifts, fixture edition.");
     expect(site.links).toEqual({
       buy: "Buy",
-      maker: null,
-      missingBuy: "Buy link TBA",
-      missingMaker: null,
       disclosure: "Some links pay us. See {page:one-picks}.",
     });
     expect(await content.getGlobal()).toEqual({
       name: "Fixture WishBook",
-      phone: { display: "1-555-FIXTURE", tel: "+15550000000" },
       podcastUrl: null,
       youtubeUrl: null,
     });
@@ -261,6 +272,34 @@ describe("validation", () => {
       "content/2026/items/grouse.yaml: description: {syn:ghost} is not an item in content/2026/items/",
       "content/2026/items/grouse.yaml: description: unknown token {wat}",
     ]);
+  });
+
+  it("rejects order-line fallbacks that aren't another unlinked line", async () => {
+    const site = readFileSync(join(FIXTURE, "content/2026/site.yaml"), "utf8");
+    const reader = fixtureWith({
+      "content/2026/site.yaml": site.replace(
+        "fallback: terminal",
+        "fallback: nope\n  - id: loop\n    text: x\n    link: video\n    fallback: watch\n  - id: stray\n    text: y\n    fallback: terminal",
+      ),
+    });
+    expect(await problemsOf(reader.getEdition(2026))).toEqual([
+      'content/2026/site.yaml: order line "watch": fallback "nope" is not another order line',
+      'content/2026/site.yaml: order line "loop": fallback "watch" must not have a link',
+      'content/2026/site.yaml: order line "stray" has a fallback but no link',
+    ]);
+  });
+
+  it("resolves a video order line to its link, or its fallback without a video URL", async () => {
+    const site = await content.getSite(2026);
+    expect(resolveOrderLine(site, "watch")).toEqual({
+      id: "watch",
+      kicker: "Watch the whole thing",
+      text: "on YouTube",
+      href: "https://example.com/video",
+    });
+    const noVideo = { ...site, episode: { ...site.episode, videoUrl: null } };
+    expect(resolveOrderLine(noVideo, "watch")).toMatchObject({ id: "terminal", href: null });
+    expect(resolveOrderLine(site, null)).toBeNull();
   });
 
   it("rejects links that aren't http(s) URLs", async () => {

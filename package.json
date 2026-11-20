@@ -14,7 +14,9 @@
     "test:e2e": "playwright test",
     "assets": "tsx scripts/assets-report.mjs",
     "links": "tsx scripts/assets-report.mjs --links",
-    "textures": "node scripts/bake-textures.mjs"
+    "textures": "node scripts/bake-textures.mjs",
+    "icons": "node scripts/make-icons.mjs",
+    "optimize:assets": "node scripts/optimize-assets.mjs"
   },
   "dependencies": {
     "@fontsource/antonio": "^5.3.0",

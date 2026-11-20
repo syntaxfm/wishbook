@@ -23,4 +23,6 @@ quotes:
   - text: "I use it every single day."
     by: scott
     placement: "on"
-internalNote: "~$16. The photo is a lifestyle shot; the exact model is unconfirmed."
+image:
+  background: dark
+internalNote: "~$16. The main photo is the lamp lit on a dark background; photo -2 is the earlier lifestyle shot."

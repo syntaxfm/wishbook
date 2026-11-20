@@ -2,7 +2,8 @@
 /**
  * Front cover: painted art under a navy sky, the gold "WishBook" masthead
  * under the Syntax logo, the cover price, and a green band with the tagline,
- * the gift count and index reference, and the phone line. Type is printed
+ * the gift count and index reference, and the page's order line ("Order by
+ * terminal · $ curl …", set in the catalog-number mono). Type is printed
  * "into" the paper with worn-ink masks.
  */
 import Copy from "../../components/Copy.astro";
@@ -18,9 +19,7 @@ const logo = await ctx.art("brand:syntax-logo-wide-stacked");
 // "Syntax WishBook": the logo carries the first word, the masthead the rest.
 const [brand = "", ...rest] = ctx.global.name.split(" ");
 const masthead = rest.join(" ");
-const line = ctx.orderLine(content.orderLine) ?? ctx.phoneLine;
-// The cover band sets the number with middle dots: 1·555·SYNTAXFM.
-const lineText = line ? ctx.plain(line.text).replaceAll("-", "·") : null;
+const line = ctx.orderLine(content.orderLine);
 ---
 
 <PageShell page={page} ctx={ctx} state={state} class="cover" folio={false}>
@@ -70,7 +69,7 @@ const lineText = line ? ctx.plain(line.text).replaceAll("-", "·") : null;
     {line && (
       <div class="cb-r">
         {line.kicker && <span class="kicker">{ctx.plain(line.kicker)}</span>}
-        <span class="price worn">{lineText}</span>
+        <span class="line worn">{ctx.plain(line.text)}</span>
       </div>
     )}
   </div>

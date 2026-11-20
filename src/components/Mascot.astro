@@ -1,0 +1,34 @@
+---
+/**
+ * The grouse mascot: a transparent cartoon cutout, shown whole (never in a
+ * round frame), seated on the paper by a soft shadow under its feet. Pure
+ * decoration (alt=""), lazy-loaded. Size and place it with the class you pass;
+ * `flip` mirrors it to face into the page (never a pose with text on it).
+ */
+import Img from "./Img.astro";
+import type { ResolvedAsset } from "./types";
+
+interface Props {
+  asset: ResolvedAsset;
+  class?: string;
+  /** Rendered width hint, e.g. "(min-width: 640px) 120px, 30vw". */
+  sizes?: string;
+  /** Mirror the pose horizontally. */
+  flip?: boolean;
+}
+
+const {
+  asset,
+  class: className,
+  sizes = "(min-width: 640px) 160px, 34vw",
+  flip = false,
+} = Astro.props;
+---
+
+<Img
+  asset={asset}
+  alt=""
+  class:list={["grouse", { flip }, className]}
+  widths={[160, 240, 320, 480]}
+  sizes={sizes}
+/>

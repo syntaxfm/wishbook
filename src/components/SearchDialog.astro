@@ -5,14 +5,17 @@
  * drives it; Enter opens the active result through the book engine.
  */
 import type { BookContext } from "../lib/book";
+import Mascot from "./Mascot.astro";
 
 interface Props {
   ctx: BookContext;
 }
 
 const { ctx } = Astro.props;
-const { search } = ctx.content.site;
+const { search, mascots } = ctx.content.site;
 const title = search.label ?? "";
+// the puzzled grouse beside the no-results line
+const mascot = mascots.search ? await ctx.art(mascots.search) : null;
 ---
 
 <dialog class="search-dialog" data-search aria-labelledby="search-title">
@@ -33,9 +36,10 @@ const title = search.label ?? "";
       data-search-input
     />
     <ul id="search-results" role="listbox" aria-labelledby="search-title" data-search-results></ul>
-    <p class="search-none" data-search-none hidden>
-      {search.none ? ctx.plain(search.none) : ""}
-    </p>
+    <div class="search-none" data-search-none hidden>
+      {mascot && <Mascot asset={mascot} class="search-mascot" sizes="72px" />}
+      <p>{search.none ? ctx.plain(search.none) : ""}</p>
+    </div>
     <p class="search-keys" aria-hidden="true">
       <span>
         <kbd>↑</kbd>

@@ -2,7 +2,7 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { createBookContext, getBookContext } from "../../src/lib/book";
 import { formatCatalogText, leader, wrap } from "../../src/lib/catalog-txt";
-import { createContentReader, getCurrentEdition, getGlobal } from "../../src/lib/content";
+import { createContentReader, getCurrentEdition } from "../../src/lib/content";
 import { paginateContent } from "../../src/lib/paginate";
 
 const MAX_COLUMNS = 80;
@@ -42,14 +42,44 @@ describe("catalog.txt for the fixture edition", () => {
   });
 });
 
+// The fixture catalog with one item edited. A fresh reader, so the edit (made
+// in place: pages hold the same item objects) doesn't leak into the shared
+// fixture content.
+async function withItem(slug: string, patch: Record<string, unknown>) {
+  const reader = createContentReader(resolve(import.meta.dirname, "../fixtures"));
+  const content = await reader.getEdition(2026);
+  Object.assign(
+    content.items.find((i) => i.slug === slug)!,
+    patch,
+  );
+  const ctx = createBookContext(content, await reader.getGlobal(), paginateContent(content));
+  return formatCatalogText(ctx);
+}
+
+describe("catalog.txt purchase links", () => {
+  it("prints an item's own link label", async () => {
+    const text = await withItem("cables", { linkLabel: "View" });
+    expect(text).toContain("  View: https://example.com/buy/cables");
+  });
+
+  it("prints nothing for an item without a buy link", async () => {
+    const before = await fixtureCatalog(2026);
+    expect(before).not.toContain("Buy link");
+    const text = await withItem("power-bank", { noLink: true });
+    expect(text).toBe(before);
+  });
+});
+
 describe("catalog.txt for the current edition", async () => {
   const edition = getCurrentEdition();
   const ctx = await getBookContext(edition);
   const text = formatCatalogText(ctx);
   const lines = text.split("\n");
 
-  it(`keeps every line within ${MAX_COLUMNS} columns`, () => {
-    const long = lines.filter((l) => columns(l) > MAX_COLUMNS);
+  it(`keeps every line within ${MAX_COLUMNS} columns (a longer URL gets a line of its own)`, () => {
+    // URLs never break: one longer than the width sits alone, unindented.
+    const bareUrl = /^https?:\/\/\S+$/;
+    const long = lines.filter((l) => columns(l) > MAX_COLUMNS && !bareUrl.test(l));
     expect(long).toEqual([]);
   });
 
@@ -67,8 +97,15 @@ describe("catalog.txt for the current edition", async () => {
     expect(text).toMatch(/^ {2}SYN \d{3}:\d{2} – \S.* \.{3,} \d+\.\d{2} est\.$/m);
   });
 
-  it("prints the phone line from the global settings", async () => {
-    expect(text).toContain((await getGlobal()).phone.display);
-    expect(text.toLowerCase()).not.toContain("toll-free");
+  it("prints the curl line in the header", () => {
+    const header = lines.slice(0, lines.indexOf("", 8));
+    expect(header).toContain(`Order by terminal: $ curl ${ctx.catalogAddress}`);
+  });
+
+  it("ends with the back cover's order line", () => {
+    const back = ctx.content.pages.find((p) => p.template === "back-cover")!;
+    const line = ctx.orderLine(back.orderLine)!;
+    const footer = lines.slice(-4).map((l) => l.trim());
+    expect(footer).toContain(`${ctx.plain(line.kicker)} · ${ctx.plain(line.text)}`);
   });
 });

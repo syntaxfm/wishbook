@@ -1,0 +1,16 @@
+name: Casio F-91W
+id: 58
+indexName: Casio F-91W
+brand: Casio
+section: favorites
+pickedBy:
+  - cj
+priceEstimate: 31.99
+buyLink: https://link.amazon/B078VQhf8
+description: ", the classic Casio watch. CJ wears one with an Ollee chip inside: buy a Casio, buy the chip, open it up, and pop the chip in to make it a smartwatch."
+quotes:
+  - text: "This is a Casio F91W, classic Casio watch."
+    by: cj
+image:
+  alt: A Casio F-91W digital watch
+internalNote: "No price in the episode or research yet; add one (priceEstimate) once checked."

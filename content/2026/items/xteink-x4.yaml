@@ -6,9 +6,8 @@ brand: Xteink
 section: tech
 pickedBy:
   - cj
-isNew: true
-priceEstimate: 69
-makerLink: https://www.xteink.com/products/Xteink-x4
+priceEstimate: 68.99
+buyLink: https://link.amazon/B0i3ljTUy
 sources:
   - https://www.xteink.com/products/Xteink-x4
   - https://www.xteink.com/products/xteink-x4-pro-pocket-ereader
@@ -31,4 +30,6 @@ quotes:
     by: cj
   - text: "If you like eBooks, if you like not doom scrolling, get yourself a little e-ink reader."
     by: cj
+image:
+  background: dark
 internalNote: "The X4 Pro ($99–109) adds a frontlight and touchscreen."

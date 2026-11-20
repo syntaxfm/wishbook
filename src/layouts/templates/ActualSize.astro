@@ -69,6 +69,11 @@ const only = content.items[0];
         <Img
           asset={f.photo}
           alt={f.item.image.alt}
+          class:list={[
+            "item-photo",
+            // a photo on white melts into the paper; a cut-out keeps its shadow
+            { "on-white": f.photo.kind === "image" && f.item.image.background !== "dark" },
+          ]}
           widths={[240, 320, 480]}
           sizes="(min-width: 1000px) 300px, 60vw"
         />

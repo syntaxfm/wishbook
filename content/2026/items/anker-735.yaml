@@ -7,7 +7,7 @@ section: favorites
 pickedBy:
   - wes
 priceEstimate: 29.99
-makerLink: https://www.anker.com/products/a2667
+buyLink: https://www.amazon.com/Anker-Charger-Compact-Foldable-MacBook/dp/B09C5RG6KV?tag=webo080-20
 sources:
   - https://www.anker.com/products/a2667
 description: 'charges a 16" MacBook Pro. Its bigger brother is on {page:anker-off}.'
@@ -19,6 +19,4 @@ specs: 2× USB-C, 1× USB-A
 quotes:
   - text: "I stopped carrying around the stupid huge MacBook Pro 90 watt charger."
     by: wes
-image:
-  background: dark
 internalNote: Often $24–26 on Amazon.

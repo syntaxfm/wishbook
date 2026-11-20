@@ -1,21 +1,22 @@
 ---
 /**
- * An item's purchase links, small and quieter than the price: a primary "Buy"
- * link (affiliate, rel="sponsored") and a secondary "Maker" link (the
- * manufacturer's page). Each opens in a new tab and has at least a 44px touch
- * target without taking extra room in the layout.
+ * An item's purchase link, small and quieter than the price: one "Buy" link
+ * (the item's `linkLabel` instead, when set). It is rel="sponsored" unless the
+ * item says the link isn't an affiliate or store link (`affiliate: false`). It
+ * opens in a new tab and has at least a 44px touch target without taking extra
+ * room in the layout.
  *
- * A missing buy link shows a muted, non-clickable placeholder in the same spot,
- * so gaps are visible during review. A missing maker link shows one only in dev.
- * Dev builds also mark placeholders like unverified quotes.
+ * An item without a buy link (none yet, or `noLink`: never sold online) shows
+ * nothing: in the book its row keeps only the wish-list slot; elsewhere nothing
+ * renders. `pnpm links` lists the items still missing one.
  *
- * Placement and styling are provisional: every template renders links through
- * this one component, so they can move or change in one place.
+ * Every template renders purchase links through this one component, so they
+ * can move or change in one place.
  *
- * In the book (`wish`), the row is the item's whole purchase row: links on the
- * left and, on the right, an empty slot (`data-wish-slot`) where the wish list
- * puts the "Circle it" toggle. The slot holds the row's height at build time,
- * so the page is the same height with or without JavaScript.
+ * In the book (`wish`), the row is the item's whole purchase row: the link on
+ * the left and, on the right, an empty slot (`data-wish-slot`) where the wish
+ * list puts the "Circle it" toggle. The slot holds the row's height at build
+ * time, so the page is the same height with or without JavaScript.
  */
 import type { BookContext } from "../lib/book";
 import type { Item } from "../lib/content";
@@ -30,52 +31,22 @@ interface Props {
 
 const { item, ctx, class: className, wish = false } = Astro.props;
 const labels = ctx.content.site.links;
-const dev = import.meta.env.DEV;
-const showMaker = item.makerLink || (dev && labels.missingMaker);
+const label = item.linkLabel ?? labels.buy;
 ---
 
-<div class:list={["links", className, { "has-wish": wish }]} data-links={item.id}>
-  {item.buyLink ? (
-    <a
-      class="buy"
-      href={item.buyLink}
-      target="_blank"
-      rel="noopener sponsored"
-      aria-label={`${labels.buy ?? ""} ${item.name} (opens in a new tab)`.trim()}
-    >
-      {labels.buy} <span aria-hidden="true">↗</span>
-    </a>
-  ) : (
-    <span
-      class="tba"
-      data-missing="buy"
-      data-verify={dev ? "" : undefined}
-      title={dev ? "No buy link yet" : undefined}
-    >
-      {labels.missingBuy}
-    </span>
-  )}
-  {showMaker && (
-    <span class="sep" aria-hidden="true">
-      ·
-    </span>
-  )}
-  {item.makerLink ? (
-    <a
-      class="maker"
-      href={item.makerLink}
-      target="_blank"
-      rel="noopener"
-      aria-label={`${labels.maker ?? ""} ${item.name} (opens in a new tab)`.trim()}
-    >
-      {labels.maker} <span aria-hidden="true">↗</span>
-    </a>
-  ) : (
-    showMaker && (
-      <span class="tba" data-missing="maker" data-verify="" title="No maker link yet">
-        {labels.missingMaker}
-      </span>
-    )
-  )}
-  {wish && <span class="wish-slot" data-wish-slot={item.id}></span>}
-</div>
+{(wish || item.buyLink) && (
+  <div class:list={["links", className, { "has-wish": wish }]} data-links={item.id}>
+    {item.buyLink && (
+      <a
+        class="buy"
+        href={item.buyLink}
+        target="_blank"
+        rel={item.affiliate ? "noopener sponsored" : "noopener"}
+        aria-label={`${label ?? ""} ${item.name} (opens in a new tab)`.trim()}
+      >
+        {label} <span aria-hidden="true">↗</span>
+      </a>
+    )}
+    {wish && <span class="wish-slot" data-wish-slot={item.id}></span>}
+  </div>
+)}

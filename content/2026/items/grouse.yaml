@@ -6,6 +6,7 @@ pickedBy:
   - wes
 priceLabel: Price upon request
 unit: One
+noLink: true
 sources:
   - https://ebth.com/items/13727648-taxidermy-franklin-grouse-spruce-grouse-and-ruffed-grouse-on-salt-glazed-crock
 description: "Who wouldn't want a grouse? Found at a yard sale. You can't legally sell them in Canada, so Wes had to save it."
@@ -16,6 +17,6 @@ quotes:
   - text: "I saw it and I was like, oh, you're not allowed to sell those. I better buy that."
     by: wes
 image:
-  alt: A taxidermied ruffed grouse
-  credit: "Photo: Auckland Museum, CC BY 4.0"
-internalNote: "Price guess ~$75–250 for a vintage mount. The photo is from Wikimedia Commons (Auckland Museum, CC BY 4.0): the credit is required."
+  alt: Two mounted game birds on a weathered log and a walnut pedestal, one wearing a Syntax lanyard
+  background: dark
+internalNote: "Price guess ~$75–250 for a vintage mount. The main photo is the owner's own cutout (no credit needed). Photo -2 is the earlier Wikimedia Commons image (Auckland Museum, CC BY 4.0): if it's ever used again, its credit is required."

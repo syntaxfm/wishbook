@@ -29,6 +29,38 @@ const shownOrderIds = (page: Page) =>
     .locator("[data-order-item]:not([hidden])")
     .evaluateAll((rows) => rows.map((r) => Number((r as HTMLElement).dataset.orderItem)));
 
+test("the order form's grouse: the marker and the empty line until something is circled, then the gift", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1360, height: 900 });
+  await page.goto("/2026/back/order-form/");
+  const empty = page.locator("[data-order-empty]");
+  const filled = page.locator("[data-order-filled]");
+  await expect(empty).toHaveCount(2);
+  await expect(page.locator("[data-order-empty] img.grouse")).toBeVisible();
+  await expect(page.locator("p[data-order-empty]")).toContainText("Nothing circled here yet");
+  await expect(filled).toBeHidden();
+
+  await page.goto("/2026/kitchen/kitchen-picks/");
+  const toggle = page
+    .locator('.book-pages > [data-slug="kitchen-picks"] [data-wish-toggle]')
+    .first();
+  await toggle.click();
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  await page.locator("[data-wish-link]").click();
+  await expect(page).toHaveURL(/\/2026\/back\/order-form\/$/);
+  await expect(page.locator("[data-order-filled] img.grouse")).toBeVisible();
+  for (const el of await empty.all()) await expect(el).toBeHidden();
+
+  // Uncircled again: back to the marker.
+  await page.evaluate((k) => {
+    localStorage.setItem(k, "[]");
+  }, KEY);
+  await page.reload();
+  await expect(page.locator("[data-order-empty] img.grouse")).toBeVisible();
+  await expect(filled).toBeHidden();
+});
+
 test("circle 3 items, share the link, and the same 3 open in a new browser", async ({
   browser,
 }) => {
@@ -83,6 +115,8 @@ test("a 2026 code at /2026/wishlist/ shows those 2026 items and can be added", a
     "A Taxidermied Grouse",
   ]);
   await expect(page.locator("[data-wl-empty]")).toBeHidden();
+  // the marker grouse beside the title
+  await expect(page.locator(".wl-head img.grouse")).toBeVisible();
   await page.locator("[data-wl-add]").click();
   await expect(page.locator("[data-wl-added]")).toBeVisible();
   expect(await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), KEY)).toEqual([1, 49]);
@@ -111,20 +145,23 @@ test("the wish-list page has its own meta and ignores unknown or broken codes", 
   }
 });
 
-test("order form rows and wish-list cards show Buy links or the placeholder", async ({ page }) => {
+test("order form rows and wish-list cards show Buy links, or nothing without one", async ({
+  page,
+}) => {
   await withList(page, [36, 1]);
   await page.goto("/2026/back/order-form/");
   expect(await shownOrderIds(page)).toEqual([36, 1]);
   await expect(page.locator('[data-order-item="36"] a.buy')).toHaveAttribute("href", JERKY_BUY);
-  await expect(page.locator('[data-order-item="1"] .tba[data-missing="buy"]')).toBeVisible();
+  await expect(page.locator('[data-order-item="1"] .links')).toHaveCount(0);
+  await expect(page.locator('[data-order-item="1"]')).not.toContainText("Buy link");
 
   await page.goto(`/2026/wishlist/?w=${encodeWishlist([36, 1])}`);
   await expect(page.locator('[data-wl-item="36"] a.buy')).toHaveAttribute("href", JERKY_BUY);
-  await expect(page.locator('[data-wl-item="1"] .tba[data-missing="buy"]')).toBeVisible();
+  await expect(page.locator('[data-wl-item="1"] .links')).toHaveCount(0);
 });
 
 test("an unpriced item stars the total and shows the footnote", async ({ page }) => {
-  await withList(page, [49, 3]);
+  await withList(page, [49, 36]);
   await page.goto("/2026/back/order-form/");
   await expect(page.locator("[data-order-total]")).toHaveText(/^\d+\.\d\dest\.\*$/);
   await expect(page.locator("[data-order-unpriced]")).toBeVisible();
@@ -148,12 +185,6 @@ test("circle toggles work from the keyboard and sync every copy of an item", asy
   await page.keyboard.press("Enter");
   await expect(toggle).toHaveAttribute("aria-pressed", "false");
   await expect(page.locator("[data-wish-count]")).toBeHidden();
-});
-
-test("centerfold hotspots stay links, without toggles", async ({ page }) => {
-  await page.goto("/2026/centerfold/");
-  await expect(page.locator("a.hot [data-wish-toggle]")).toHaveCount(0);
-  await expect(page.locator("a.hot.wishable")).toHaveCount(0);
 });
 
 test("lists are kept per edition", async ({ page }) => {
@@ -209,6 +240,16 @@ test("search is fully keyboard driven", async ({ page }) => {
   await input.fill("zzzzqqq");
   await expect(options).toHaveCount(0);
   await expect(page.locator("[data-search-none]")).toBeVisible();
+  // ...beside the puzzled grouse, whole and loaded.
+  const grouse = page.locator("[data-search-none] img.grouse");
+  await expect(grouse).toBeVisible();
+  await expect(grouse).toHaveAttribute("alt", "");
+  await expect
+    .poll(() => grouse.evaluate((img: HTMLImageElement) => img.naturalWidth))
+    .toBeGreaterThan(0);
+  await input.fill("anker");
+  await expect(page.locator("[data-search-none]")).toBeHidden();
+  await input.fill("zzzzqqq");
   // Esc closes and focus returns to the opener; the page didn't change.
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
@@ -230,7 +271,7 @@ test("print shows only the paper order form, with buy URLs written out", async (
   await expect(rows.nth(0)).toContainText("AGRO POWER Vegan Jerky Sticks");
   await expect(rows.nth(0)).toContainText(JERKY_BUY);
   await expect(rows.nth(1)).toContainText("Silicone USB-C Cables");
-  await expect(rows.nth(1)).toContainText("Buy link TBA");
+  await expect(rows.nth(1).locator(".ps-buy")).toHaveCount(0);
   await expect(sheet.locator("[data-print-total]")).toContainText("est.");
   await expect(sheet).toContainText("SANTA CLAUS");
   await expect(sheet.locator("[data-print-url]")).toContainText("/2026/wishlist/?w=");

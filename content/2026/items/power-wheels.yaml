@@ -6,8 +6,11 @@ brand: Power Wheels
 section: kids-pets
 pickedBy:
   - wes
-priceEstimate: 40
+priceEstimate: 39.99
 priceNote: Used
+buyLink: https://x.com/wesbos/status/2116960043774161103
+linkLabel: View
+affiliate: false
 sources:
   - https://x.com/wesbos/status/2116960043774161103
   - https://www.walmart.com/ip/597002719
@@ -31,4 +34,4 @@ quotes:
     by: wes
 image:
   alt: A Power Wheels Jeep Wrangler
-internalNote: "~$40–150 used (new ~$200–350). Wes's link is a post about his fleet, not a store, so there's no buy link. The Walmart source is a new Power Wheels Jeep, for images and price comparison."
+internalNote: "~$40–150 used (new ~$200–350). The buy link is Wes's post about his fleet, not a store (the owner's choice). The Walmart source is a new Power Wheels Jeep, for images and price comparison."

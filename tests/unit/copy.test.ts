@@ -11,11 +11,9 @@ describe("parseCopy", () => {
       { kind: "italic", text: "Guitar World" },
       { kind: "text", text: "." },
     ]);
-    expect(parseCopy("{count} gifts · call {phone} · {syn:leatherman} · {catalog}")).toEqual([
+    expect(parseCopy("{count} gifts · {syn:leatherman} · {catalog}")).toEqual([
       { kind: "count" },
-      { kind: "text", text: " gifts · call " },
-      { kind: "phone" },
-      { kind: "text", text: " · " },
+      { kind: "text", text: " gifts · " },
       { kind: "syn", slug: "leatherman" },
       { kind: "text", text: " · " },
       { kind: "catalog" },

@@ -4,10 +4,8 @@ indexName: Power meter, USB
 section: favorites
 pickedBy:
   - wes
-priceEstimate: 26.95
-makerLink: https://www.plugable.com/products/usbc-vameter
-sources:
-  - https://www.plugable.com/products/usbc-vameter
+priceConfirmed: 16.99
+buyLink: https://www.amazon.com/Eversame-Multimeter-Voltmeter-Indicator-DC3-6-30V/dp/B07JYVPLLJ?tag=webo080-20
 headline: Charging, or Dead?
 description: "shows volts, amps and watts. Lightning adapter not included (we threw it out)."
 altDescriptions:
@@ -22,4 +20,4 @@ quotes:
     by: wes
   - text: "There's a Lightning one, I threw it out because nobody is [using] Lightning anymore."
     by: wes
-internalNote: "Generic category. Plugable is USB-C only ($26.95); a combined USB-A + USB-C tester is a generic Amazon item (~$10–20). Shown twice: Wes's favorites and Under $30 (the encore at about 20:29)."
+internalNote: "The Eversame USB-A + USB-C tester (the buy link and photo). Shown twice: Wes's favorites and Under $30."

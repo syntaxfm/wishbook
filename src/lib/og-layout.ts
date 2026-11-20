@@ -783,38 +783,50 @@ async function coverCard(card: Of<"cover">): Promise<El> {
         borderTop: `7px solid ${C.gold1}`,
         backgroundImage:
           "radial-gradient(ellipse 70% 120% at 30% 0%, rgba(255,255,220,.10), rgba(255,255,220,0) 60%), linear-gradient(180deg, #2c7640, #1e5a2f)",
-        alignItems: "center",
+        flexDirection: "column",
+        justifyContent: "center",
         padding: "0 40px 0 48px",
         color: "#fff",
       },
-      h(
-        { flexDirection: "column", flexGrow: 1, flexShrink: 1 },
-        card.tagline
-          ? span(
-              { ...display(33, "#fff"), textShadow: misreg(33, "rgba(10,30,15,.6)") },
-              card.tagline,
-            )
-          : null,
-        span(
-          { ...kicker(19, C.bandText, 0.08), marginTop: 9 },
-          [card.note, card.brand.site].filter(Boolean).join("  ·  "),
-        ),
-      ),
-      card.call
-        ? h(
-            { flexDirection: "column", alignItems: "flex-end", marginLeft: 24, flexShrink: 0 },
-            card.call.kicker ? span(kicker(17, C.bandText, 0.08), card.call.kicker) : null,
-            span(
-              {
-                ...itemName(32, C.yellow),
-                whiteSpace: "nowrap",
-                marginTop: 4,
-                textShadow: misreg(32, "rgba(10,30,15,.6)"),
-              },
-              card.call.text,
-            ),
+      // As on the page: the tagline across the band, then the note and the
+      // order line ("Order by terminal / $ curl …") side by side under it.
+      card.tagline
+        ? span(
+            {
+              ...display(33, "#fff"),
+              whiteSpace: "nowrap",
+              textShadow: misreg(33, "rgba(10,30,15,.6)"),
+            },
+            card.tagline,
           )
         : null,
+      h(
+        { alignItems: "flex-end", justifyContent: "space-between", marginTop: 4 },
+        span(
+          { ...kicker(19, C.bandText, 0.08), flexShrink: 1 },
+          // The site address once: the order line may already print it ("$ curl wishbook…").
+          [card.note, card.line?.text.includes(card.brand.site) ? null : card.brand.site]
+            .filter(Boolean)
+            .join("  ·  "),
+        ),
+        card.line
+          ? h(
+              { flexDirection: "column", alignItems: "flex-end", marginLeft: 24, flexShrink: 0 },
+              card.line.kicker ? span(kicker(17, C.bandText, 0.08), card.line.kicker) : null,
+              span(
+                {
+                  fontFamily: F.mono,
+                  fontSize: 21,
+                  color: C.yellow,
+                  whiteSpace: "nowrap",
+                  marginTop: 2,
+                  textShadow: misreg(21, "rgba(10,30,15,.6)"),
+                },
+                card.line.text,
+              ),
+            )
+          : null,
+      ),
     ),
   );
 }

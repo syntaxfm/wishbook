@@ -9,10 +9,16 @@
  * wishlist.ts) reveals the circled ones in the order they were circled and
  * fills in the total. Blank rows pad the form until it has a few lines. In the
  * fixed page box the rows are six lines tall and a longer list scrolls inside.
+ *
+ * Beside the mail-to-Santa box stands a grouse: while nothing is circled, the
+ * site's empty-list pose (the marker) with the empty-list line
+ * (data-order-empty); once the list has items, the page's mascot (the gift,
+ * data-order-filled). Without JavaScript the empty state shows.
  */
 import CatalogNumber from "../../components/CatalogNumber.astro";
 import Copy from "../../components/Copy.astro";
 import ItemLinks from "../../components/ItemLinks.astro";
+import Mascot from "../../components/Mascot.astro";
 import PageShell from "../../components/PageShell.astro";
 import Price from "../../components/Price.astro";
 import { editionUrl } from "../../lib/urls";
@@ -26,7 +32,11 @@ const rows = ctx.content.items.map((item) => ({ item, home: ctx.indexPageOf(item
 // Blank lines on the order form until the wish list fills them (as on the
 // printed form).
 const BLANK_ROWS = 6;
-const { guarantee } = ctx.content.site;
+const { guarantee, mascots } = ctx.content.site;
+// The grouse at the mail box: the site's empty-list pose (with the empty-list
+// line) until something is circled, then the page's own mascot.
+const emptyMascot = mascots.emptyList ? await ctx.art(mascots.emptyList) : null;
+const giftMascot = content.mascot ? await ctx.art(content.mascot) : null;
 ---
 
 <PageShell page={page} ctx={ctx} state={state} class="orderpage">
@@ -110,13 +120,30 @@ const { guarantee } = ctx.content.site;
       hidden
     />
   </p>
-  {wishList.mailTo.length > 0 && (
-    <div class="santa" aria-hidden="true">
-      {wishList.mailTo.map((line) => (
-        <div>{line}</div>
-      ))}
-    </div>
-  )}
+  <div class="mailrow">
+    {emptyMascot && (
+      <div class="mail-mascot is-empty" data-order-empty>
+        <Mascot asset={emptyMascot} sizes="(min-width: 640px) 170px, 40vw" />
+      </div>
+    )}
+    {giftMascot && (
+      <div class="mail-mascot" data-order-filled hidden>
+        <Mascot asset={giftMascot} sizes="(min-width: 640px) 110px, 26vw" />
+      </div>
+    )}
+    {wishList.empty && (
+      <p class="order-empty" data-order-empty>
+        <Copy text={wishList.empty} ctx={ctx} />
+      </p>
+    )}
+    {wishList.mailTo.length > 0 && (
+      <div class="santa" aria-hidden="true">
+        {wishList.mailTo.map((line) => (
+          <div>{line}</div>
+        ))}
+      </div>
+    )}
+  </div>
   {links.disclosure && (
     <p class="disclosure">
       <Copy text={links.disclosure} ctx={ctx} />

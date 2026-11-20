@@ -5,6 +5,7 @@ import { readEditions } from "./editions";
 import {
   createKeystaticConfig,
   ITEM_CAPS,
+  MAX_COLLAGE,
   TIMESTAMP_RE,
   type KeySymbol,
   type KeystaticConfig,
@@ -89,7 +90,12 @@ export interface Item {
   mention: boolean;
   price: Price;
   buyLink: string | null;
-  makerLink: string | null;
+  /** The link's own label ("View"), else null for the site's buy label. */
+  linkLabel: string | null;
+  /** The link is a store or affiliate link (rel="sponsored"). */
+  affiliate: boolean;
+  /** Never sold online: no link and no missing-link placeholder anywhere. */
+  noLink: boolean;
   sources: string[];
   headline: string | null;
   description: string | null;
@@ -113,8 +119,15 @@ export interface PageItem {
   text: string | null;
   badge: string | null;
   group: string | null;
-  /** Full-page feature: how many of the item's quotes it shows (null: the layout's two). */
+  /** Full-page feature: how many of the item's quotes it shows (null: two). */
   maxQuotes: number | null;
+  /** Full-page feature: the photo fills the stage edge to edge (cropped). */
+  fill: boolean;
+  /**
+   * Full-page feature: photo suffixes ("" for the main photo) laid out as a
+   * scatter of whole photos on the stage, in place of the one photo.
+   */
+  collage: string[];
 }
 
 export interface Hotspot {
@@ -152,6 +165,10 @@ export interface Page {
   items: PageItem[];
   art: string | null;
   inset: { art: string | null; caption: string | null };
+  /** A grouse mascot pose (asset key) the page's layout places, if any. */
+  mascot: string | null;
+  /** Mirror the mascot to face into the page. */
+  mascotFlip: boolean;
   copy: PageCopy;
   quotes: Quote[];
   orderLine: string | null;
@@ -168,14 +185,22 @@ export interface AssetEntry {
   sourceItem: string | null;
 }
 
+/** An order line as written in site.yaml. Resolve it for a page with `ctx.orderLine`. */
+export interface OrderLineContent {
+  id: string;
+  kicker: string | null;
+  text: string;
+  /** "video": the line links to the episode video. */
+  link: "video" | null;
+  /** The order line shown instead while the link has no URL. */
+  fallback: string | null;
+}
+
 export interface Site {
   episode: { number: number | null; title: string | null; videoUrl: string | null };
   meta: { description: string | null };
   links: {
     buy: string | null;
-    maker: string | null;
-    missingBuy: string | null;
-    missingMaker: string | null;
     disclosure: string | null;
   };
   cover: { price: string | null; tagline: string | null; note: string | null };
@@ -190,7 +215,7 @@ export interface Site {
     entries: { symbol: KeySymbol; text: string | null; item: Item | null }[];
   };
   guarantee: { lead: string | null; text: string | null };
-  orderLines: { id: string; kicker: string | null; text: string }[];
+  orderLines: OrderLineContent[];
   orderForm: { shareLabel: string | null; printLabel: string | null };
   wishList: {
     title: string | null;
@@ -206,9 +231,25 @@ export interface Site {
     mailTo: string[];
   };
   search: { label: string | null; placeholder: string | null; none: string | null };
+  /** The 404 page (shown for any missing path). */
+  notFound: {
+    title: string | null;
+    text: string | null;
+    cta: string | null;
+    contents: string | null;
+  };
+  /** Grouse mascot poses (asset keys) outside the book's pages. */
+  mascots: {
+    search: string | null;
+    emptyList: string | null;
+    wishList: string | null;
+    notFound: string | null;
+  };
   backCover: {
     headline: string | null;
     returnAddress: string[];
+    /** Lead-in for the mail line ("Mail your wish list to:"), before the return address. */
+    mailTo: string | null;
     indicia: string[];
     mailingLabel: string[];
   };
@@ -218,7 +259,6 @@ export interface Site {
 
 export interface Global {
   name: string;
-  phone: { display: string; tel: string | null };
   podcastUrl: string | null;
   youtubeUrl: string | null;
 }
@@ -259,7 +299,6 @@ const NOT_COPY = new Set([
   "internalNote",
   "sources",
   "buyLink",
-  "makerLink",
   "videoUrl",
   "podcastUrl",
   "youtubeUrl",
@@ -293,6 +332,33 @@ export function itemPrice(
   if (price.confirmed !== null) return { amount: price.confirmed, estimate: false };
   if (price.estimate !== null) return { amount: price.estimate, estimate: true };
   return { label: price.label };
+}
+
+/** An order line as a page prints it: its link resolved, or its fallback while the link has no URL. */
+export interface ResolvedOrderLine {
+  id: string;
+  kicker: string | null;
+  text: string;
+  /** Where the whole line links to (the episode video), if anywhere. */
+  href: string | null;
+}
+
+/**
+ * The order line a page picks by id. A line linked to the episode video shows
+ * its fallback line instead (or nothing) until the video URL is set.
+ */
+export function resolveOrderLine(
+  site: Pick<Site, "orderLines" | "episode">,
+  id: string | null,
+): ResolvedOrderLine | null {
+  const line = id ? site.orderLines.find((l) => l.id === id) : undefined;
+  if (!line) return null;
+  if (line.link === "video") {
+    const href = site.episode.videoUrl;
+    if (!href) return resolveOrderLine(site, line.fallback);
+    return { id: line.id, kicker: line.kicker, text: line.text, href };
+  }
+  return { id: line.id, kicker: line.kicker, text: line.text, href: null };
 }
 
 // ---------------------------------------------------------------- loading
@@ -423,11 +489,11 @@ async function loadEdition(root: string, edition: number): Promise<EditionConten
     if (!section) fail(file, `section "${raw.section}" is not in ${sectionsFile}`);
     for (const [field, url] of [
       ["buyLink", raw.buyLink],
-      ["makerLink", raw.makerLink],
       ...raw.sources.map((s) => ["sources", s] as const),
     ] as const) {
       if (url && !isHttpUrl(url)) fail(file, `${field} "${url}" is not an http(s) URL`);
     }
+    if (raw.noLink && raw.buyLink) fail(file, `has noLink and a buyLink: remove one`);
     const variantKeys = new Set<string>();
     for (const v of raw.variants) {
       if (variantKeys.has(v.key)) fail(file, `duplicate variant key "${v.key}"`);
@@ -453,8 +519,10 @@ async function loadEdition(root: string, edition: number): Promise<EditionConten
         note: opt(raw.priceNote),
         unit,
       },
-      buyLink: raw.buyLink,
-      makerLink: raw.makerLink,
+      buyLink: raw.noLink ? null : raw.buyLink,
+      linkLabel: opt(raw.linkLabel),
+      affiliate: raw.affiliate,
+      noLink: raw.noLink,
       sources: raw.sources.filter((s): s is string => s !== null),
       headline: opt(raw.headline),
       description: opt(raw.description),
@@ -535,6 +603,16 @@ async function loadEdition(root: string, edition: number): Promise<EditionConten
     if (orderLineIds.has(line.id)) fail(siteFile, `duplicate order line id "${line.id}"`);
     orderLineIds.add(line.id);
   }
+  for (const line of s.orderLines) {
+    const fallback = opt(line.fallback);
+    if (!fallback) continue;
+    if (!line.link) fail(siteFile, `order line "${line.id}" has a fallback but no link`);
+    if (fallback === line.id || !orderLineIds.has(fallback)) {
+      fail(siteFile, `order line "${line.id}": fallback "${fallback}" is not another order line`);
+    } else if (s.orderLines.find((l) => l.id === fallback)?.link) {
+      fail(siteFile, `order line "${line.id}": fallback "${fallback}" must not have a link`);
+    }
+  }
   const site: Site = {
     episode: {
       number: s.episode.number,
@@ -544,9 +622,6 @@ async function loadEdition(root: string, edition: number): Promise<EditionConten
     meta: { description: opt(s.meta.description) },
     links: {
       buy: opt(s.links.buy),
-      maker: opt(s.links.maker),
-      missingBuy: opt(s.links.missingBuy),
-      missingMaker: opt(s.links.missingMaker),
       disclosure: opt(s.links.disclosure),
     },
     cover: { price: opt(s.cover.price), tagline: opt(s.cover.tagline), note: opt(s.cover.note) },
@@ -569,7 +644,13 @@ async function loadEdition(root: string, edition: number): Promise<EditionConten
       })),
     },
     guarantee: { lead: opt(s.guarantee.lead), text: opt(s.guarantee.text) },
-    orderLines: s.orderLines.map((l) => ({ id: l.id, kicker: opt(l.kicker), text: l.text })),
+    orderLines: s.orderLines.map((l) => ({
+      id: l.id,
+      kicker: opt(l.kicker),
+      text: l.text,
+      link: l.link || null,
+      fallback: opt(l.fallback),
+    })),
     orderForm: { shareLabel: opt(s.orderForm.shareLabel), printLabel: opt(s.orderForm.printLabel) },
     wishList: {
       title: opt(s.wishList.title),
@@ -589,9 +670,22 @@ async function loadEdition(root: string, edition: number): Promise<EditionConten
       placeholder: opt(s.search.placeholder),
       none: opt(s.search.none),
     },
+    notFound: {
+      title: opt(s.notFound.title),
+      text: opt(s.notFound.text),
+      cta: opt(s.notFound.cta),
+      contents: opt(s.notFound.contents),
+    },
+    mascots: {
+      search: opt(s.mascots.search),
+      emptyList: opt(s.mascots.emptyList),
+      wishList: opt(s.mascots.wishList),
+      notFound: opt(s.mascots.notFound),
+    },
     backCover: {
       headline: opt(s.backCover.headline),
       returnAddress: [...s.backCover.returnAddress],
+      mailTo: opt(s.backCover.mailTo),
       indicia: [...s.backCover.indicia],
       mailingLabel: [...s.backCover.mailingLabel],
     },
@@ -600,6 +694,10 @@ async function loadEdition(root: string, edition: number): Promise<EditionConten
   for (const [i, f] of site.fillers.entries()) {
     const problem = f.art && artKeyProblem(f.art);
     if (problem) fail(`${siteFile} fillers[${i}]`, problem);
+  }
+  for (const [name, key] of Object.entries(site.mascots)) {
+    const problem = key && artKeyProblem(key);
+    if (problem) fail(`${siteFile} mascots.${name}`, problem);
   }
 
   // Book
@@ -612,7 +710,7 @@ async function loadEdition(root: string, edition: number): Promise<EditionConten
     pageSlugs.add(p.slug);
     const section = sectionById.get(p.section);
     if (!section) fail(where, `section "${p.section}" is not in ${sectionsFile}`);
-    for (const key of [p.art, p.inset.art]) {
+    for (const key of [p.art, p.inset.art, p.mascot]) {
       const problem = opt(key) && artKeyProblem(key);
       if (problem) fail(where, problem);
     }
@@ -627,6 +725,14 @@ async function loadEdition(root: string, edition: number): Promise<EditionConten
           ? `the ${p.template} layout shows no items (found ${p.items.length})`
           : `the ${p.template} layout fits at most ${cap} item${cap === 1 ? "" : "s"} in its page box (found ${p.items.length}); split the page`,
       );
+    }
+    for (const pi of p.items) {
+      const n = pi.collage?.length ?? 0;
+      if (n > 0 && p.template !== "feature") {
+        fail(where, `only the feature layout shows a collage (on "${pi.item}")`);
+      } else if (n > MAX_COLLAGE) {
+        fail(where, `a collage fits at most ${MAX_COLLAGE} photos (found ${n} on "${pi.item}")`);
+      }
     }
     const c = p.copy;
     pages.push({
@@ -649,12 +755,16 @@ async function loadEdition(root: string, edition: number): Promise<EditionConten
                 badge: opt(pi.badge),
                 group: opt(pi.group),
                 maxQuotes: pi.maxQuotes ?? null,
+                fill: pi.fill ?? false,
+                collage: (pi.collage ?? []).map((suffix) => suffix.trim()),
               },
             ]
           : [];
       }),
       art: opt(p.art),
       inset: { art: opt(p.inset.art), caption: opt(p.inset.caption) },
+      mascot: opt(p.mascot),
+      mascotFlip: p.mascotFlip ?? false,
       copy: {
         kicker: opt(c.kicker),
         headline: opt(c.headline),
@@ -729,7 +839,6 @@ async function loadGlobal(root: string, edition: number): Promise<Global> {
   if (!raw) throw new ContentError(null, [`${file}: missing`]);
   return {
     name: raw.name,
-    phone: { display: raw.phone.display, tel: opt(raw.phone.tel) },
     podcastUrl: raw.podcastUrl,
     youtubeUrl: raw.youtubeUrl,
   };

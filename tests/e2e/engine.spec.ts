@@ -294,38 +294,8 @@ test("images load for the current spread and its neighbours only", async ({ page
   expect(await loading("olight")).toContain("lazy");
 });
 
-test("centerfold legend and hotspots light each other", async ({ page }) => {
-  await page.setViewportSize({ width: 1360, height: 900 });
-  await page.goto("/2026/centerfold/");
-  const entry = page.locator(".cf-legend li a").nth(1);
-  const i = await entry.getAttribute("data-i");
-  await entry.hover();
-  await expect(page.locator(`.hot[data-i="${i}"]`)).toHaveClass(/lit/);
-  await page.locator(".hot").nth(3).hover();
-  const j = await page.locator(".hot").nth(3).getAttribute("data-i");
-  await expect(page.locator(`.cf-legend a[data-i="${j}"]`)).toHaveClass(/lit/);
-});
-
-test("on a phone a legend tap scrolls the strip to its hotspot; a second tap opens it", async ({
-  browser,
-}) => {
-  const context = await browser.newContext({
-    viewport: { width: 390, height: 844 },
-    hasTouch: true,
-  });
-  const page = await context.newPage();
-  await page.goto("/2026/centerfold/");
-  const strip = page.locator(".cf-scroll");
-  const entry = page.locator(".cf-legend li a").last();
-  const before = await strip.evaluate((s) => s.scrollLeft);
-  await entry.tap();
-  await expect(page).toHaveURL(/\/2026\/centerfold\/$/);
-  await expect.poll(() => strip.evaluate((s) => s.scrollLeft)).not.toBe(before);
-  const href = await entry.getAttribute("href");
-  await entry.tap();
-  await expect(page).toHaveURL(new RegExp(`${href}$`));
-  await context.close();
-});
+// The centerfold (legend and hotspots, the phone strip, fade turns) is checked
+// against the fixture edition in centerfold.spec.ts: 2026 has none.
 
 test("every page change emits wishbook:navigate", async ({ page }) => {
   await page.setViewportSize({ width: 1360, height: 900 });

@@ -5,9 +5,8 @@ brand: STAMEN
 section: favorites
 pickedBy:
   - scott
-isNew: true
 priceEstimate: 149.99
-makerLink: https://stamen.co/products/st-01-all-purpose-trimmer-charcoal
+buyLink: https://stamen.co/collections/frontpage
 sources:
   - https://stamen.co/products/st-01-all-purpose-trimmer-charcoal
 description: "One attachment for every length. Waterproof, USB-C, magnetic clip."

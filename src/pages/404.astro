@@ -1,0 +1,83 @@
+---
+// The page for any address that isn't in the WishBook: dist/404.html, which
+// Cloudflare Pages serves (with a 404 status) for every missing path. A single
+// catalog sheet, not the book: the magnifier grouse, a link back to the
+// current edition's cover, and one to each section. It sits at the root but
+// every link is year-scoped; it needs no JavaScript and isn't indexed.
+import Copy from "../components/Copy.astro";
+import DesignSystem from "../components/DesignSystem.astro";
+import Mascot from "../components/Mascot.astro";
+import PrintFilters from "../components/PrintFilters.astro";
+import SiteIcons from "../components/SiteIcons.astro";
+import { getBookContext } from "../lib/book";
+import { getCurrentEdition } from "../lib/content";
+import { editionUrl } from "../lib/urls";
+import "../styles/not-found.css";
+
+const ctx = await getBookContext(getCurrentEdition());
+const { notFound, mascots, backCover } = ctx.content.site;
+const name = ctx.global.name;
+const heading = notFound.title ?? name;
+const title = notFound.title ? `${notFound.title} · ${name}` : name;
+const cover = editionUrl(ctx.edition);
+const mascot = mascots.notFound ? await ctx.art(mascots.notFound) : null;
+---
+
+<!doctype html>
+<html lang="en" data-edition={ctx.edition}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="robots" content="noindex" />
+    <SiteIcons />
+    <DesignSystem />
+  </head>
+  <body>
+    <PrintFilters />
+    <main class="nf">
+      <article class="nf-sheet page right">
+        <a class="nf-mast" href={cover}>
+          {name}
+        </a>
+        <div class="nf-head">
+          <div class="nf-words">
+            <h1 class="nf-title display">{heading}</h1>
+            {notFound.text && (
+              <p class="nf-text">
+                <Copy text={notFound.text} ctx={ctx} />
+              </p>
+            )}
+            <a class="nf-cta" href={cover}>
+              {notFound.cta ?? name}
+            </a>
+          </div>
+          {mascot && (
+            <Mascot asset={mascot} class="nf-mascot" sizes="(min-width: 640px) 280px, 40vw" />
+          )}
+        </div>
+        <nav class="nf-contents" aria-labelledby="nf-contents-title">
+          <h2 id="nf-contents-title" class="kicker">
+            {notFound.contents ?? name}
+          </h2>
+          <ul class="dotlist">
+            {ctx.tabs.map(({ section, first }) => (
+              <li>
+                <a href={ctx.href(first.slug)}>{section.name}</a>
+                <span class="dots" />
+                <b>{ctx.book.label(first.slug)}</b>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        {backCover.returnAddress.length > 0 && (
+          <p class="nf-address kicker">
+            {backCover.returnAddress.map((line) => (
+              <span>{line}</span>
+            ))}
+          </p>
+        )}
+      </article>
+    </main>
+  </body>
+</html>

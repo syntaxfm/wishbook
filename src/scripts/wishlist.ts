@@ -162,6 +162,13 @@ function renderOrderForm(ids: number[]): void {
   const note = document.querySelector<HTMLElement>("[data-order-unpriced]");
   if (note) note.hidden = !total.unpriced;
   form.classList.toggle("has-items", shown.size > 0);
+  // the grouse at the mail box: the empty-list pose and line, or the gift
+  for (const el of document.querySelectorAll<HTMLElement>("[data-order-empty]")) {
+    el.hidden = shown.size > 0;
+  }
+  for (const el of document.querySelectorAll<HTMLElement>("[data-order-filled]")) {
+    el.hidden = shown.size === 0;
+  }
 }
 
 function bindForm(): void {

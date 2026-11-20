@@ -1,12 +1,20 @@
 name: KZ AN01 Bluetooth ANC Module & Replacement Cables
 id: 54
+shortName: KZ AN01 Bluetooth ANC Kit
 indexName: KZ AN01 & cables
 brand: KZ
-section: back
+section: favorites
 pickedBy:
   - cj
-mention: true
+priceEstimate: 44.99
+unit: Kit
+buyLink: https://link.amazon/B09YpjJBh
 sources:
   - https://www.linsoul.com/products/kz-an01
-description: "Accessories for the KZ ZS10 Pro on {page:cj}."
-internalNote: The AN01 kit is also a variant of the KZ ZS10 Pro item, with its own price and catalog number.
+description: ", a Bluetooth kit with active noise cancellation for the KZ ZS10 Pro. Plug it into the headphones and they go from wired to wireless. KZ sells cables in all sorts of lengths, too."
+quotes:
+  - text: "They sell just a separate Bluetooth with active noise cancellation kit."
+    by: cj
+image:
+  alt: The KZ AN01 Bluetooth ear hooks in their charging case
+internalNote: Was a mention and a variant of the KZ ZS10 Pro; now its own pick (price from that variant).

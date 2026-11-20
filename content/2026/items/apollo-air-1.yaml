@@ -8,8 +8,7 @@ pickedBy:
   - scott
 priceEstimate: 109.99
 priceNote: Base model; up to 199.99 with add-ons
-buyLink: https://apolloautomation.com/
-makerLink: https://apolloautomation.com/products/air-1
+buyLink: https://apolloautomation.com/products/air-1
 sources:
   - https://apolloautomation.com/products/air-1
 description: "Tracks particulates and mold, not just CO2. No app lock-in."

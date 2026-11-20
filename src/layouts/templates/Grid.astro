@@ -5,7 +5,9 @@
  * sits beside the headline. Two items or fewer make a "duo" page: one big
  * photo per row (alternating sides, quote on the photo) beside its copy, the
  * photos growing into whatever room the page box has left. A section opener
- * (`opener`) starts with the section's kicker, name, and page range.
+ * (`opener`) starts with the section's kicker, name, and page range. The
+ * page's mascot, if any, stands on the opener's tab, or else at the head's
+ * right end beside the title.
  */
 import Copy from "../../components/Copy.astro";
 import Frame from "../../components/Frame.astro";
@@ -14,9 +16,11 @@ import ItemCopy from "../../components/ItemCopy.astro";
 import ItemLetter from "../../components/ItemLetter.astro";
 import ItemOrder from "../../components/ItemOrder.astro";
 import ItemQuote from "../../components/ItemQuote.astro";
+import Mascot from "../../components/Mascot.astro";
 import NewBanner from "../../components/NewBanner.astro";
 import PageShell from "../../components/PageShell.astro";
 import PickedBy from "../../components/PickedBy.astro";
+import SectionOpener from "../../components/SectionOpener.astro";
 import { letterFor } from "./letters";
 import type { TemplateProps } from "./types";
 
@@ -37,7 +41,8 @@ const cards = await Promise.all(
 const duo = cards.length <= 2;
 // A section opener (a section without a divider): its kicker, name, and pages.
 const section = content.section;
-const range = content.opener ? ctx.sectionRange(section.id) : null;
+// The page's grouse: on the opener's tab, or at the head's right end.
+const mascot = content.mascot ? await ctx.art(content.mascot) : null;
 ---
 
 <PageShell
@@ -48,17 +53,7 @@ const range = content.opener ? ctx.sectionRange(section.id) : null;
   orderLine={ctx.orderLine(content.orderLine)}
 >
   {content.opener && (
-    <div class="opener">
-      <div class="opener-l">
-        {section.kicker && (
-          <div class="k kicker">
-            <Copy text={section.kicker} ctx={ctx} />
-          </div>
-        )}
-        {range && <div class="pages kicker">{range}</div>}
-      </div>
-      <div class="tab tru">{section.name}</div>
-    </div>
+    <SectionOpener section={section} ctx={ctx} mascot={mascot} flip={content.mascotFlip} />
   )}
   <div class:list={["pagehead", { "with-sticker": pickers.length > 0 }]}>
     <div class="pagehead-titles">
@@ -70,6 +65,9 @@ const range = content.opener ? ctx.sectionRange(section.id) : null;
       )}
     </div>
     {pickers.length > 0 && <PickedBy hosts={pickers} />}
+    {mascot && !content.opener && (
+      <Mascot asset={mascot} class="head-grouse" sizes="120px" flip={content.mascotFlip} />
+    )}
   </div>
   <div class:list={["cards", { duo }]}>
     {cards.map((card) => (
@@ -78,6 +76,7 @@ const range = content.opener ? ctx.sectionRange(section.id) : null;
           <Img
             asset={card.photo}
             alt={card.item.image.alt}
+            class="item-photo"
             widths={duo ? [320, 480, 640, 800] : [240, 320, 480, 640]}
             sizes={
               duo

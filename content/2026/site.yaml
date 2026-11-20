@@ -1,12 +1,10 @@
 episode:
   title: Syntax Holiday Gift Guide
+  videoUrl: https://www.youtube.com/watch?v=-i2SgCOjXno
 meta:
   description: "The Internet's Largest Developer Gift Catalogue: {count} gifts picked by the Syntax crew."
 links:
   buy: Buy
-  maker: Maker
-  missingBuy: Buy link TBA
-  missingMaker: Maker link TBA
   disclosure: "Some Buy links are affiliate links: Syntax may earn a small commission when you buy through them, at no extra cost to you."
 cover:
   price: FREE
@@ -38,8 +36,6 @@ key:
     - symbol: catalog
       text: Catalog no. = video timestamp
       item: leatherman-arc
-    - symbol: new
-      text: New this year
     - symbol: picked
       text: Who picked it
       item: silicone-usb-c-cables
@@ -50,11 +46,11 @@ guarantee:
   lead: "Syntax Guarantee:"
   text: satisfaction or your commits reverted
 orderLines:
-  - id: call
-    kicker: Call any time
-    text: "{phone}"
-  - id: syn
-    text: Dial any SYN number to watch it get picked
+  - id: watch
+    kicker: Watch the whole thing
+    text: on YouTube
+    link: video
+    fallback: search
   - id: terminal
     kicker: Order by terminal
     text: "$ curl {catalog}"
@@ -62,6 +58,7 @@ orderLines:
     kicker: Listen any time
     text: syntax.fm
   - id: search
+    kicker: Shop any time
     text: Press ⌘K to search
   - id: print
     text: Print & Mail to Santa ⌘P
@@ -86,11 +83,22 @@ search:
   label: Search the WishBook
   placeholder: Gift, brand, or shopper
   none: Nothing by that name. Try a brand or a shopper.
+notFound:
+  title: Page Not Found
+  text: "The grouse searched every aisle and all of 404 Not Found Lane, but this page isn't in the WishBook. All {count} gifts are right where we left them."
+  cta: Back to the Cover
+  contents: Shop by Department
+mascots:
+  search: IMG-M1-magnifier
+  emptyList: IMG-M1-marker
+  wishList: IMG-M1-marker
+  notFound: IMG-M1-magnifier
 backCover:
   headline: Mailed to 1,000,000+ developers
   returnAddress:
     - Syntax WishBook Dept.
     - P.O. Box 404, The Internet
+  mailTo: "Mail your wish list to:"
   indicia:
     - Bulk Rate
     - U.S. Postage

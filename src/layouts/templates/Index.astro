@@ -1,14 +1,18 @@
 ---
 /**
  * Index: every gift in alphabetical order with a dot leader to its page (its
- * own feature page, else its first appearance), in two columns.
+ * own feature page, else its first appearance), in two columns. The page's
+ * mascot (the peeking grouse) looks in from the page's right edge, beside the
+ * headline.
  */
 import Copy from "../../components/Copy.astro";
+import Mascot from "../../components/Mascot.astro";
 import PageShell from "../../components/PageShell.astro";
 import type { TemplateProps } from "./types";
 
 type Props = TemplateProps;
 const { page, content, ctx, state } = Astro.props;
+const mascot = content.mascot ? await ctx.art(content.mascot) : null;
 const index = ctx.content.items
   .filter((i) => !i.mention)
   .flatMap((i) => {
@@ -28,6 +32,7 @@ const index = ctx.content.items
   orderLine={ctx.orderLine(content.orderLine)}
 >
   <h2 class="display">{content.copy.headline ?? content.title}</h2>
+  {mascot && <Mascot asset={mascot} class="peek-mascot" sizes="(min-width: 640px) 80px, 20vw" />}
   {content.copy.kicker && (
     <div class="pagekicker kicker">
       <Copy text={content.copy.kicker} ctx={ctx} />

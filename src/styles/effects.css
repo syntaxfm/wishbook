@@ -91,20 +91,40 @@
    in their own filter (filters don't stack across rules). */
 .page img:not(.logo),
 .cf img {
-  filter: sepia(0.14) saturate(1.14) contrast(1.06) brightness(0.97);
+  filter: sepia(0.14) saturate(1.14) contrast(1.06) brightness(0.97) var(--photo-edge,);
 }
 .herobody .shot img {
-  filter: sepia(0.14) saturate(1.14) contrast(1.06) brightness(0.97)
+  filter: sepia(0.14) saturate(1.14) contrast(1.06) brightness(0.97) var(--photo-edge,)
     drop-shadow(0 3cqi 3cqi rgba(0, 0, 0, 0.35));
 }
 .band > img,
 .band > picture > img {
-  filter: sepia(0.14) saturate(1.14) contrast(1.06) brightness(0.97)
+  filter: sepia(0.14) saturate(1.14) contrast(1.06) brightness(0.97) var(--photo-edge,)
     drop-shadow(0 1.5cqi 1.5cqi rgba(0, 0, 0, 0.5));
 }
 .actual img {
-  filter: sepia(0.14) saturate(1.14) contrast(1.06) brightness(0.97)
+  filter: sepia(0.14) saturate(1.14) contrast(1.06) brightness(0.97) var(--photo-edge,)
     drop-shadow(0 1.5cqi 1.2cqi rgba(60, 40, 10, 0.4));
+}
+
+/* Item photo edge: a thin, half-transparent rim around the photo itself (it
+   follows the visible picture, so a contained photo in a frame gets it, not
+   the frame), warm ink on paper and cream on the dark green stages. Each
+   photo filter above and in templates.css includes var(--photo-edge,).
+   On Scott's page only, pending approval; to turn it on for every item
+   photo, change the selector below to `.page img.item-photo`. */
+.page[data-slug="scott"] img.item-photo {
+  --photo-edge: drop-shadow(var(--edge-w) 0 0 var(--edge-c))
+    drop-shadow(calc(-1 * var(--edge-w)) 0 0 var(--edge-c))
+    drop-shadow(0 var(--edge-w) 0 var(--edge-c))
+    drop-shadow(0 calc(-1 * var(--edge-w)) 0 var(--edge-c));
+}
+.page {
+  --edge-w: 0.4cqi;
+  --edge-c: rgba(43, 33, 25, 0.3);
+}
+:is(.band, .stage.green, .frame.dark, .frame.wood, .lux) {
+  --edge-c: rgba(255, 246, 222, 0.5);
 }
 
 /* Ink misregistration on headings, names, and prices. */

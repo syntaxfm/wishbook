@@ -14,6 +14,9 @@ import type { Edition } from "./urls";
  *   brand:<name>         shared brand art   assets/brand/<name>.<ext>
  *   <manifest key>       generated art      file listed in content/<year>/assets.yaml
  *
+ * assets/<year>/archive/ holds old photos kept for reference; nothing resolves
+ * them and the build never emits them.
+ *
  * File ids are written zero-padded to three digits (001-silicone-cables.png), but
  * any padding matches: 1-…, 01-…, and 001-… are all item 1. Only the id prefix
  * and suffix matter; the name and the extension are free. A name must not end in
@@ -86,6 +89,8 @@ export function indexAssets<T>(files: Record<string, T>, root = "/assets"): Asse
       continue;
     }
     if (!/^\d{4}$/.test(top)) continue;
+    // Old photos kept for reference: never resolved (the build doesn't glob them).
+    if (rest[0] === "archive") continue;
     let edition = index.editions.get(top);
     if (!edition) {
       edition = { items: new Map(), files: new Map() };
@@ -181,14 +186,15 @@ export function resolveFrom<T>(
   );
 }
 
-// Every image in assets/, processed by astro:assets.
+// Every image in assets/, processed by astro:assets. assets/<year>/archive/
+// (old photos kept for reference) is left out, so it's never built.
 let projectIndex: AssetIndex<ImageMetadata> | undefined;
 function getProjectIndex() {
   projectIndex ??= indexAssets(
-    import.meta.glob<ImageMetadata>("/assets/**/*.{png,jpg,jpeg,webp,avif,svg}", {
-      eager: true,
-      import: "default",
-    }),
+    import.meta.glob<ImageMetadata>(
+      ["/assets/**/*.{png,jpg,jpeg,webp,avif,svg}", "!/assets/*/archive/**"],
+      { eager: true, import: "default" },
+    ),
   );
   return projectIndex;
 }

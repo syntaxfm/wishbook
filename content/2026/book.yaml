@@ -4,11 +4,12 @@ pages:
     template: cover
     title: Syntax WishBook
     art: cover-art
-    orderLine: call
+    orderLine: terminal
   - slug: welcome
     section: front
     template: welcome
     title: Welcome
+    mascot: IMG-M1-pointing
     copy:
       headline: "{count} Wishes"
   - slug: shoppers
@@ -25,6 +26,7 @@ pages:
     template: grid
     opener: true
     title: Wes's Favorite Things
+    mascot: IMG-M1-presents
     hosts:
       - wes
     items:
@@ -39,7 +41,7 @@ pages:
     items:
       - item: usb-power-meter
       - item: anker-735
-    orderLine: call
+    orderLine: watch
   - slug: icemag
     section: favorites
     template: feature
@@ -48,9 +50,6 @@ pages:
       - wes
     items:
       - item: sharge-icemag-3
-    inset:
-      art: IMG-F1
-      caption: Shown with kickstand out. Phone not included.
     copy:
       headline: "'The ICEMAG 3' Power Bank"
       body: "snaps onto the back of any MagSafe phone and keeps it charged, cool and propped up."
@@ -65,11 +64,6 @@ pages:
     items:
       - item: travel-neck-pillow
       - item: ipad-case
-    quotes:
-      - text: "Wow, that's so comfortable."
-        byLabel: the crew
-        verify: true
-        placement: bubble
   - slug: randy
     section: favorites
     template: brand-column
@@ -122,27 +116,21 @@ pages:
     hosts:
       - cj
     items:
+      - item: casio-f91w
       - item: ollee-watch-one
-        photo: "2"
-      - item: kz-zs10-pro
     copy:
       tagline: Retro outside. Hackable inside.
       sticker: Celsius only. Apparently.
-  - slug: ollee
+  - slug: cj-more
     section: favorites
-    template: brand-feature
-    title: Ollee Watch One
+    template: holly
+    title: More of CJ's Favorite Things
     hosts:
       - cj
     items:
-      - item: ollee-watch-one
-    inset:
-      art: IMG-F5
-    quotes:
-      - text: "I wanted basically a dumb watch that would give me very accurate step counting."
-        by: cj
-        placement: oneliner
-    orderLine: syn
+      - item: kz-zs10-pro
+      - item: kz-an01
+    mascot: IMG-M1-headphones
   - slug: anker-off
     section: favorites
     template: actual-size
@@ -170,6 +158,7 @@ pages:
     section: under-30
     template: under
     title: UNDER gifts $30
+    mascot: IMG-M1-price-tag
     items:
       - item: waveshare-esp32
       - item: brad-tolinski-books
@@ -188,31 +177,37 @@ pages:
       - item: alpine-flyfit
       - item: slate-mini-flosser
     orderLine: terminal
-  - slug: waveshare
+  - slug: tolinski
     section: under-30
-    template: brand-feature
-    title: Waveshare ESP32
+    template: feature
+    title: Brad Tolinski Books
     hosts:
-      - wes
+      - scott
     items:
-      - item: waveshare-esp32
-    quotes:
-      - text: "Everybody needs a screen in their life."
-        by: wes
-        placement: oneliner
+      - item: brad-tolinski-books
+        maxQuotes: 1
+        collage:
+          - ""
+          - "2"
+          - "3"
+          - "4"
+          - "5"
+    copy:
+      headline: "'Rock History' from Scott's Uncle"
+      body: "are by the editor-in-chief of *Guitar World* for 25 years (1989–2015), who has written a ton of books. **Real conversations** with guitar legends: *Eruption* (Eddie Van Halen), *Light & Shade* (Jimmy Page), and *Blow by Blow* (Jeff Beck). **An oral history,** *MC5: An Oral Biography of Rock's Most Revolutionary Band.* **The whole story** of the electric guitar in *Play It Loud.* **Under 20 bucks** for most of them, and a lot are on Audible too."
 
   - slug: olight
     section: tech
     template: feature
     variant: bench
     title: "'Oclip 2 Ultra'"
+    mascot: IMG-M1-flashlight
+    mascotFlip: true
+    opener: true
     hosts:
       - scott
     items:
       - item: olight-oclip-2-ultra
-    inset:
-      art: IMG-F7
-      caption: UV mode. Do not point at your walls.
     copy:
       headline: "'Oclip 2 Ultra' Flashlight"
       body: clips anywhere and is insanely bright.
@@ -226,8 +221,7 @@ pages:
       - cj
     items:
       - item: xteink-x4
-    inset:
-      art: IMG-F8
+        maxQuotes: 1
     copy:
       headline: "'X4' E-Reader"
       body: is a tiny MagSafe e-reader that sticks to your phone.
@@ -253,8 +247,7 @@ pages:
       - wes
     items:
       - item: wifi-picture-frame
-    inset:
-      art: IMG-F9
+        fill: true
     copy:
       headline: "'Hackable' Wi-Fi Picture Frame"
       body: 'is a 10.1" touchscreen Android frame that you can make your own.'
@@ -264,6 +257,7 @@ pages:
     section: desk
     template: grid
     title: On Our Desks
+    mascot: IMG-M1-typing
     items:
       - item: ugreen-laptop-stand
       - item: remarkable-2
@@ -286,7 +280,6 @@ pages:
       - wes
     items:
       - item: leatherman-arc
-    art: IMG-F10
     copy:
       headline: Is There a Leatherman in the House?
       smallprint: Phone number engraving not shown.
@@ -298,7 +291,6 @@ pages:
       - wes
     items:
       - item: syntax-macro-keyboard
-    art: IMG-F11
     copy:
       kicker: Syntax Brand Central™
       sticker: Hide it from your kids.
@@ -309,6 +301,8 @@ pages:
     section: kitchen
     template: lineup
     title: In the Kitchen
+    mascot: IMG-M1-chef
+    mascotFlip: true
     hosts:
       - scott
       - cj
@@ -328,64 +322,12 @@ pages:
       - item: agro-jerky
       - item: lao-gan-ma
 
-  - slug: centerfold
-    section: centerfold
-    template: centerfold
-    title: Christmas Morning, 1997
-    art: IMG-C1
-    copy:
-      kicker: Centerfold
-      subhead: How many can you find?
-      body: Ten Syntax picks are hiding in this living room. Tap a number to jump to its page.
-      note: ← swipe the picture →
-    centerfold:
-      focal: 40% 55%
-      hotspots:
-        - item: cooling-mat
-          x: 14
-          y: 72
-          label: St. Bernard on a cooling mat
-        - item: power-wheels
-          x: 24
-          y: 46
-          label: Clapped-out Power Wheels
-        - item: grouse
-          x: 33
-          y: 28
-          label: A taxidermied grouse
-        - item: yoto-player
-          x: 41
-          y: 63
-          label: Yoto Player
-        - item: leatherman-arc
-          x: 47
-          y: 40
-          label: Leatherman Arc
-        - item: cascadia
-          x: 55
-          y: 70
-          label: Cascadia
-        - item: remarkable-2
-          x: 60
-          y: 30
-          label: reMarkable tablet
-        - item: anbernic-rg-34xxsp
-          x: 66
-          y: 55
-          label: Anbernic handheld
-        - item: candle-warmer
-          x: 19
-          y: 22
-          label: Candle warmer lamp
-        - item: lao-gan-ma
-          x: 37
-          y: 82
-          label: Lao Gan Ma chili crisp
-
   - slug: kids-picks
     section: kids-pets
     template: price-tags
     title: Fun & Learning
+    mascot: IMG-M1-jeep
+    mascotFlip: true
     items:
       - item: yoto-player
         caption: "Hackers: write your own NFC cards."
@@ -411,8 +353,6 @@ pages:
     items:
       - item: power-wheels
         maxQuotes: 1
-    inset:
-      art: IMG-F12
     copy:
       headline: "'Clapped-Out' Power Wheels"
       body: "are cheap used, and a drill-battery swap makes them fast."
@@ -428,7 +368,6 @@ pages:
     items:
       - item: grooming-rake
       - item: cooling-mat
-    art: IMG-F14
     copy:
       smallprint: "Nylon repair patches sold separately (Wes's tip)."
 
@@ -436,6 +375,7 @@ pages:
     section: wild-card
     template: wild
     title: Wild Card
+    mascot: IMG-M1-joker
     hosts:
       - scott
       - cj
@@ -462,34 +402,36 @@ pages:
   - slug: stuffers
     section: back
     template: odds-ends
-    title: Stocking Stuffers
+    title: "Odds 'n' Ends"
+    mascot: IMG-M1-stocking
     items:
       - item: anker-solix
       - item: ratgdo
       - item: xteink-x4-pro
       - item: clip-on-reading-light
     copy:
-      headline: "Stocking Stuffers & Odds 'n' Ends"
       subhead: Also mentioned in passing
   - slug: stuffers-2
     section: back
     template: odds-ends
-    title: Stocking Stuffers, Part 2
+    title: "Odds 'n' Ends"
     items:
-      - item: kz-an01
       - item: tonies-box
       - item: nylon-repair-patches
-      - item: snakes-of-wrath-fruit-boss
+      - item: snakes-of-wrath
+      - item: fruit-boss
     copy:
       subhead: Also mentioned in passing
   - slug: index
     section: back
     template: index
     title: Index
+    mascot: IMG-M1-peeking
   - slug: order-form
     section: back
     template: order-form
     title: Order Form
+    mascot: IMG-M1-gift
     copy:
       smallprint: "Press **⌘P** to print a real paper order form."
     orderLine: print

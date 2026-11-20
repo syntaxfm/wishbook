@@ -26,8 +26,9 @@ const toc = [
 ];
 
 const line = ctx.orderLine(content.orderLine);
-// Keyboard shortcuts in the order line render as keys: "Press ⌘K to search".
-const hint = line ? ctx.plain([line.kicker, line.text].filter(Boolean).join(" ")) : null;
+// Keyboard shortcuts in the order line render as keys: "Shop any time · Press ⌘K to search".
+const hintKicker = line ? ctx.plain(line.kicker) : "";
+const hint = line ? ctx.plain(line.text) : null;
 const hintParts = hint ? hint.split(/(⌘\S)/) : [];
 ---
 
@@ -70,6 +71,7 @@ const hintParts = hint ? hint.split(/(⌘\S)/) : [];
       <Copy text={content.copy.subhead} ctx={ctx} />
       {hint && (
         <span class="kbd-hint">
+          {hintKicker && <span class="kicker">{hintKicker} · </span>}
           {hintParts.map((part) => (/^⌘\S$/.test(part) ? <Kbd>{part}</Kbd> : part))}
         </span>
       )}

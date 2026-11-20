@@ -4,8 +4,10 @@
  * big corner letters, quotes below the photos, a friendly red headline per
  * item, and page quotes as speech bubbles. Three or more items switch to a
  * denser three-column grid. Optional page art runs across the bottom. Two
- * items with nothing else on the page make a "duo" page: big photos in rows
- * (quotes on them) that grow into the room the page box has left.
+ * items with nothing else on the page (small print aside) make a "duo" page: big photos in rows
+ * (quotes on them) that grow into the room the page box has left. The page's
+ * mascot, if any, dances in the head row beside the picked-by sticker (the
+ * duo rows give up the room it takes).
  */
 import Copy from "../../components/Copy.astro";
 import Frame from "../../components/Frame.astro";
@@ -15,6 +17,7 @@ import ItemLetter from "../../components/ItemLetter.astro";
 import ItemOrder from "../../components/ItemOrder.astro";
 import ItemQuote from "../../components/ItemQuote.astro";
 import LineQuote from "../../components/LineQuote.astro";
+import Mascot from "../../components/Mascot.astro";
 import PageShell from "../../components/PageShell.astro";
 import PickedBy from "../../components/PickedBy.astro";
 import { letterFor } from "./letters";
@@ -38,8 +41,10 @@ const items = await Promise.all(
   })),
 );
 const art = content.art ? await ctx.art(content.art) : null;
-// Two items and nothing else on the page: big photos in rows, quotes on them.
-const duo = !dense && !art && content.quotes.length === 0 && !content.copy.smallprint;
+const mascot = content.mascot ? await ctx.art(content.mascot) : null;
+// Two items and nothing else on the page (a line of small print at the foot
+// is fine): big photos in rows, quotes on them.
+const duo = !dense && !art && content.quotes.length === 0;
 ---
 
 <PageShell
@@ -51,6 +56,7 @@ const duo = !dense && !art && content.quotes.length === 0 && !content.copy.small
 >
   <div class:list={["pagehead", { "with-sticker": pickers.length > 0 }]}>
     <h2 class="display">{content.copy.headline ?? content.title}</h2>
+    {mascot && <Mascot asset={mascot} class="head-mascot" sizes="(min-width: 640px) 110px, 26vw" />}
     {pickers.length > 0 && <PickedBy hosts={pickers} />}
   </div>
   <div class:list={[dense ? "hollygrid" : "twoup", { duo }]}>
@@ -60,6 +66,7 @@ const duo = !dense && !art && content.quotes.length === 0 && !content.copy.small
           <Img
             asset={it.photo}
             alt={it.item.image.alt}
+            class="item-photo"
             widths={dense ? [200, 320, 480] : [320, 480, 640, 800]}
             sizes={
               dense

@@ -25,6 +25,15 @@ describe("videoAtTime", () => {
     );
   });
 
+  it("keeps the episode's video id (with its leading dash) and adds the time", () => {
+    const episode = "https://www.youtube.com/watch?v=-i2SgCOjXno";
+    expect(videoAtTime(episode, 21)).toBe("https://www.youtube.com/watch?v=-i2SgCOjXno&t=21");
+    expect(videoAtTime(episode, 3419)).toBe("https://www.youtube.com/watch?v=-i2SgCOjXno&t=3419");
+    expect(videoAtTime(`${episode}&t=5`, 0)).toBe(
+      "https://www.youtube.com/watch?v=-i2SgCOjXno&t=0",
+    );
+  });
+
   it("works on short links and replaces an existing time", () => {
     expect(videoAtTime("https://youtu.be/abc", 36)).toBe("https://youtu.be/abc?t=36");
     expect(videoAtTime("https://youtu.be/abc?t=10", 36)).toBe("https://youtu.be/abc?t=36");

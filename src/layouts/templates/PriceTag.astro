@@ -36,6 +36,7 @@ const quote = row && !ctx.quotedElsewhere(item, page) ? (item.quotes[0] ?? null)
     <Img
       asset={photo}
       alt={item.image.alt}
+      class="item-photo"
       widths={row ? [320, 480, 640] : [200, 320, 480]}
       sizes={
         row

@@ -2,19 +2,28 @@
 /**
  * The yellow order-line banner at the foot of a page, toward the outer edge.
  * Pass the edition's order lines and the page's position to rotate them like
- * a real catalog, or pass `text` for a fixed line.
+ * a real catalog, or pass `text` (and an optional `kicker`, printed in red
+ * before it) for a fixed line. With `href` the banner is an outbound link
+ * (the episode video).
  */
 import { pickOrderLine } from "../lib/catalog";
 
-type Props = { class?: string } & (
-  | { text: string; lines?: never; position?: never }
-  | { lines: readonly string[]; position: number; text?: never }
+type Props = { class?: string; href?: string | null } & (
+  | { text: string; kicker?: string | null; lines?: never; position?: never }
+  | { lines: readonly string[]; position: number; text?: never; kicker?: never }
 );
 
 const props = Astro.props;
 const line = props.text ?? pickOrderLine(props.lines, props.position);
+const Tag = props.href ? "a" : "span";
+const link = props.href ? { href: props.href, target: "_blank", rel: "noopener" } : {};
 ---
 
 <div class:list={["shopany", props.class]}>
-  <span>{line}</span>
+  <Tag {...link}>
+    {props.kicker && <em class="k">{props.kicker}</em>}
+    {props.kicker && " "}
+    {line}
+    {props.href && " ↗"}
+  </Tag>
 </div>

@@ -38,7 +38,12 @@ const price = resolvePrice(item.price);
     <Img
       asset={photo}
       alt={item.image.alt}
-      class="bird"
+      class:list={[
+        "bird",
+        "item-photo",
+        // a transparent cut-out stands whole in the spotlight; a photo fades into the dark
+        { cutout: !content.art && item.image.background === "dark" },
+      ]}
       widths={[320, 480, 640, 960]}
       sizes="(min-width: 1000px) 520px, 84vw"
     />

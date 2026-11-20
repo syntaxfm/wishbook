@@ -7,9 +7,11 @@
  * loose items get a row each (a big photo with its quote on it, alternating
  * sides, beside the tag and its description), the rows sharing the room the
  * page box has left; more go in a three-column grid. A box of one or two
- * items shows their descriptions.
+ * items shows their descriptions. The page's mascot, if any, stands at the
+ * head's right end, the kicker stacking in two lines to make room.
  */
 import Copy from "../../components/Copy.astro";
+import Mascot from "../../components/Mascot.astro";
 import PageShell from "../../components/PageShell.astro";
 import PriceTag from "./PriceTag.astro";
 import type { TemplateProps } from "./types";
@@ -25,6 +27,7 @@ const groups = groupNames.map((name) => ({
 // Up to three loose items: one row each, sharing the page's height.
 const rows = loose.length <= 3;
 const kicker = content.copy.kicker ?? content.section.kicker;
+const mascot = content.mascot ? await ctx.art(content.mascot) : null;
 ---
 
 <PageShell
@@ -34,7 +37,7 @@ const kicker = content.copy.kicker ?? content.section.kicker;
   class:list={["trupage", { banded: !!content.copy.footer, "tru-roomy": rows }]}
   orderLine={ctx.orderLine(content.orderLine)}
 >
-  <div class="truhead">
+  <div class:list={["truhead", { "with-grouse": !!mascot }]}>
     {kicker && (
       <span class="k kicker">
         <Copy text={kicker} ctx={ctx} />
@@ -43,6 +46,9 @@ const kicker = content.copy.kicker ?? content.section.kicker;
     <h2 class="tab">
       <Copy text={content.copy.headline ?? content.title} ctx={ctx} />
     </h2>
+    {mascot && (
+      <Mascot asset={mascot} class="head-grouse" sizes="120px" flip={content.mascotFlip} />
+    )}
   </div>
   {loose.length > 0 && (
     <div class={rows ? "tru-rows" : "tru-grid"}>

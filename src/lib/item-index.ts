@@ -30,7 +30,7 @@ export interface IndexItem {
   e?: 1;
   /** Shown instead of a price ("Price upon request"). */
   x?: string;
-  /** Buy link. */
+  /** Buy link (none: print nothing). */
   u?: string;
 }
 

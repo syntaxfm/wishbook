@@ -5,7 +5,6 @@ meta:
   description: "{count} gifts, fixture edition."
 links:
   buy: Buy
-  missingBuy: Buy link TBA
   disclosure: "Some links pay us. See {page:one-picks}."
 cover:
   price: FREE
@@ -20,9 +19,14 @@ key:
       text: Catalog no. = video timestamp
       item: cables
 orderLines:
-  - id: phone
-    kicker: Call any time
-    text: "{phone}"
+  - id: terminal
+    kicker: Order by terminal
+    text: "$ curl {catalog}"
+  - id: watch
+    kicker: Watch the whole thing
+    text: on YouTube
+    link: video
+    fallback: terminal
 fillers:
   - title: Notes for Santa
     text: Room for your list.

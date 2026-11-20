@@ -55,8 +55,9 @@ describe("share card routes", () => {
     expect(variant("wishlist")).toBe("wishlist");
     expect(variant("default")).toBe("default");
     const variants = new Set(cards.map((c) => c.variant));
-    // (2026 has no section dividers; the fixture's divider card is checked below.)
-    for (const v of ["items", "feature", "centerfold", "page"]) expect(variants).toContain(v);
+    // (2026 has no section dividers and no centerfold; the fixture's divider and
+    // centerfold cards are checked below.)
+    for (const v of ["items", "feature", "page"]) expect(variants).toContain(v);
   });
 });
 

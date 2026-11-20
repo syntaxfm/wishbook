@@ -24,10 +24,6 @@ sections:
     name: Kitchen & Snacks
     code: KIT
     color: "#2A6E3B"
-  - id: centerfold
-    name: Centerfold
-    code: CF
-    color: "#8a3b5a"
   - id: kids-pets
     name: Kids & Pets
     code: KID

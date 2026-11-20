@@ -1,0 +1,38 @@
+---
+/**
+ * A section opener: the section's kicker, its name on the red tab, and its
+ * page range, compact, across the top of the section's first page (sections
+ * have no divider pages). Turned on per page with `opener` in the book order.
+ * A `mascot` (the page's grouse) stands on the tab's right end, the page range
+ * moving over for it.
+ */
+import type { BookContext } from "../lib/book";
+import type { Section } from "../lib/content";
+import Copy from "./Copy.astro";
+import Mascot from "./Mascot.astro";
+import type { ResolvedAsset } from "./types";
+
+interface Props {
+  section: Section;
+  ctx: BookContext;
+  class?: string;
+  mascot?: ResolvedAsset | null;
+  flip?: boolean;
+}
+
+const { section, ctx, class: className, mascot = null, flip = false } = Astro.props;
+const range = ctx.sectionRange(section.id);
+---
+
+<div class:list={["opener", { "with-grouse": !!mascot }, className]}>
+  <div class="opener-l">
+    {section.kicker && (
+      <div class="k kicker">
+        <Copy text={section.kicker} ctx={ctx} />
+      </div>
+    )}
+    {range && <div class="pages kicker">{range}</div>}
+  </div>
+  <div class="tab tru">{section.name}</div>
+  {mascot && <Mascot asset={mascot} class="head-grouse" sizes="120px" flip={flip} />}
+</div>

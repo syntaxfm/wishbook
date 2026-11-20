@@ -1,36 +1,21 @@
-name: Wolfbox MegaFlow Electric Air Duster
+name: Wolfbox MegaFlow MF200 Electric Air Duster
 id: 10
-shortName: Wolfbox MegaFlow
-indexName: Air duster, Wolfbox
+shortName: Wolfbox MegaFlow MF200
+indexName: Air duster, Wolfbox MegaFlow MF200
 brand: Wolfbox
 section: favorites
 pickedBy:
   - scott
-priceEstimate: 76.49
-priceNote: Regularly 89.99
-makerLink: https://wolfbox.com/products/compressed-air-duster-mf100
+priceConfirmed: 119.99
+buyLink: https://link.amazon/B039B7AkF
 sources:
   - https://wolfbox.com/products/compressed-air-duster-mf100
 description: "Rechargeable, so you can retire the canned air."
 altDescriptions:
   - "A rechargeable duster to replace your canned air. Strong enough that Scott uses it as a leaf blower on his patio."
   - "For people who eat lunch at their desk. Blow the crumbs out of your keyboard and keep shipping."
-  - "Models go from about $29 to $150, and even the cheap ones work great. Your keyboard says thanks."
-variants:
-  - key: mf50
-    name: MegaFlow MF50
-    price: 55.99
-  - key: mf60
-    name: MegaFlow MF60
-    price: 39.99
-  - key: mf70
-    name: MegaFlow MF70
-    price: 59.99
-  - key: mf100
-    name: MegaFlow MF100
-    price: 76.49
 quotes:
   - text: "I actually occasionally use this for leaf blowing off my patio."
     by: scott
     placement: "on"
-internalNote: "Main price is the MF100 on sale (reg. $89.99). Cheaper models: MF60 ~$39.99, MF50 ~$55.99, MF70 ~$59.99. Lineup ~$29–150."
+internalNote: "Shown as the MF200 at $120 (the owner's price). Other models (MF50, MF60, MF70, MF100) were dropped from the page on purpose."

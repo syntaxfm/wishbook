@@ -10,9 +10,11 @@ import DesignSystem from "../../../components/DesignSystem.astro";
 import Img from "../../../components/Img.astro";
 import ItemIndex from "../../../components/ItemIndex.astro";
 import ItemLinks from "../../../components/ItemLinks.astro";
+import Mascot from "../../../components/Mascot.astro";
 import Price from "../../../components/Price.astro";
 import PrintFilters from "../../../components/PrintFilters.astro";
 import PrintSheet from "../../../components/PrintSheet.astro";
+import SiteIcons from "../../../components/SiteIcons.astro";
 import { getBookContext } from "../../../lib/book";
 import { getEditions } from "../../../lib/content";
 import { buildItemIndex } from "../../../lib/item-index";
@@ -25,7 +27,9 @@ export const getStaticPaths = (() =>
   }))) satisfies GetStaticPaths;
 
 const ctx = await getBookContext(Astro.params.edition);
-const { wishList, episode } = ctx.content.site;
+const { wishList, episode, mascots } = ctx.content.site;
+// the grouse with the red marker, beside the title
+const mascot = mascots.wishList ? await ctx.art(mascots.wishList) : null;
 const name = ctx.global.name;
 const heading = wishList.title ?? name;
 const title = `${heading} · ${name}`;
@@ -64,16 +68,24 @@ const cards = await Promise.all(
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
+    <SiteIcons />
     <DesignSystem />
   </head>
   <body>
     <PrintFilters />
     <main class="wl" data-wishlist-page>
       <article class="wl-sheet page">
-        <a class="wl-mast" href={cover}>
-          {name}
-        </a>
-        <h1 class="wl-title display">{heading}</h1>
+        <div class="wl-head">
+          <div>
+            <a class="wl-mast" href={cover}>
+              {name}
+            </a>
+            <h1 class="wl-title display">{heading}</h1>
+          </div>
+          {mascot && (
+            <Mascot asset={mascot} class="wl-mascot" sizes="(min-width: 640px) 200px, 30vw" />
+          )}
+        </div>
         {wishList.shared && (
           <p class="wl-intro" data-wl-intro hidden>
             <Copy text={wishList.shared} ctx={ctx} />

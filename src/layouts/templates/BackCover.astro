@@ -1,11 +1,13 @@
 ---
 /**
  * Back cover: a mailing panel. Return address with the logo, a postage
- * indicia, an address label with a barcode, the headline, the phone line, the
- * page's order line, and the mascot.
+ * indicia, an address label with a barcode, the headline, the page's order
+ * line ("Listen any time · syntax.fm"), the mail line ("Mail your wish list
+ * to:" and the return address), and the mascot.
  */
 import Copy from "../../components/Copy.astro";
 import Img from "../../components/Img.astro";
+import Mascot from "../../components/Mascot.astro";
 import PageShell from "../../components/PageShell.astro";
 import type { TemplateProps } from "./types";
 
@@ -15,7 +17,6 @@ const { backCover } = ctx.content.site;
 const logo = await ctx.art("brand:syntax-logo-wide-stacked");
 const mascot = content.inset.art ? await ctx.art(content.inset.art) : null;
 const [brand = ""] = ctx.global.name.split(" ");
-const phone = ctx.phoneLine;
 const line = ctx.orderLine(content.orderLine);
 ---
 
@@ -57,18 +58,23 @@ const line = ctx.orderLine(content.orderLine);
           <Copy text={backCover.headline} ctx={ctx} />
         </h2>
       )}
-      {phone && (
-        <div class="phone">
-          {phone.kicker && <span class="kicker">{ctx.plain(phone.kicker)}</span>}
-          <Copy text={phone.text} ctx={ctx} />
+      {line && (
+        <div class="orderline">
+          {line.kicker && <span class="kicker">{ctx.plain(line.kicker)}</span>}
+          <Copy text={line.text} ctx={ctx} />
         </div>
       )}
-      {line && line !== phone && (
-        <div class="listen kicker">
-          {ctx.plain([line.kicker, line.text].filter(Boolean).join(" · "))}
+      {backCover.mailTo && backCover.returnAddress.length > 0 && (
+        <div class="mailto">
+          <span class="kicker">
+            <Copy text={backCover.mailTo} ctx={ctx} />
+          </span>
+          {backCover.returnAddress.map((l) => (
+            <span class="addr">{l}</span>
+          ))}
         </div>
       )}
     </div>
-    {mascot && <Img asset={mascot} alt="" class="mascot" round widths={[160, 320]} sizes="150px" />}
+    {mascot && <Mascot asset={mascot} class="mascot" sizes="(min-width: 640px) 210px, 30vw" />}
   </div>
 </PageShell>

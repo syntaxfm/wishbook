@@ -5,6 +5,7 @@
  * with big corner letters and friendly headlines, and an order line block
  * (e.g. "Order by terminal") as a foot ribbon. Each item shows its quote when
  * it has one (on the photo when the page has room), otherwise its description.
+ * The page's mascot, if any, perches on the headline's top right.
  */
 import Copy from "../../components/Copy.astro";
 import Frame from "../../components/Frame.astro";
@@ -13,6 +14,7 @@ import ItemCopy from "../../components/ItemCopy.astro";
 import ItemLetter from "../../components/ItemLetter.astro";
 import ItemOrder from "../../components/ItemOrder.astro";
 import ItemQuote from "../../components/ItemQuote.astro";
+import Mascot from "../../components/Mascot.astro";
 import PageShell from "../../components/PageShell.astro";
 import { letterFor } from "./letters";
 import type { TemplateProps } from "./types";
@@ -29,6 +31,7 @@ const items = await Promise.all(
 );
 const line = ctx.orderLine(content.orderLine);
 const { headline, script, subhead } = content.copy;
+const mascot = content.mascot ? await ctx.art(content.mascot) : null;
 // Two items or fewer: big photos in rows, quotes on them, with the description.
 const duo = items.length <= 2;
 ---
@@ -40,6 +43,9 @@ const duo = items.length <= 2;
   class:list={["holly", "underpage", { "duo-page": duo, "has-line": !!line }]}
 >
   <div class="under">
+    {mascot && (
+      <Mascot asset={mascot} class="head-grouse" sizes="120px" flip={content.mascotFlip} />
+    )}
     {headline || script || subhead ? (
       <h2
         class="stack"
@@ -61,6 +67,7 @@ const duo = items.length <= 2;
             <Img
               asset={it.photo}
               alt={it.item.image.alt}
+              class="item-photo"
               widths={duo ? [320, 480, 640, 800] : [240, 320, 480]}
               sizes={
                 duo
@@ -88,7 +95,7 @@ const duo = items.length <= 2;
       ))}
     </div>
     {line && (
-      <div class="tollfree">
+      <div class="order-block">
         {line.kicker && <span class="a">{ctx.plain(line.kicker)}</span>}
         <div class="b mono-order">
           <span class="mono">{ctx.plain(line.text)}</span>

@@ -153,50 +153,8 @@ test("each Circle it toggle sits in its item's purchase row and adds no height",
   expect(withJs.rows).toEqual(without.rows);
 });
 
-/** The centerfold in the live book: it fits, its legend isn't cut, and no hotspot hides under it. */
-async function centerfold(page: Page) {
-  return page.evaluate(() => {
-    const cf = document.querySelector<HTMLElement>(".cf-page.is-current")!;
-    const legend = cf.querySelector<HTMLElement>(".cf-legend")!;
-    const lr = legend.getBoundingClientRect();
-    const covered = [...cf.querySelectorAll<HTMLElement>(".hot")]
-      .filter((h) => {
-        const r = h.getBoundingClientRect();
-        return r.right > lr.left && r.left < lr.right && r.bottom > lr.top && r.top < lr.bottom;
-      })
-      .map((h) => h.dataset.i);
-    const content = cf.querySelector<HTMLElement>(":scope > .cf")!.getBoundingClientRect();
-    const box = cf.getBoundingClientRect();
-    return {
-      fit: cf.classList.contains("is-fit"),
-      over: Math.round(content.bottom - box.bottom),
-      legendCut: legend.scrollHeight - legend.clientHeight,
-      legendOut: Math.round(lr.bottom - box.bottom),
-      covered,
-    };
-  });
-}
-
-for (const [width, height, mode] of [
-  [1920, 1080, "m-book"],
-  [1440, 900, "m-book"],
-  [1366, 768, "m-book"],
-  [820, 1000, "m-single"],
-  [700, 900, "m-single"],
-] as const) {
-  test(`the centerfold fits with its whole legend at ${width}×${height}`, async ({ page }) => {
-    await page.setViewportSize({ width, height });
-    await page.goto("/2026/centerfold/");
-    await expect(page.locator("html")).toHaveClass(new RegExp(mode));
-    await page.evaluate(() => document.fonts.ready);
-    const cf = await centerfold(page);
-    expect(cf.fit).toBe(false);
-    expect(cf.over).toBeLessThanOrEqual(1);
-    expect(cf.legendCut).toBeLessThanOrEqual(1);
-    expect(cf.legendOut).toBeLessThanOrEqual(1);
-    expect(cf.covered).toEqual([]);
-  });
-}
+// The centerfold's fit (whole legend, no hotspot under it) is checked against
+// the fixture edition in centerfold.spec.ts: 2026 has none.
 
 for (const [width, height] of [
   [1920, 1080],
@@ -225,5 +183,30 @@ for (const [width, height] of [
     }
     expect(page.url()).toMatch(/\/back-cover\/$/);
     expect([...scaled]).toEqual([]);
+  });
+}
+
+// The "Order by terminal" block is pinned to the foot of its page. If anything
+// between it and the page becomes positioned, it pins to that instead and
+// lands on top of the items.
+for (const [width, height] of [
+  [1440, 900],
+  [800, 1000],
+] as const) {
+  test(`the order block sits below every item at ${width}×${height}`, async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.setViewportSize({ width, height });
+    await page.goto("/2026/under-30/under-30-more/");
+    const pageEl = page.locator('[data-slug="under-30-more"]');
+    const block = pageEl.locator(".order-block");
+    await expect(block).toBeVisible();
+    const { blockTop, itemsBottom } = await pageEl.evaluate((el) => {
+      const items = [...el.querySelectorAll<HTMLElement>("[data-item-id]")];
+      return {
+        blockTop: el.querySelector(".order-block")!.getBoundingClientRect().top,
+        itemsBottom: Math.max(...items.map((i) => i.getBoundingClientRect().bottom)),
+      };
+    });
+    expect(blockTop).toBeGreaterThanOrEqual(itemsBottom);
   });
 }

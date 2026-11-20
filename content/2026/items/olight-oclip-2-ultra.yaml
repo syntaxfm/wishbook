@@ -31,7 +31,6 @@ quotes:
   - text: "I have this and I didn't even know that."
     by: wes
     context: on the UV light
-    verify: true
   - text: "Don't point it at your walls 'cause you will see every single thing your kids have ever spilled on the walls."
     by: scott
 image:

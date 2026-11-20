@@ -4,7 +4,6 @@
  *   {page:slug}  linked cross-reference, "page 6 A"
  *   {syn:item}   that item's catalog number, linked to the episode moment
  *   {count}      number of gifts in the edition
- *   {phone}      the phone number (a tel: link when it has a dialable form)
  *   {catalog}    the plain-text catalog address
  * Use <CopyParas> for multi-paragraph fields.
  */
@@ -20,7 +19,6 @@ interface Props {
 const { text, ctx } = Astro.props;
 const runs = text ? parseCopyRuns(text) : [];
 const videoUrl = ctx.content.site.episode.videoUrl;
-const phone = ctx.global.phone;
 ---
 
 {runs.map((run) => {
@@ -39,14 +37,6 @@ const phone = ctx.global.phone;
       )
     ) : run.kind === "count" ? (
       String(ctx.count)
-    ) : run.kind === "phone" ? (
-      phone.tel ? (
-        <a class="tel" href={`tel:${phone.tel}`}>
-          {phone.display}
-        </a>
-      ) : (
-        phone.display
-      )
     ) : (
       ctx.catalogAddress
     );

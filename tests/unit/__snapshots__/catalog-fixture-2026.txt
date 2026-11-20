@@ -5,7 +5,7 @@
 
 ==============================================================================
 
-Call any time: 1-555-FIXTURE
+Order by terminal: $ curl wishbook.syntax.fm/catalog.txt
 
 SYN 000:00  Catalog no. = video timestamp
 
@@ -22,12 +22,9 @@ FIXTURE POWER BANK                                                    page 4 A
   SYN 001:04 – With dock ............................................... 94.99
   DIY kit:
   SYN 1:02:34 – Kit ...................................................... TBA
-  Buy link TBA
 
 ==============================================================================
 
 Some links pay us. See page 3 A.
-
-                         Call any time: 1-555-FIXTURE
 
 ==============================================================================

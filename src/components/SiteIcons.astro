@@ -1,0 +1,14 @@
+---
+/**
+ * The favicon, Apple touch icon, web app manifest, and theme colour: render
+ * inside <head> of every document. The files are site-wide (public/, made by
+ * `pnpm icons`), so their URLs are root files, not year-scoped.
+ */
+import { ICONS, THEME_COLOR } from "../lib/icons";
+---
+
+<link rel="icon" href={ICONS.ico} sizes="16x16 32x32 48x48" />
+<link rel="icon" href={ICONS.png32} type="image/png" sizes="32x32" />
+<link rel="apple-touch-icon" href={ICONS.apple} />
+<link rel="manifest" href={ICONS.manifest} />
+<meta name="theme-color" content={THEME_COLOR} />

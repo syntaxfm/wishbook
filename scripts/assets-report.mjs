@@ -1,5 +1,5 @@
 // Reports every asset an edition expects, present or missing, plus the items
-// that still need a buy or maker link.
+// that still need a buy link.
 //
 //   pnpm assets            current edition: assets, then links
 //   pnpm assets 2026       a specific edition
@@ -27,7 +27,10 @@ const allPrompts = flags.has("--prompts");
 const reader = createContentReader(ROOT);
 const edition = Number(args.find((a) => !a.startsWith("--")) ?? reader.getCurrentEdition());
 
-/** Every image under assets/, keyed the way import.meta.glob keys them ("/assets/…"). */
+/**
+ * Every image under assets/, keyed the way import.meta.glob keys them ("/assets/…").
+ * Skips archive/ folders (old photos kept for reference), as the build does.
+ */
 function scanAssets(dir = join(ROOT, "assets")) {
   const files = {};
   let entries = [];
@@ -38,8 +41,9 @@ function scanAssets(dir = join(ROOT, "assets")) {
   }
   for (const entry of entries) {
     const full = join(dir, entry.name);
-    if (entry.isDirectory()) Object.assign(files, scanAssets(full));
-    else if (IMAGE_RE.test(entry.name)) {
+    if (entry.isDirectory()) {
+      if (entry.name !== "archive") Object.assign(files, scanAssets(full));
+    } else if (IMAGE_RE.test(entry.name)) {
       const rel = relative(ROOT, full).split("\\").join("/");
       files[`/${rel}`] = rel;
     }
@@ -146,7 +150,7 @@ if (!linksOnly) {
     const file = `${pad(item.id)}-${slugName(item.name)}${suffix ? `-${suffix}` : ""}`;
     report({
       key,
-      target: `${dir}/items/${file}.(png|jpg|webp)`,
+      target: `${dir}/items/${file}.(webp|png|jpg)`,
       label: suffix ? `${item.name} (photo ${suffix})` : item.name,
       source: suffix ? undefined : item.sources[0],
     });
@@ -156,7 +160,7 @@ if (!linksOnly) {
   for (const host of content.hosts) {
     report({
       key: `host:${host.slug}`,
-      target: `${dir}/hosts/${host.slug}.(jpg|png)`,
+      target: `${dir}/hosts/${host.slug}.(webp|jpg|png)`,
       label: host.name,
     });
   }
@@ -166,7 +170,7 @@ if (!linksOnly) {
     const item = a.sourceItem ? itemBySlug.get(a.sourceItem) : undefined;
     report({
       key: a.key,
-      target: `${dir}/${a.file}${/\.[a-z0-9]+$/i.test(a.file) ? "" : ".png"}`,
+      target: `${dir}/${a.file}${/\.[a-z0-9]+$/i.test(a.file) ? "" : ".(webp|png)"}`,
       label: a.label,
       aspect: a.aspect,
       source: item ? itemSource(item) : undefined,
@@ -202,16 +206,21 @@ if (!linksOnly) {
   console.log(`\nAssets: ${counts.present} present, ${counts.missing} missing`);
 }
 
-// Links: every pick should have a buy link (affiliate when possible) and a maker link.
+// Links: every item should have a buy link (its link from the episode description).
 const picks = content.items.filter((i) => !i.mention);
-const noBuy = picks.filter((i) => !i.buyLink);
-const noMaker = picks.filter((i) => !i.makerLink);
+const mentions = content.items.filter((i) => i.mention);
+// Items marked noLink are never sold online: they need no link.
+const noBuy = picks.filter((i) => !i.buyLink && !i.noLink);
+const mentionsNoBuy = mentions.filter((i) => !i.buyLink && !i.noLink);
+const neverLinked = content.items.filter((i) => i.noLink);
 const row = (i) => `  ${pad(i.id)}  ${i.name.padEnd(46)} content/${edition}/items/${i.slug}.yaml`;
-console.log(`\nWishBook ${edition}: links (${picks.length} picks; mentions skipped)\n`);
+console.log(`\nWishBook ${edition}: links (${picks.length} picks, ${mentions.length} mentions)\n`);
 console.log(`Missing buy link (${noBuy.length})`);
 for (const i of noBuy) console.log(row(i));
-console.log(`\nMissing maker link (${noMaker.length})`);
-for (const i of noMaker) console.log(row(i));
+console.log(`\nMentions missing a buy link (${mentionsNoBuy.length})`);
+for (const i of mentionsNoBuy) console.log(row(i));
+console.log(`\nNever sold online, no link needed (${neverLinked.length})`);
+for (const i of neverLinked) console.log(row(i));
 console.log(
-  `\nLinks: buy ${picks.length - noBuy.length}/${picks.length}, maker ${picks.length - noMaker.length}/${picks.length}\n`,
+  `\nLinks: buy ${picks.length - noBuy.length}/${picks.length} picks, ${mentions.length - mentionsNoBuy.length}/${mentions.length} mentions\n`,
 );

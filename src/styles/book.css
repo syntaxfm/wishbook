@@ -118,6 +118,12 @@
   padding: 16px var(--gr) 16px var(--gl);
   display: grid;
   place-items: center;
+  /* A turning leaf swings out of the book in 3D, past the window's edges.
+     Clip it at the book (which is at least the window) so it never adds
+     scrollable overflow: no scrollbar flashes on mid-turn and nothing shifts
+     sideways when it goes again. `clip` makes no scroll container, and the
+     fixed controls inside (tabs, arrows) are not clipped. */
+  overflow: clip;
 }
 .m-book .book {
   --pw: max(240px, min(780px, calc((100vw - 140px) / 2), var(--pw-fit)));
@@ -213,6 +219,9 @@
 .leaf.turning {
   transition: transform 0.75s cubic-bezier(0.4, 0.1, 0.25, 1);
 }
+/* The leaf's shading darkens as it lifts and fades out as it lands: the
+   engine animates its opacity with the leaf's own timing (0 flat, 1 edge-on),
+   so nothing is left to vanish when the turn ends. */
 .leaf-shade {
   position: absolute;
   inset: 0;
@@ -220,13 +229,25 @@
   pointer-events: none;
   background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.25));
   opacity: 0;
-  transition: opacity 0.75s;
 }
 .leaf-rear .leaf-shade {
   background: linear-gradient(270deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.25));
 }
-.leaf.turning .leaf-shade {
-  opacity: 1;
+/* In a spread each page's drop shadow falls outward only (away from the
+   spine). A shadow cast across the gutter would sit under a turning leaf and
+   then pop onto the facing page as the leaf lands; the gutter's own shading is
+   part of the paper effects, which turn with the page. */
+.m-book .book-pages > .page.left {
+  box-shadow: -14px 18px 30px -10px rgba(0, 0, 0, 0.45);
+}
+.m-book .book-pages > .page.right {
+  box-shadow: 14px 18px 30px -10px rgba(0, 0, 0, 0.45);
+}
+/* While a page turns, the pages sit above the tabs, arrows, and wish tools,
+   so a leaf swinging out over them stays on top; at rest the controls are on
+   top again. */
+:is(.m-book, .m-single) .book-pages.is-turning {
+  z-index: 40;
 }
 
 /* Single mode: one page; on a turn the old page lifts away over the new one. */
@@ -489,7 +510,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .leaf.turning,
-  .leaf-shade,
   .lift.turning {
     transition: none;
   }
@@ -781,10 +801,9 @@
   }
 }
 
-/* ---------- purchase links (provisional placement) ----------
-   Small and quieter than the price. The visible text is a 16px line; padding
-   with matching negative margins gives a 44px touch target without moving
-   anything. */
+/* ---------- purchase links ----------
+   Quieter than the price. Padding with matching negative margins gives a
+   44px touch target without moving anything. */
 .links {
   display: flex;
   justify-content: flex-end;
@@ -794,17 +813,20 @@
   margin: 0.1em 0 0.2em;
   font-family: var(--f-kicker);
   font-weight: 700;
-  font-size: 0.72em;
-  line-height: 16px;
-  letter-spacing: 0.08em;
+  font-size: 1.44em;
+  line-height: 1.1;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
-.links a,
-.links .tba {
+.links a {
   display: inline-block;
   min-width: 44px;
-  padding: 14px 4px;
-  margin: -14px 0;
+  /* the 1.1em line plus this padding is 44px tall (min-height absorbs
+     sub-pixel rounding) */
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: calc((44px - 1.1em) / 2) 4px;
+  margin: calc((1.1em - 44px) / 2) 0;
   text-align: center;
   color: inherit;
   opacity: 0.72;
@@ -817,38 +839,26 @@
   text-decoration: underline;
   text-underline-offset: 0.2em;
 }
-.links .tba {
-  opacity: 0.45;
-  font-style: italic;
-  text-transform: none;
-  letter-spacing: 0.02em;
-  cursor: default;
-}
-/* dev only: a link still missing, marked like an unverified quote */
-.links .tba[data-verify] {
-  text-decoration: underline wavy rgba(197, 48, 31, 0.6);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.25em;
-}
-.links .sep {
-  opacity: 0.5;
-}
-/* In the book the row is the whole purchase row: links on the left, the
+/* In the book the row is the whole purchase row: the link on the left, the
    wish-list toggle on the right, in a slot reserved at build time. The toggle
    overhangs the 16px line instead of growing it, so the row is one line tall
    with or without JavaScript. */
 .links.has-wish {
   justify-content: flex-start;
+  /* one line tall even without a buy link, so the toggle has its row */
+  min-height: 1.1em;
 }
 .links .wish-slot {
   display: flex;
   align-items: center;
   margin-left: auto;
-  padding-left: 0.6em;
+  padding-left: 0.3em;
 }
+/* The toggle keeps its own size (0.9em of the item copy), whatever the size
+   of the link text beside it. */
 .links .wish-toggle {
-  margin: -0.55em 0;
-  font-size: 1.25em;
+  margin: -0.35em 0;
+  font-size: 0.625em;
   font-weight: 400;
   line-height: 1.15;
   text-transform: none;

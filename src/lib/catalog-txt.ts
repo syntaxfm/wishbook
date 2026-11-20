@@ -5,16 +5,16 @@
  *
  * Layout:
  *   - Masthead: name and year, tagline, the edition's address.
- *   - Order lines that work outside a browser (those printing {phone} or
- *     {catalog}), the episode link, and a legend from the key entries.
+ *   - Order lines that work outside a browser (those printing {catalog}),
+ *     the episode link, and a legend from the key entries.
  *   - Groups in book order. Gifts are grouped by the section of their page;
  *     items mentioned in passing are grouped under the page that lists them
- *     ("Stocking Stuffers"), with that page's subhead.
+ *     ("Odds 'n' Ends"), with that page's subhead.
  *   - Each item once: its name in caps with its page ref on the right, then
  *     its order lines ("SYN 000:36 – Each ...... 13.99 est.") and its buy
- *     link (or the `links.missingBuy` placeholder). Maker links are left out:
- *     some are too long for the width.
- *   - Footer: the guarantee, the affiliate disclosure, and the phone line.
+ *     link under its label (nothing for an item without one).
+ *   - Footer: the guarantee, the affiliate disclosure, and the back cover's
+ *     order line ("Listen any time · syntax.fm").
  *
  * Page refs follow the order-form index: an item's own feature page when it
  * has one, otherwise the first page it appears on.
@@ -118,8 +118,9 @@ function itemLines(ctx: BookContext, item: Item, home: Page): string[] {
     }
   }
 
-  if (item.buyLink) out.push(...urlLines(`${links.buy ?? "Buy"}:`, item.buyLink, ind));
-  else if (links.missingBuy) out.push(`${ind}${links.missingBuy}`);
+  if (item.buyLink) {
+    out.push(...urlLines(`${item.linkLabel ?? links.buy ?? "Buy"}:`, item.buyLink, ind));
+  }
   return out;
 }
 
@@ -168,10 +169,14 @@ function groups(ctx: BookContext): Group[] {
   return [...out.values()];
 }
 
-/** An order line as plain text: "Call any time: 1-555-SYNTAXFM". */
-function orderLineText(ctx: BookContext, line: { kicker: string | null; text: string }) {
+/** An order line as plain text: "Order by terminal: $ curl …" (or "Listen any time · syntax.fm"). */
+function orderLineText(
+  ctx: BookContext,
+  line: { kicker: string | null; text: string },
+  separator = ": ",
+) {
   const text = ctx.plain(line.text);
-  return line.kicker ? `${ctx.plain(line.kicker)}: ${text}` : text;
+  return line.kicker ? `${ctx.plain(line.kicker)}${separator}${text}` : text;
 }
 
 /**
@@ -203,7 +208,7 @@ export function formatCatalogText(ctx: BookContext): string {
 
   // Order lines that work from a terminal, the episode, and the legend.
   const terminalLines = site.orderLines.filter((l) =>
-    copyTokens(l.text).tokens.some((t) => t.kind === "phone" || t.kind === "catalog"),
+    copyTokens(l.text).tokens.some((t) => t.kind === "catalog"),
   );
   for (const line of terminalLines) out.push(...wrap(orderLineText(ctx, line)));
   const watch = site.welcome.watch.title ?? site.episode.title;
@@ -245,10 +250,12 @@ export function formatCatalogText(ctx: BookContext): string {
   out.push(rule("="));
   blank();
   const guarantee = [site.guarantee.lead, site.guarantee.text].filter(Boolean);
+  const backCover = content.pages.find((p) => p.template === "back-cover");
+  const backLine = ctx.orderLine(backCover?.orderLine ?? null);
   const footer = [
     guarantee.length ? wrap(guarantee.map((s) => ctx.plain(s)).join(" ")) : [],
     site.links.disclosure ? wrap(ctx.plain(site.links.disclosure)) : [],
-    ctx.phoneLine ? center(orderLineText(ctx, ctx.phoneLine)) : [],
+    backLine ? center(orderLineText(ctx, backLine, " · ")) : [],
   ];
   for (const paragraph of footer.filter((p) => p.length)) out.push(...paragraph, "");
   out.push(rule("="));

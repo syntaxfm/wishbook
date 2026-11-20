@@ -2,7 +2,8 @@
 /**
  * Welcome page: big red headline with a green ribbon, "How to Shop" steps on
  * the left, "Watch the Whole Thing" with FREE Ship-A-Link® under the video on
- * the right, the symbol key, and the guarantee.
+ * the right, the symbol key, and the guarantee. The page's mascot (the
+ * pointing grouse) stands under the steps, pointing back at them.
  */
 import CatalogNumber from "../../components/CatalogNumber.astro";
 import Copy from "../../components/Copy.astro";
@@ -12,6 +13,7 @@ import PageShell from "../../components/PageShell.astro";
 import Placeholder from "../../components/Placeholder.astro";
 import Price from "../../components/Price.astro";
 import Img from "../../components/Img.astro";
+import Mascot from "../../components/Mascot.astro";
 import type { TemplateProps } from "./types";
 
 type Props = TemplateProps;
@@ -23,6 +25,7 @@ const keyEntries = await Promise.all(
     return { ...e, avatar: host ? await ctx.avatar(host) : null, host };
   }),
 );
+const mascot = content.mascot ? await ctx.art(content.mascot) : null;
 ---
 
 <PageShell
@@ -62,6 +65,9 @@ const keyEntries = await Promise.all(
           </li>
         ))}
       </ol>
+      {mascot && (
+        <Mascot asset={mascot} class="welcome-mascot" sizes="(min-width: 640px) 150px, 40vw" />
+      )}
     </div>
     <div>
       {welcome.watch.title && (
@@ -76,13 +82,19 @@ const keyEntries = await Promise.all(
       )}
       {episode.videoUrl ? (
         <a
-          class="video gen"
+          class="video watch"
           href={episode.videoUrl}
           target="_blank"
           rel="noopener"
-          data-gen={episode.title ?? ""}
-          aria-label={ctx.plain(welcome.watch.title) || (episode.title ?? "")}
-        ></a>
+          aria-label={`${ctx.plain(welcome.watch.title) || (episode.title ?? "")} (opens in a new tab)`}
+        >
+          <span class="play" aria-hidden="true"></span>
+          {episode.title && (
+            <span class="watch-label kicker" aria-hidden="true">
+              {episode.title} ↗
+            </span>
+          )}
+        </a>
       ) : (
         <Placeholder label={episode.title ?? ""} class="video" alt="" />
       )}
@@ -107,7 +119,7 @@ const keyEntries = await Promise.all(
           {e.symbol === "letter" && <ItemLetter letter="A" />}
           {e.symbol === "catalog" &&
             (e.item?.timestamp ? (
-              <CatalogNumber timestamp={e.item.timestamp} />
+              <CatalogNumber timestamp={e.item.timestamp} videoUrl={episode.videoUrl} />
             ) : (
               <span class="mono">SYN ---:--</span>
             ))}

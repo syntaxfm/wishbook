@@ -3,6 +3,7 @@ pages:
     section: front
     template: cover
     title: Fixture WishBook
+    orderLine: terminal
   - slug: favorites
     section: favorites
     template: divider
@@ -18,7 +19,7 @@ pages:
       - item: cables
       - item: power-bank
         caption: (B) The bank
-    orderLine: phone
+    orderLine: watch
   - slug: power-bank
     section: favorites
     template: feature
@@ -43,6 +44,14 @@ pages:
           x: 33
           y: 28
           label: A grouse on the mantel
+        - item: cables
+          x: 18
+          y: 40
+          label: Cables under the tree
+        - item: power-bank
+          x: 62
+          y: 34
+          label: A power bank on the couch
     quotes:
       - text: Buy a grouse.
         byLabel: the crew

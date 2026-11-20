@@ -4,7 +4,7 @@
  * NEW ribbon or badge, and a quote on the band; a side column with the
  * shopper's wordmark (the page title when several shoppers picked), the
  * picked-by sticker, and the item copy (under the item's red headline, if it
- * has one).
+ * has one). The page's mascot, if any, stands beside the wordmark.
  */
 import Copy from "../../components/Copy.astro";
 import Img from "../../components/Img.astro";
@@ -12,6 +12,7 @@ import ItemCopy from "../../components/ItemCopy.astro";
 import ItemLetter from "../../components/ItemLetter.astro";
 import ItemOrder from "../../components/ItemOrder.astro";
 import ItemQuote from "../../components/ItemQuote.astro";
+import Mascot from "../../components/Mascot.astro";
 import NewBanner from "../../components/NewBanner.astro";
 import PageShell from "../../components/PageShell.astro";
 import PickedBy from "../../components/PickedBy.astro";
@@ -41,6 +42,7 @@ const items = await Promise.all(
     };
   }),
 );
+const mascot = content.mascot ? await ctx.art(content.mascot) : null;
 ---
 
 <PageShell
@@ -69,6 +71,7 @@ const items = await Promise.all(
           <Img
             asset={it.photo}
             alt={it.item.image.alt}
+            class="item-photo"
             widths={[240, 320, 480]}
             sizes="(min-width: 1000px) 240px, 60vw"
           />
@@ -90,6 +93,9 @@ const items = await Promise.all(
   </div>
   <div class="col">
     <div class:list={["wordmark", { long: wordmark.length > 8 }]}>{wordmark}</div>
+    {mascot && (
+      <Mascot asset={mascot} class="head-grouse" sizes="120px" flip={content.mascotFlip} />
+    )}
     {pickers.length > 0 && <PickedBy hosts={pickers} />}
     {items.map((it) => (
       <div class="item" data-item-id={it.item.id}>

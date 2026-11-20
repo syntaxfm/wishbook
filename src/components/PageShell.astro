@@ -28,9 +28,8 @@ interface Props {
 }
 
 const { page, ctx, state, class: className, orderLine, folio = true } = Astro.props;
-const line = orderLine
-  ? ctx.plain([orderLine.kicker, orderLine.text].filter(Boolean).join(" "))
-  : null;
+const line = orderLine ? ctx.plain(orderLine.text) : null;
+const kicker = orderLine ? ctx.plain(orderLine.kicker) : null;
 ---
 
 <article
@@ -59,7 +58,7 @@ const line = orderLine
       {page.title}, {ctx.book.ref(page.slug)}
     </h2>
     <slot />
-    {line && <ShopLine text={line} />}
+    {line && <ShopLine kicker={kicker} text={line} href={orderLine?.href} />}
     {folio && page.side !== "spread" && (
       <Folio side={page.side} number={page.n} suffix={PAGE_SUFFIX} />
     )}

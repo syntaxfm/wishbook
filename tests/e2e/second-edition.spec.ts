@@ -90,15 +90,23 @@ test.describe("a fixture second edition", () => {
     }
     expect(read("2025/catalog.txt")).toMatch(/old cable/i);
     expect(read("2025/catalog.txt")).not.toEqual(read("2026/catalog.txt"));
-    // 2025 never links into 2026, and the other way round.
+    // 2025 never links into 2026, and the other way round. (The site icons and
+    // manifest are shared root files, like /_astro/.)
     for (const file of filesIn(join(out, "2025")).filter((f) => f.endsWith(".html"))) {
       for (const m of read(join("2025", file)).matchAll(/\s[\w:-]+="(\/[^"]*)"/g)) {
-        expect(m[1], file).toMatch(/^\/(2025\/|_astro\/)/);
+        expect(m[1], file).toMatch(
+          /^\/(2025\/|_astro\/|(favicon\.ico|favicon-32\.png|apple-touch-icon\.png|site\.webmanifest)$)/,
+        );
       }
     }
     for (const file of filesIn(join(out, "2026")).filter((f) => f.endsWith(".html"))) {
       expect(read(join("2026", file)), file).not.toContain('"/2025/');
     }
+    // The sitemap lists both editions' pages.
+    const sitemap = read("sitemap.xml");
+    for (const path of paths) expect(sitemap).toContain(`<loc>${SITE}${path}</loc>`);
+    expect(sitemap).toContain(`<loc>${SITE}/2025/wishlist/</loc>`);
+    expect(sitemap).toContain(`<loc>${SITE}/2026/</loc>`);
   });
 
   test("leaves the 2026 edition, the root copies, and _redirects byte for byte the same", () => {

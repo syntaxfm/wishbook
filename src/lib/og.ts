@@ -8,6 +8,7 @@ import {
   getGlobal,
   itemPrice,
   pickCount,
+  resolveOrderLine,
   type EditionContent,
   type Global,
   type Host,
@@ -18,7 +19,7 @@ import {
 import { parseCopy } from "./copy";
 import { cardElement, OG_HEIGHT, OG_WIDTH, renderPng } from "./og-layout";
 import { paginateContent } from "./paginate";
-import { absoluteUrl, editionUrl, SITE_URL, type Edition } from "./urls";
+import { absoluteUrl, editionUrl, rootUrl, SITE_URL, type Edition } from "./urls";
 
 /**
  * Share cards: a crafted 1200×630 image per page, rendered at build time with
@@ -163,7 +164,8 @@ export type OgCard = CardBase &
         price: string | null;
         tagline: string | null;
         note: string | null;
-        call: { kicker: string | null; text: string } | null;
+        /** The cover band's order line. */
+        line: { kicker: string | null; text: string } | null;
       }
     | {
         variant: "divider";
@@ -312,13 +314,9 @@ export async function buildOgCards(
         case "count":
           out.push({ text: String(count) });
           break;
-        case "phone":
-          out.push({ text: global.phone.display });
-          break;
         case "catalog":
-          out.push({
-            text: absoluteUrl(editionUrl(year, "catalog.txt")).replace(/^https?:\/\//, ""),
-          });
+          // The address the page prints ({catalog} in book.ts): the short root copy.
+          out.push({ text: absoluteUrl(rootUrl("catalog.txt")).replace(/^https?:\/\//, "") });
           break;
         case "syn": {
           const ts = content.items.find((i) => i.slug === seg.slug)?.timestamp;
@@ -368,7 +366,7 @@ export async function buildOgCards(
 
     switch (page.template) {
       case "cover": {
-        const line = content.site.orderLines.find((l) => l.id === page.orderLine);
+        const line = resolveOrderLine(content.site, page.orderLine);
         const lineText = line ? plain(line.text) : null;
         return {
           ...b,
@@ -378,7 +376,7 @@ export async function buildOgCards(
           price: content.site.cover.price,
           tagline: content.site.cover.tagline,
           note: plain(content.site.cover.note) ?? `${count} gifts`,
-          call: lineText ? { kicker: line?.kicker ?? null, text: lineText } : null,
+          line: lineText ? { kicker: plain(line?.kicker ?? null), text: lineText } : null,
         };
       }
       case "divider": {

@@ -6,10 +6,9 @@ brand: Sharge
 section: favorites
 pickedBy:
   - wes
-isNew: true
-priceEstimate: 67.9
-priceNote: Regularly 79.90
-makerLink: https://sharge.com/pages/icemag-3
+priceEstimate: 66.99
+priceNote: Regularly 78.99
+buyLink: https://sharge.com/pages/icemag-3
 sources:
   - https://sharge.com/pages/icemag-3
 description: "power bank with MagSafe, a built-in fan, a kickstand, and RGB you can turn off. **See {page:icemag}.**"

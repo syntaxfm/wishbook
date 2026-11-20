@@ -1,112 +1,106 @@
-# Approximate until the final cut: re-check every time against the published video.
 timestamps:
   - item: silicone-usb-c-cables
-    time: "00:36"
+    time: "00:21"
   - item: sharge-icemag-3
-    time: "01:04"
+    time: "00:53"
   - item: usb-power-meter
-    time: "01:34"
+    time: "01:20"
   - item: anker-735
-    time: "02:38"
+    time: "02:24"
   - item: travel-neck-pillow
-    time: "03:13"
+    time: "03:02"
   - item: ipad-case
-    time: "04:26"
+    time: "04:10"
   - item: alpine-flyfit
-    time: "05:13"
+    time: "05:02"
   - item: beyerdynamic-dt-270-pro
-    time: "06:03"
+    time: "05:49"
   - item: stamen-st-01
-    time: "06:48"
+    time: "06:40"
   - item: wolfbox-megaflow
-    time: "08:15"
+    time: "08:01"
   - item: anker-140w
-    time: "09:04"
+    time: "08:47"
   - item: slate-mini-flosser
-    time: "10:13"
+    time: "10:12"
   - item: suri-toothbrush
-    time: "11:35"
+    time: "10:45"
   - item: pottery-class
-    time: "12:31"
+    time: "12:04"
   - item: boy-mole-fox-horse
-    time: "13:02"
+    time: "12:44"
+  - item: casio-f91w
+    time: "13:40"
   - item: ollee-watch-one
-    time: "13:54"
-  - item: ollee-watch-one
-    variant: diy-kit
-    time: "14:48"
-  - item: ollee-watch-one
-    variant: firmware
-    time: "14:39"
+    time: "13:46"
   - item: kz-zs10-pro
-    time: "15:10"
-  - item: kz-zs10-pro
-    variant: an01
-    time: "15:52"
+    time: "14:44"
+  - item: kz-an01
+    time: "15:37"
   - item: waveshare-esp32
-    time: "16:57"
+    time: "16:40"
   - item: brad-tolinski-books
-    time: "18:04"
+    time: "17:48"
   - item: bovicas-charger
-    time: "19:31"
+    time: "19:15"
   - item: olight-oclip-2-ultra
-    time: "20:59"
+    time: "20:36"
   - item: xteink-x4
-    time: "24:02"
+    time: "23:06"
   - item: wifi-picture-frame
-    time: "25:37"
+    time: "24:35"
   - item: apollo-air-1
-    time: "27:16"
+    time: "26:13"
   - item: govee-monitors
-    time: "29:17"
+    time: "27:19"
   - item: meross-garage-opener
-    time: "30:01"
+    time: "28:20"
   - item: ugreen-laptop-stand
-    time: "33:31"
+    time: "30:53"
   - item: remarkable-2
-    time: "36:09"
+    time: "31:40"
   - item: leatherman-arc
-    time: "36:41"
+    time: "33:34"
   - item: apc-back-ups-pro
-    time: "40:01"
+    time: "36:04"
   - item: plastic-welder
-    time: "43:16"
+    time: "38:31"
   - item: syntax-macro-keyboard
-    time: "44:52"
+    time: "40:39"
   - item: dish-brush
-    time: "45:57"
+    time: "41:44"
   - item: mini-tongs
-    time: "47:52"
+    time: "42:35"
   - item: oxo-fish-turner
-    time: "49:19"
+    time: "43:15"
   - item: agro-jerky
-    time: "50:42"
+    time: "44:19"
   - item: lao-gan-ma
-    time: "51:33"
+    time: "44:52"
   - item: yoto-player
-    time: "53:05"
+    time: "45:44"
   - item: kindle-colorsoft-kids
-    time: "54:12"
+    time: "47:00"
   - item: first-cat-in-space
-    time: "55:11"
+    time: "47:30"
   - item: grooming-rake
-    time: "55:45"
+    time: "48:21"
   - item: power-wheels
-    time: "56:51"
+    time: "49:03"
   - item: cascadia
-    time: "57:53"
+    time: "49:57"
   - item: stack-nabbit
-    time: "58:10"
+    time: "50:28"
   - item: loners
-    time: "59:06"
+    time: "50:56"
   - item: cooling-mat
-    time: "1:00:17"
+    time: "52:21"
   - item: candle-warmer
-    time: "1:02:34"
+    time: "54:15"
   - item: anbernic-rg-34xxsp
-    time: "1:04:26"
+    time: "55:40"
   - item: grouse
-    time: "1:06:41"
+    time: "56:59"
   - item: anker-solix
     time: ""
   - item: ratgdo
@@ -115,11 +109,11 @@ timestamps:
     time: ""
   - item: clip-on-reading-light
     time: ""
-  - item: kz-an01
-    time: ""
   - item: tonies-box
     time: ""
   - item: nylon-repair-patches
+    time: "53:21"
+  - item: snakes-of-wrath
     time: ""
-  - item: snakes-of-wrath-fruit-boss
+  - item: fruit-boss
     time: ""

@@ -4,7 +4,9 @@
  * columns, catalog style, with small cut-out thumbnails where photos exist.
  * Four items or fewer get a two-by-two grid of cards instead: a framed photo
  * (or its placeholder) over the copy, the cards growing into the room the
- * page box has left.
+ * page box has left. With three, the last card runs the full width, its photo
+ * under the first column and its copy beside it. The page's mascot, if any,
+ * stands at the head's right end, beside the title and subhead.
  */
 import Copy from "../../components/Copy.astro";
 import Frame from "../../components/Frame.astro";
@@ -12,6 +14,7 @@ import Img from "../../components/Img.astro";
 import ItemCopy from "../../components/ItemCopy.astro";
 import ItemLetter from "../../components/ItemLetter.astro";
 import ItemOrder from "../../components/ItemOrder.astro";
+import Mascot from "../../components/Mascot.astro";
 import PageShell from "../../components/PageShell.astro";
 import { letterFor } from "./letters";
 import type { TemplateProps } from "./types";
@@ -26,6 +29,7 @@ const items = await Promise.all(
   })),
 );
 const roomy = items.length <= 4;
+const mascot = content.mascot ? await ctx.art(content.mascot) : null;
 ---
 
 <PageShell
@@ -39,6 +43,9 @@ const roomy = items.length <= 4;
     <h2 class="display">
       <Copy text={content.copy.headline ?? content.title} ctx={ctx} />
     </h2>
+    {mascot && (
+      <Mascot asset={mascot} class="head-grouse" sizes="120px" flip={content.mascotFlip} />
+    )}
   </div>
   {content.copy.subhead && (
     <div class="pagekicker kicker">
@@ -46,13 +53,14 @@ const roomy = items.length <= 4;
     </div>
   )}
   {roomy ? (
-    <div class="oddcards">
+    <div class:list={["oddcards", `n${items.length}`]}>
       {items.map((it) => (
         <div class="oddcard" data-item-id={it.item.id}>
           <Frame tone={it.item.image.background === "dark" ? "dark" : "light"}>
             <Img
               asset={it.photo}
               alt={it.item.image.alt}
+              class="item-photo"
               widths={[240, 320, 480]}
               sizes="(min-width: 1000px) 260px, (min-width: 640px) 45vw, 90vw"
             />
@@ -74,7 +82,7 @@ const roomy = items.length <= 4;
             <Img
               asset={it.photo}
               alt={it.item.image.alt}
-              class="thumb"
+              class="thumb item-photo"
               widths={[120, 200]}
               sizes="100px"
             />

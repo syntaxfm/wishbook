@@ -155,13 +155,13 @@ test.describe("purchase links", () => {
         id: number;
         name: string;
         buyLink?: string;
-        makerLink?: string;
+        linkLabel?: string;
+        affiliate?: boolean;
+        noLink?: boolean;
       },
   );
 
-  test("items with a buy link render it; items without render the placeholder", async ({
-    page,
-  }) => {
+  test("items with a buy link render it; items without render nothing", async ({ page }) => {
     await page.goto("/2026/");
     let checked = 0;
     for (const item of items) {
@@ -174,19 +174,20 @@ test.describe("purchase links", () => {
         if (item.buyLink) {
           const buy = block.locator("a.buy");
           await expect(buy, item.name).toHaveAttribute("href", item.buyLink);
-          await expect(buy).toHaveAttribute("rel", "noopener sponsored");
+          await expect(buy).toHaveAttribute(
+            "rel",
+            item.affiliate === false ? "noopener" : "noopener sponsored",
+          );
           await expect(buy).toHaveAttribute("target", "_blank");
-          await expect(block.locator('[data-missing="buy"]')).toHaveCount(0);
+          await expect(buy).toContainText(item.linkLabel ?? "Buy");
         } else {
-          await expect(block.locator("a.buy"), item.name).toHaveCount(0);
-          await expect(block.locator('[data-missing="buy"]')).toHaveCount(1);
+          // No buy link (none yet, or never sold online): no link and no
+          // placeholder, just the wish slot.
+          await expect(block.locator("a, [data-missing]"), item.name).toHaveCount(0);
+          await expect(block).not.toContainText("Buy link");
         }
-        if (item.makerLink) {
-          const maker = block.locator("a.maker");
-          await expect(maker, item.name).toHaveAttribute("href", item.makerLink);
-          await expect(maker).toHaveAttribute("rel", "noopener");
-          await expect(maker).toHaveAttribute("target", "_blank");
-        }
+        // The buy link is the only link in a purchase row.
+        await expect(block.locator("a"), item.name).toHaveCount(item.buyLink ? 1 : 0);
       }
     }
     expect(checked).toBeGreaterThan(40);

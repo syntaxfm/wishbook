@@ -53,10 +53,12 @@ export function fillPrintSheet(ids: readonly number[]): void {
   const rows = list.map((item) => {
     const tr = document.createElement("tr");
     const name = cell("td", item.n);
-    const url = document.createElement("div");
-    url.className = "ps-buy";
-    url.textContent = item.u ?? sheet.dataset.missingBuy ?? "";
-    name.append(url);
+    if (item.u) {
+      const url = document.createElement("div");
+      url.className = "ps-buy";
+      url.textContent = item.u;
+      name.append(url);
+    }
     const price = cell("td", item.p !== undefined ? formatPrice(item.p) : (item.x ?? ""));
     if (item.e === 1) price.append(estMark());
     tr.append(cell("td", item.c ?? "", "mono"), name, cell("td", "1"), price);

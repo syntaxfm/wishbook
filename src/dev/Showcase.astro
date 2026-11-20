@@ -46,7 +46,7 @@ const randy: HostRef = { name: "Randy", avatar: image(randyPhoto) };
 const scott: HostRef = { name: "Scott", avatar: image(scottPhoto) };
 const cj: HostRef = { name: "CJ", avatar: image(cjPhoto) };
 const kaitlin: HostRef = { name: "Kaitlin", avatar: placeholder("Kaitlin", "#7b4b3a") };
-const orderLines = ["Call any time 1-555-SYNTAXFM", "Dial any SYN number to watch it get picked"];
+const orderLines = ["Listen any time syntax.fm", "Press ⌘K to search"];
 
 const roles = [
   ["Masthead", "masthead", "WishBook"],
@@ -145,8 +145,8 @@ const palette = [
             </div>
           </div>
           <h3 class="kicker sc-sub">Worn ink (cover)</h3>
-          <p class="worn-demo price worn">1·555·SYNTAXFM</p>
-          <ShopLine text="Dial any SYN number to watch it get picked" />
+          <p class="worn-demo price worn">FREE</p>
+          <ShopLine kicker="Watch the whole thing" text="on YouTube" href={videoUrl} />
           <Folio side="right" number={3} edition={edition} path="shoppers" />
         </div>
       </article>
