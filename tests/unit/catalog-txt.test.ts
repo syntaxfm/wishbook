@@ -99,7 +99,8 @@ describe("catalog.txt for the current edition", async () => {
 
   it("prints the curl line in the header", () => {
     const header = lines.slice(0, lines.indexOf("", 8));
-    expect(header).toContain(`Order by terminal: $ curl ${ctx.catalogAddress}`);
+    // -L: plain http:// redirects to https://, and curl only follows with -L.
+    expect(header).toContain(`Order by terminal: $ curl -L ${ctx.catalogAddress}`);
   });
 
   it("ends with the back cover's order line", () => {

@@ -53,7 +53,7 @@ orderLines:
     fallback: search
   - id: terminal
     kicker: Order by terminal
-    text: "$ curl {catalog}"
+    text: "$ curl -L {catalog}"
   - id: listen
     kicker: Listen any time
     text: syntax.fm
