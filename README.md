@@ -1,160 +1,68 @@
 # Syntax WishBook
 
-The Syntax Holiday Gift Guide as an interactive 90s Christmas catalog: a "wish book" you can flip through, circle gifts in, and share. It lives at **wishbook.syntax.fm**.
+The Syntax Holiday Gift Guide as an interactive 90s Christmas catalog: a "wish book" you can flip through, circle gifts in, and share. It lives at **[wishbook.syntax.fm](https://wishbook.syntax.fm)**.
 
-- The Syntax crew's gift picks, laid out like a vintage department store catalog: lettered photo callouts, dot-leader prices, catalog numbers, and section tabs (an edition can also have a seek-and-find centerfold; 2026 doesn't).
-- A flippable book when two readable pages fit side by side, a single page when one does, and a scrolling feed below that (always on phones). Pages are one fixed size that fits the window but never gets smaller than readable (body text at least 11px); in a short window the spread scrolls and each turn starts back at the top. The outer page edges turn the page.
-- The feed scrolls freely (no snapping), with a running head naming the section and page. Page Down / Page Up, Space / Shift+Space, and ← / → step one page at a time.
-- A new WishBook every year. Each edition lives under its year (`/2026/…`), so every shared link is permanent.
-- Every page has its own URL and its own share card.
+- The Syntax crew's gift picks, laid out like a vintage department store catalog.
+- Flip it like a book on desktop, read it page by page on tablets, scroll it on phones.
 - Every catalog number is a timestamp into the gift guide episode.
-- Circle items to build a wish list ("Circle it" sits in each item's purchase row, beside its Buy link). Share it as a link or print it as an order form (⌘P).
-- Press ⌘K (Ctrl+K) to search every gift by name, brand, or shopper.
-- Fully static, with no analytics. Hosted on Cloudflare Pages.
+- Circle what you want, share your wish list as a link, or print an order form for Santa.
+- A new WishBook every year at its own permanent address (`/2026/…`).
+- Fully static, no analytics, hosted on Cloudflare Pages.
 
-## Stack
-
-| Area            | Tool                                            |
-| --------------- | ----------------------------------------------- |
-| Framework       | [Astro](https://astro.build), static output     |
-| Language        | TypeScript (strict)                             |
-| Content         | YAML files, edited with Keystatic (dev only)    |
-| Styling         | Plain CSS: custom properties, container queries |
-| Client JS       | Vanilla TypeScript modules, no UI framework     |
-| Images          | `astro:assets` + sharp (AVIF/WebP, responsive)  |
-| Share cards     | Satori + resvg, rendered at build time          |
-| Lint / format   | oxlint / oxfmt                                  |
-| Tests           | Vitest (logic), Playwright (browser)            |
-| Package manager | pnpm                                            |
-| Hosting         | Cloudflare Pages                                |
-
-## Getting started
+## Running it
 
 Requires Node 24+ and pnpm.
 
 ```sh
 pnpm install
-pnpm dev          # local dev server; content admin at /keystatic
-pnpm build        # static site in dist/
+pnpm dev          # http://localhost:4321/2026/ (content admin at /keystatic)
+pnpm build        # static site, share cards, and catalog.txt in dist/
 pnpm preview      # serve the built site
 ```
 
-## Scripts
-
-| Command                | What it does                                                       |
-| ---------------------- | ------------------------------------------------------------------ |
-| `pnpm dev`             | Start the dev server                                               |
-| `pnpm build`           | Build the static site, share cards, and `catalog.txt` into `dist/` |
-| `pnpm preview`         | Serve `dist/` locally                                              |
-| `pnpm check`           | Type-check (`astro check`)                                         |
-| `pnpm lint`            | Lint with oxlint                                                   |
-| `pnpm format`          | Format with oxfmt (`pnpm format:check` to verify only)             |
-| `pnpm test`            | Unit tests (Vitest)                                                |
-| `pnpm test:e2e`        | Browser tests (Playwright)                                         |
-| `pnpm assets`          | List expected assets (present or missing), then missing links      |
-| `pnpm links`           | List items still missing a buy link                                |
-| `pnpm textures`        | Re-bake the paper, print, and wood texture tiles                   |
-| `pnpm optimize:assets` | Re-encode new source images under `assets/` as WebP (≤ 2000px)     |
-
-## URLs and editions
-
-Every real URL includes the edition year:
-
-| URL                       | What it is                                                           |
-| ------------------------- | -------------------------------------------------------------------- |
-| `/2026/`                  | Cover                                                                |
-| `/2026/<section>/`        | A section's first page (its divider page, if it has one)             |
-| `/2026/<section>/<slug>/` | Any other page                                                       |
-| `/2026/wishlist/?w=…`     | A shared wish list (`w`: the circled item ids as a base64url bitset) |
-| `/2026/catalog.txt`       | Plain-text catalog                                                   |
-| `/2026/og/<slug>.png`     | Share card for a page                                                |
-| `/2026/og/wishlist.png`   | Share card for a wish list                                           |
-| `/2026/og/default.png`    | Fallback share card                                                  |
-
-`/` and `/catalog.txt` are build-time copies of the current edition's cover and catalog. Their canonical URL points at `/2026/`. Year-less section links (`/favorites/…`) and `/wishlist/` redirect (302) to the current edition via `_redirects`, generated at build from the current edition's sections.
-
-Every page file contains the whole book, opened at that page. After the first load, turning pages and jumping (tabs, cross-references, hotspots) happen in the browser with no reloads; the address bar always shows the open page's year-scoped URL, so whatever a visitor copies is permanent. Opening `/` and turning a page moves the address to `/2026/…`. The 2026 book has no section divider pages, so each section's own path (`/2026/tech/`) is a copy of its first page (`/2026/tech/olight/`, which it names as canonical), and the section tabs link to that first page. Filler pages (inserted to keep spreads on the right sides) get real URLs too, in the section before them.
-
-All URLs are built with the helper in `src/lib/urls.ts`. Never hard-code a path, and don't use Astro's `base` option.
+Before you commit, run `pnpm check`, `pnpm lint`, `pnpm format:check`, and `pnpm test`. See [CONTRIBUTING.md](CONTRIBUTING.md) for every script and the full workflow.
 
 ## Updating content
 
-Everything editable lives in `content/` as YAML. Edit it in the browser with Keystatic: run `pnpm dev` and open `/keystatic`. Keystatic is dev-only; the production build has no admin. You never edit page markup to change content.
+All content is YAML in `content/`, and you never edit page markup to change it. The easiest way to edit is Keystatic, in the browser: run `pnpm dev` and open **/keystatic**. Keystatic always edits the current year, and it only runs locally.
 
-- `content/editions.yaml`: the list of editions and the `current` one.
-- `content/global.yaml`: settings shared across years.
-- `content/<year>/`: everything for one edition.
-- `assets/<year>/`: that edition's images. Images aren't uploaded through Keystatic: drop the file into its folder and it shows up. Until then, a placeholder shows. Any of `.png`, `.jpg`, `.jpeg`, `.webp`, `.avif`, `.svg` works.
-  - Item photos: `assets/<year>/items/<id>-<name>.<ext>`, with the id zero-padded to three digits (`001-silicone-usb-c-cables.webp`). Only the id prefix and the suffix matter; the name is for people.
-  - Extra photos of the same item: `<id>-<name>-2.<ext>`, `-3`, …
-  - Generated item art (full-page features): `assets/<year>/items/<id>-<name>-hero.<ext>`.
-  - Other generated art (section backgrounds, the centerfold, the grouse): `assets/<year>/generated/`, under the file name listed in `assets.yaml`.
-  - Host photos: `assets/<year>/hosts/<host-id>.<ext>`. Cover art: `assets/<year>/cover/`.
-  - Shared brand assets: `assets/brand/`.
-  - Old photos kept for reference: `assets/<year>/archive/` (same names). Nothing resolves them and the build never emits them; move a file back to its folder to use it again.
-  - Run `pnpm optimize:assets` after adding images: it re-encodes every PNG and JPEG under `assets/` as a WebP with the same base name (at most 2000px on the longest side, quality 90, lossless alpha), shrinks any larger WebP, and reports the sizes. It skips files already done, so it's safe to run any time. The site serves AVIF with a WebP fallback; no PNG or JPEG copies ship (the share cards are PNGs).
+| What                                                                | Where                          |
+| ------------------------------------------------------------------- | ------------------------------ |
+| Gifts (name, price, buy link, description, quotes)                  | `content/2026/items/*.yaml`    |
+| The shoppers                                                        | `content/2026/hosts/*.yaml`    |
+| Which pages exist, their order, layout, and items                   | `content/2026/book.yaml`       |
+| Each gift's moment in the episode                                   | `content/2026/timestamps.yaml` |
+| Site copy: cover, welcome page, order lines, wish list, search, 404 | `content/2026/site.yaml`       |
+| Settings shared across years                                        | `content/global.yaml`          |
 
-In each edition (`content/<year>/`):
+Page numbers, cross-references ("page 6 A"), and the index are all computed, so never type them. In copy, write `{page:icemag}` for a page reference and `{syn:leatherman-arc}` for a catalog number. Every field is described in the [content reference](docs/02-content-reference.md).
 
-- **Items** (`items/*.yaml`): one file per gift, with id, name, picker, section, prices, buy link (the item's link from the episode description, the only link the site shows for it), descriptions, variants, and quotes. Item ids are permanent and never reused. Items "mentioned in passing" (the stocking-stuffers page) are marked as mentions and aren't counted as gifts.
-- **Hosts** (`hosts/*.yaml`): the shoppers, with role, bio, and their picks page.
-- **Book order** (`book.yaml`): which pages exist, in what order, which layout each uses, which items they show (optionally with page-specific copy), and their copy. Page numbers, filler pages, and cross-references are all computed from this. Every page is one fixed size, so each layout takes a limited number of items (grid and under-$… 4, holly and price tags 6, brand column 2, single-item layouts 1; the full list is `ITEM_CAPS` in `src/lib/schema.ts`). The build fails with the page's name when a page holds more: split it into two pages instead. A page with two items shows them big, one per row (as do price-tag pages with up to three, and stocking-stuffer pages with up to four get a card each). A section's first page can carry the section's opener header (`opener`: its kicker, name, and page range) in place of a divider page.
-- **Sections** (`sections.yaml`): the thumb-index sections, in order.
-- **Timestamps** (`timestamps.yaml`): the one file mapping each item to its moment in the episode (items mentioned in passing can have one too; a variant without its own entry uses its item's).
-- **Site settings** (`site.yaml`): episode, share description, purchase-link labels and the affiliate disclosure, cover band, welcome page, symbol key, order lines, order form buttons, wish-list and search copy (including the printed form's mail-to box), back cover, and the copy for automatic filler pages. A page shows an order-line banner only when its `orderLine` is set. An order line can link to the episode video (`link: video`, the "Watch the whole thing on YouTube" line); until the video URL is set, pages show its `fallback` line instead. The back cover's mail line is `backCover.mailTo` followed by the return address.
-- **Generated art** (`assets.yaml`): each generated image's key, file, placeholder title and color, aspect, prompt, and source item. `pnpm assets` lists which of them still need making.
+### Images
 
-In copy, write `{page:icemag}` for a page reference (rendered "page 6 A"), `{syn:leatherman-arc}` for a catalog number, `{count}` for the number of gifts, `{catalog}` for the plain-text catalog's address (the "$ curl" line), and `**bold**` / `*italic*` for emphasis.
+Images aren't uploaded through Keystatic. Drop the file into its folder with the right name and it shows up; until then a placeholder shows.
 
-Missing or invalid content fails the build with a clear error.
+- **A gift's photo:** `assets/2026/items/<id>-<name>.<ext>`, for example `001-silicone-usb-c-cables.jpg`. Only the 3-digit id matters. Extra photos go in `-2`, `-3`, and so on.
+- **Then run `pnpm optimize:assets`**, which converts new images to WebP at a sensible size.
+
+All the other image locations (cover, hosts, generated art, the grouse mascot) are in [Images](docs/03-images.md).
 
 ### What's still missing
 
-`pnpm assets` lists every image the current edition expects (item photos and extras, host photos, generated art and the cover), each marked present or MISSING with the exact path to create, followed by the prompt for each missing piece of generated art. It then lists the items (picks, then mentions) still missing a buy link, with their content files. `pnpm links` prints only the links part. Pass a year (`pnpm assets 2026`) for another edition. Nothing here is fatal: a missing image renders a placeholder and an item without a buy link simply shows none.
-
-## Share cards
-
-Every page gets a crafted 1200×630 PNG at `/<year>/og/<slug>.png`, drawn from the same content as the page (title, product photos with item letters and prices, who picked them, section tab, folio, and the WishBook masthead), plus `wishlist.png` and `default.png`. They update on their own when content or images change; missing images show as labeled placeholder blocks, like on the page.
-
-Rendered cards are cached in `node_modules/.cache/wishbook-og/` by a hash of their content, images, and the renderer, so only changed cards are redrawn. Delete that folder to force a full re-render.
-
-## Testing
-
 ```sh
-pnpm test                   # Vitest: tests/unit/
-pnpm test:e2e               # Playwright: tests/e2e/, against pnpm build && pnpm preview
-E2E_PORT=4511 pnpm test:e2e # use another port (to run several checkouts at once)
+pnpm assets       # every image the book expects: present or missing, with the exact path
+pnpm links        # gifts still missing a buy link
 ```
 
-- **Unit tests** (`tests/unit/`) run the real content reader, pagination, asset resolver, catalog numbers, copy markup, share-card models and rendering, `catalog.txt` (with a snapshot of the fixture edition), redirects, routes, the wish-list codec, search, and the purchase-link component (rendered with Astro's container API). Most run against `tests/fixtures/`, two small fixture editions (2025 and 2026); a few check the real 2026 content.
-- **Browser tests** (`tests/e2e/`) build the site and serve it: deep links in all three reading modes, page turns and jumps (with no network requests, and the right history entries), focus and live-region announcements, no-JavaScript rendering, every template at 390, 820, and 1360px without overflow, purchase links (and none for items without one), the wish list round trip, ⌘K search, print, and checks on the built files (year-scoped URLs everywhere, no requests to other origins, the root copies, `_redirects`, `catalog.txt`).
-- **Page fit** (`tests/e2e/page-fit.spec.ts`): every page fits its fixed page box at full size, with 2% to spare, at page widths from 560 to 780px, with the wish list full and every "Circle it" button showing. A failure names the page, the width, how many pixels it's over, and its three tallest blocks. It also turns through the whole book at common desktop sizes and fails if any page had to be scaled down to fit.
-- **A second edition side by side** (`tests/e2e/second-edition.spec.ts`): copies the project to a temporary folder, adds the fixture 2025 edition next to the real 2026 one, runs a real `astro build` there, and checks that 2025 gets its own pages, share cards, catalog, and wish list while every 2026 file, the root copies, and `_redirects` stay byte for byte the same as the main build.
+A missing image shows a placeholder and a missing link shows nothing, so neither breaks the build. Invalid content does break it, with an error naming the file.
 
-## Deploying
+## More docs
 
-The site deploys to **Cloudflare Pages** as plain static files: no adapter, no functions.
-
-| Setting                | Value                                        |
-| ---------------------- | -------------------------------------------- |
-| Framework preset       | None (or Astro)                              |
-| Build command          | `pnpm build`                                 |
-| Build output directory | `dist`                                       |
-| Environment variables  | `NODE_VERSION=24` (the build needs Node 24+) |
-| Package manager        | pnpm, detected from `pnpm-lock.yaml`         |
-
-Cloudflare installs with the lockfile, so commit `pnpm-lock.yaml` with every dependency change. pnpm doesn't run dependency install scripts unless they're allowed: `pnpm-workspace.yaml` allows esbuild's (`allowBuilds`), and sharp and resvg ship prebuilt binaries, so nothing else needs one. If a new dependency needs its install script, add it there.
-
-Caching rules live in `public/_headers` (hashed `/_astro/` files cache forever; HTML revalidates after 5 minutes; `catalog.txt` is served as UTF-8 text). Year-less redirects are written to `dist/_redirects` at build.
-
-## Starting next year's WishBook
-
-Each year is a new edition next to the old ones; nothing from the previous year is edited or moved.
-
-1. Create `content/<year>/` with the same files as the current edition: `site.yaml`, `sections.yaml`, `book.yaml`, `timestamps.yaml`, `assets.yaml`, `items/`, and `hosts/`. Copying the previous year and clearing it out is the quickest start. Item ids start again at 1: ids are per edition, permanent, and never reused within it.
-2. Create `assets/<year>/` with `items/`, `hosts/`, `cover/`, and `generated/`, and fill it as photos arrive (`pnpm assets <year>` shows what's missing).
-3. Add the year to `content/editions.yaml` and set `current` to it. The current edition is the one served at `/` and `/catalog.txt`, the target of the year-less `_redirects`, and the one Keystatic edits.
-4. Optionally add `src/styles/editions/<year>.css` to override tokens or textures for that year only.
-5. Decide what happens to older years:
-   - **Keep them building** (the default): leave them in `editions.yaml` with their content and assets. Their URLs, share cards, and shared wish lists keep working and pick up site-wide fixes, but they also change whenever shared code changes, and every deploy builds them.
-   - **Freeze them as snapshots**: copy the year's built files (`dist/<year>/` and the `dist/_astro/` files they use) into `public/`, then remove the year from `editions.yaml`. Its URLs keep working and never change again, but it no longer picks up fixes. This isn't automated; check the result with `pnpm build && pnpm preview`.
+- [How it works](docs/01-how-it-works.md): reading modes, URLs and editions, the book engine
+- [Content reference](docs/02-content-reference.md): every field in every content file
+- [Images](docs/03-images.md): naming, optimizing, the archive, the grouse mascot, icons
+- [Architecture](docs/04-architecture.md): the code, pagination, the book engine, share cards, wish list, search, print
+- [Design system](docs/05-design-system.md): type, palette, paper effects, components
+- [Testing](docs/06-testing.md)
+- [Deploying](docs/07-deploying.md): Cloudflare Pages
+- [Starting next year's WishBook](docs/08-new-edition.md)
+- [CONTRIBUTING.md](CONTRIBUTING.md) and [AGENTS.md](AGENTS.md): workflow and project rules
