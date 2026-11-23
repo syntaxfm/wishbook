@@ -6,12 +6,12 @@ section: desk
 pickedBy:
   - wes
 priceConfirmed: 31.99
-buyLink: https://sentry.shop/collections/syntax
+buyLink: https://sentry.shop/products/syntax-macro-pad
 affiliate: false
 description: "A tiny mechanical macro pad that's fully programmable, has RGB, and works over Bluetooth or wired. Good for any Syntax fan."
 altDescriptions:
   - "Launch apps, control volume, or map it to Minecraft. Every key does whatever you want."
-  - "First given out at the Syntax SF meetup, coming soon to the store. Hide it from your kids, because they will take it."
+  - "First given out at the Syntax SF meetup, now in the store. Hide it from your kids, because they will take it."
 features:
   - lead: Fully programmable.
     text: "Every key does whatever you want."
@@ -23,5 +23,5 @@ quotes:
   - text: "You can program it. You can make any key do anything."
     by: wes
   - text: "I only brought one back and then immediately my kid was like, a keyboard that's mine."
-    byLabel: the crew
-internalNote: "No photo of the Syntax macro pad exists online yet, so grab one from the team. Not in the Syntax store yet (checked sentry.shop/collections/syntax); add the link once it's live. Price guess ~$40–60."
+    by: scott
+internalNote: "No photo of the Syntax macro pad exists online yet, so grab one from the team. Link checked against sentry.shop/products/syntax-macro-pad (2026-11-23)."
